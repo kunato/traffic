@@ -1,0 +1,50 @@
+       <!-- Navigation -->
+        <nav class="navbar navbar-custom navbar-fixed-top" role="navigation" style="position:relative;">
+            <div class="container">
+
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+                    <ul class="nav navbar-nav">
+                        <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                        <li class="hidden">
+                            <a href="#page-top"></a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="/app/#/setting/">Setting</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="/app/#/report/">Report</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container -->
+        </nav>
+
+        <!-- Intro Header -->
+        <div style="width:100%;">
+        <div id="map-wrapper" class="intro" style="height:620px;width:1400px;margin:0 auto;" ng-controller="MapSettingController">
+    <div ng-repeat="point in points" load-finish-draggable>
+        <div href="" ng-if='point.show' ng-click="open(point)" ng-attr-id='{{point.id}}' class="draggable-map ui-draggable ui-draggable-handle"  ng-style="{background:point.color}">
+    </div>
+            
+            
+    </div>
+            <div class="navbar-footer"  style="position: absolute; 
+            bottom: 0;width: 100%;
+            margin: 0 auto;">
+            <!-- set of drag object-->
+            
+        <!-- end -->
+        <div class="btn-group" style="">
+            <a class="btn btn-default" href="" ng-click="add()"><i class="fa fa-plus fa-3x"></i></a>
+            <a class="btn btn-default" href=""><i class="fa fa-floppy-o fa-3x"></i></a>
+        </div>
+    </div>
+</div>
+</div>
