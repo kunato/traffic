@@ -6,6 +6,8 @@ from tastypie.api import Api
 v1_api = Api()
 v1_api.register(CameraResource())
 v1_api.register(VideoResource())
+v1_api.register(MapResource())
+v1_api.register(MapPointResource())
 urlpatterns = patterns('',
 url(r'^$',views.index),
 url(r'^app/', views.app),

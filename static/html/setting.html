@@ -30,7 +30,7 @@
         <div style="width:100%;">
         <div id="map-wrapper" class="intro" style="height:620px;width:1400px;margin:0 auto;" ng-controller="MapSettingController">
     <div ng-repeat="point in points" load-finish-draggable>
-        <div href="" ng-if='point.show' ng-click="open(point)" ng-attr-id='{{point.id}}' class="draggable-map ui-draggable ui-draggable-handle"  ng-style="{background:point.color}">
+        <div href=""  ng-click="open(point)" ng-attr-id='{{point.id}}' class="draggable-map ui-draggable ui-draggable-handle"  style="{{getStyle(point)}}">
     </div>
             
             
@@ -43,7 +43,7 @@
         <!-- end -->
         <div class="btn-group" style="">
             <a class="btn btn-default" href="" ng-click="add()"><i class="fa fa-plus fa-3x"></i></a>
-            <a class="btn btn-default" href=""><i class="fa fa-floppy-o fa-3x"></i></a>
+            <a class="btn btn-default" href="" ng-click="save()"><i class="fa fa-floppy-o fa-3x"></i></a>
         </div>
     </div>
 </div>

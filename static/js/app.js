@@ -33,7 +33,25 @@ app.service('restService', function($http, $rootScope) {
     postVideo: function(data){
       var path = '/api/v1/video/?format=json';
       return $http.post(path,data)
+    },
+
+    getMap: function(data){
+      var path = '/api/v1/map/?format=json';
+      return $http.get(path);
+    },
+    getMapPoint: function(data){
+      var path = '/api/v1/mapPoint/?format=json';
+      return $http.get(path);
+    },
+    postMapPoint: function(data){
+      var path = '/api/v1/mapPoint/?format=json';
+      return $http.post(path,data)
+    },
+    postMapPointById: function(id,data){
+      var path = '/api/v1/mapPoint/'+id+'/?format=json';
+      return $http.put(path,data)
     }
+
   }
 })
     
@@ -98,7 +116,8 @@ app.controller('ReportController', function($scope , $http , $modal , $log) {
       });
     };
     $scope.add = function(){
-      $scope.points.push({id:$scope.nextId,color:getRandomColor(),camera:{id:'-1',top:'0px',left:'0px',height:'0px',width:'0px'},top:'0px',left:'0px',show:true});
+
+      $scope.points.push({save:true,id:$scope.nextId,color:getRandomColor(),camera:{id:'-1',top:'0px',left:'0px',height:'0px',width:'0px'},top:'0px',left:'0px',show:true});
       $scope.nextId += 1;
     }
   });
@@ -127,28 +146,27 @@ app.controller('ModalReportCtrl', function ($scope, $modalInstance, items) {
     $modalInstance.dismiss('cancel');
   };
 });app.controller('MapSettingController', function(restService, $scope , $http , $modal , $log) {
-  restService.getCamera().then(function(response){
-    $scope.test = response.data.objects[0];
-    console.log('test',$scope.test)
-    $scope.test.url = "RUL"
-    var data = {}
-    data.name = "test1"
-    data.start_time = new Date();
-    data.status = 1.0
-    data.url = "urltest"
-    data.camera = $scope.test
-    restService.postVideo(data).then(function(response){
-      console.log('post',response)
-    })
-  })
+  restService.getMap().then(function(response){
+    $scope.map = response.data.objects[0]
+    restService.getMapPoint().then(function(response){
+      console.log(response)
+      $scope.points = response.data.objects;
 
-  $scope.points = [];
+      console.log('points',$scope.points);
+    });
+  });
+  
   $scope.nextId = 0;
   $scope.test = function(){
     console.log('test')
   }
 
-  
+  $scope.getStyle = function(item) {
+  var height = $scope.map.height;
+  var width = $scope.map.width;
+  var t = 'background-color:'+item.color+';left:'+item.left*width+'px;top:'+item.top*height+'px;'
+  return t;
+  }
   $scope.open = function (point) {
     console.log(point)
     var modalInstance = $modal.open({
@@ -169,29 +187,62 @@ app.controller('ModalReportCtrl', function ($scope, $modalInstance, items) {
     });
   };
   $scope.add = function(){
-    $scope.points.push({id:$scope.nextId,color:getRandomColor(),camera:{id:-1,top:'0px',left:'0px',height:'0px',width:'0px'},top:'0px',left:'0px',show:true});
+    //add map point
+    $scope.points.push({save:true,id:$scope.nextId,color:getRandomColor(),cameraPoint:{camera:{id:-1},id:-1,top:0,left:0,height:0,width:0},top:0,left:0,show:true});
     $scope.nextId += 1;
   }
+  $scope.save = function(){
+    for(var i = 0 ; i < $scope.points.length;i++){
+      var post_item = $scope.points[i];
+      var element = angular.element("#"+post_item.id);
+      console.log('i',post_item)
+      var formData = {color:post_item.color,top:convertToPercent(element.css('top'),$scope.map.height),left:convertToPercent(element.css('left'),$scope.map.width),map:$scope.map,cameraPoint:{camera:post_item.cameraPoint.camera,top:post_item.cameraPoint.top,height:post_item.cameraPoint.height,left:post_item.cameraPoint.left,width:post_item.cameraPoint.width}}
+      console.log(post_item)
+      if(post_item.save){
+
+        restService.postMapPoint(formData).then(function(response){
+        console.log(response)
+      }
+    );  
+      }
+      else{
+        restService.postMapPointById(post_item.id,formData).then(function(response){
+        console.log(response)
+      }
+    );
+      }
+      
+  }
+}
 });
 
-app.controller('ModalCameraCtrl', function ($scope, $modalInstance, items) {
-
-  //get camera list
-  $scope.camera = [ {id:0,name:"Camera1",img:"img/example-camera.png",width:854,height:480}, {id:1,name:"Camera2",img:"img/example-camera.png",width:854,height:480}, {id:2,name:"Camera3",img:"img/example-camera.png",width:854,height:480} ];
+app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance, items) {
+  
   $scope.item = items;
-  console.log($scope.item.camera)
-  if($scope.item.camera.id != '-1'){
-    $scope.selected_camera = $scope.camera[parseInt($scope.item.camera.id)];
-    console.log('test')
+  console.log("item",$scope.item);
+  //get camera list
+  restService.getCamera().then(function(response){
+    $scope.camera = response.data.objects;
+    console.log('camera',$scope.camera)
+    if($scope.item.cameraPoint.camera.id > 0){
+        for(var i = 0 ; i < $scope.camera.length ; i++){
+          if($scope.camera[i].id == $scope.item.cameraPoint.camera.id){
+            $scope.selected_camera = $scope.camera[i]
+            break;
+          }
+        }
   }
   else{
     $scope.selected_camera = $scope.camera[0]
   }
+  console.log('selected_camera',$scope.selected_camera);
+  });
+  //$scope.camera = [ {id:0,name:"Camera1",img:"img/example-camera.png",width:854,height:480}, {id:1,name:"Camera2",img:"img/example-camera.png",width:854,height:480}, {id:2,name:"Camera3",img:"img/example-camera.png",width:854,height:480} ];
+  
   console.log('tt',$scope.selected_camera)
   angular.copy(items, $scope.backup);
   //set camera position and param
   $scope.getCameraImg = function(){
-    console.log($scope.selected_camera)
     if($scope.selected_camera == undefined || $scope.selected_camera.img == undefined){
       return '';
     }
@@ -205,9 +256,10 @@ app.controller('ModalCameraCtrl', function ($scope, $modalInstance, items) {
 }
 $scope.ok = function () {
   var element = angular.element("#draggable-zone");
-
-  $scope.item.camera = {'id':$scope.selected_camera.id,top:convertToPercent(element.css('top'),$scope.selected_camera.height),left:convertToPercent(element.css('left'),$scope.selected_camera.width),height:convertToPercent(element.css('height'),$scope.selected_camera.height),width:convertToPercent(element.css('width'),$scope.selected_camera.width)};
+  
+  $scope.item.cameraPoint = {'id':$scope.selected_camera.id,camera:$scope.selected_camera,top:convertToPercent(element.css('top'),$scope.selected_camera.height),left:convertToPercent(element.css('left'),$scope.selected_camera.width),height:convertToPercent(element.css('height'),$scope.selected_camera.height),width:convertToPercent(element.css('width'),$scope.selected_camera.width)};
   console.log('$scope.item',$scope.item);
+  items = $scope.items
   $modalInstance.close();
 };
 
@@ -220,11 +272,9 @@ $scope.remove = function() {
   $modalInstance.close();
 }
 $scope.getStyle = function(item) {
-  console.log('getDraggableStyle')
   var height = $scope.selected_camera.height;
   var width = $scope.selected_camera.width;
-  var t = 'background-color:'+item.color+';left:'+item.camera.left*width+'px;top:'+item.camera.top*height+'px;height:'+item.camera.height*height+'px;width:'+item.camera.width*width+'px;'
-  console.log('ss',t);
+  var t = 'background-color:'+item.color+';left:'+item.cameraPoint.left*width+'px;top:'+item.cameraPoint.top*height+'px;height:'+item.cameraPoint.height*height+'px;width:'+item.cameraPoint.width*width+'px;'
   return t;
 }
 });app.directive('loadFinishDraggable', function($timeout) {
@@ -232,8 +282,8 @@ $scope.getStyle = function(item) {
     angular.element(element).css('color','blue');
     if (scope.$last){
       $timeout(function () {
-        for(var i = 0 ; i <= scope.$index ; i++){
-          $( "#"+i ).draggable({ containment: "#map-wrapper", scroll: false })
+        for(var i = 0 ; i <= scope.points.length ; i++){
+          $( "#"+scope.points[i].id ).draggable({ containment: "#map-wrapper", scroll: false })
         }
       });
 

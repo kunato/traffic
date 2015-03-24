@@ -1,7 +1,7 @@
 """
 Celery tasks
 """
-
+from models import *
 from celery import task
 import tracking
 

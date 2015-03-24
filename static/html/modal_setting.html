@@ -4,9 +4,9 @@
 <div class="modal-body">
     <!-- select cam -->
     <span style="margin-right: 10px"> Select Camera :</span>
-    <select class="input-large" ng-model="selected_camera" ng-options="c as c.name for c in camera">
+    <select class="input-large" ng-model="selected_camera" ng-options="c as c.resource_uri for c in camera">
     </select>
-    <div id="camera-wrapper" ng-style="getCameraImg()" style="margin-top:20px;height:200px; background-repeat: round;">
+    <div id="camera-wrapper" ng-style="getCameraImg()" style="margin-top:20px; background-repeat: round;">
         <div id="draggable-zone" class="draggable-camera" style="{{getStyle(item)}}">
     </div>
 
