@@ -9,7 +9,7 @@ import tracking
 @task()
 def process(video, message):
     # print message
-    if(video.camera.url = '')
+    if(video.camera.url == ''):
         img = tracking.saveImg(video.url,[])
         video.camera.url = img
         video.camera.save()
