@@ -80,7 +80,7 @@ def process(path,dataRelation):
     EXIT_POSITION = (((float(dataRelation.cameraPoint2.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint2.top) * float(dataRelation.camera.height))))
     START_POSITION = (((float(dataRelation.cameraPoint1.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint1.top) * float(dataRelation.camera.height))))
     KERNEL_PIXEL = int(dataRelation.camera.width/30)
-    BLUR_PIXEL = 7
+    BLUR_PIXEL = 3
     cap = cv2.VideoCapture(path)
     # fgbg = cv2.BackgroundSubtractorMOG()
     fgbg = cv2.BackgroundSubtractorMOG2(history=50,varThreshold=4,bShadowDetection=False)
@@ -124,23 +124,20 @@ def process(path,dataRelation):
         if(total_contour_area < 10 and  frame_no - last_gen_bg > 600):
             fgbg = cv2.BackgroundSubtractorMOG2(history=50,varThreshold=4,bShadowDetection=False)
             fgbg.apply(frame)
-            print "generate new bg"
+            print "reset bg"
             last_gen_bg = frame_no
             peoples = []
             continue
         #sort contourSize
         contours_sorted = np.empty((len(contours)),dtype = [('index', int), ('area', float)])
         for i in peoples:
-            #if on exit remove it
             #check position if near exit use short time check
             if((i.position - EXIT_POSITION < EXIT_CUTOFF).all() and (i.position - EXIT_POSITION > (0,0)).all()):
                 #check diff pos before save
                 i.save()
                 peoples.remove(i)
-
-                print i.diff_time
                 if(i.diff_time > VIDEO_FPS):
-                    print "out1",i.id
+                    # print "out1",i.id
                     x = i.appear_position
                     y = i.last_position
                     speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS/5)))
@@ -151,10 +148,9 @@ def process(path,dataRelation):
                 #check diff pos before save
                 i.save()
                 peoples.remove(i)
-                print i.diff_time
                 if(i.diff_time > VIDEO_FPS):
 
-                    print "out2",i.id
+                    # print "out2",i.id
                     speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS/5)))
                     VideoData(data_relation=dataRelation,go_to=1,speed=speed,appear_time=datetime.datetime.now()).save()
                     start_exit.append(i)
@@ -204,7 +200,7 @@ def process(path,dataRelation):
                 
                 people = People((x,y),frame_no,cv2.contourArea(cnt))
                 peoples.append(people)
-                print "create"+str((x,y))
+                # print "create"+str((x,y))
                 break
             else:
                 people = peoples[min_index]
@@ -224,15 +220,16 @@ def process(path,dataRelation):
                 area_diff[j] = math.fabs(i.area - cv2.contourArea(cnt))
                 #print (distance[j],area_diff[j])
                 value[j] = distance[j]+area_diff[j]
-                #print value[j]
             if(distance.shape[0] != 0):
                 min_index = np.argmin(value)
+                if(math.fabs(distance[min_index]) > DISTANCE_CUTOFF):
+                    continue
                 cnt = contours[contours_sorted[min_index][0]]
                 x,y,w,h =  cv2.boundingRect(cnt)
                 i.move((x,y),frame_no,cv2.contourArea(cnt))
                 # cv2.putText(fgmask,str(people.id), (int(people.position[0]),int(people.position[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
                 # cv2.drawContours(fgmask, [cnt], 0, DRAW_COLOR, 3)
-        # print cap.get(0)/1000
+        #print cap.get(0)/1000
         # cv2.imshow('frame',fgmask)
         # k = cv2.waitKey(25)
         # if k == 27:

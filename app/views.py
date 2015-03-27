@@ -38,7 +38,7 @@ def upload(request):
         if(request.method == "POST"):
             f = request.FILES['sentFile']
             #change to Camera.objects.get(pk=request.POST['camera_id'])
-            cam = Camera.objects.all()[0]
+            cam = Camera.objects.all()[1]
             video = Video(name="", url="", camera=cam, start_time=datetime.datetime.now(), status=0.0)
             video.save()
             url = helper.saveFile(video.id,f.name.split('.')[-1],f)
