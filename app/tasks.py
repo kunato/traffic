@@ -9,11 +9,10 @@ import tracking
 @task()
 def process(video, message):
     # print message
-    img = tracking.saveImg(video.url,[])
-    video.camera.url = img
-    video.camera.height = 480
-    video.camera.width = 854
-    video.camera.save()
+    if(video.camera.url = '')
+        img = tracking.saveImg(video.url,[])
+        video.camera.url = img
+        video.camera.save()
     #get data
     dataRelation = DataRelation.objects.get(camera=video.camera)
     tracking.process(video.url,dataRelation)

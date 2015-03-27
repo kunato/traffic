@@ -14,6 +14,8 @@ class Video(models.Model):
 	camera = models.ForeignKey(Camera)
 	start_time = models.DateTimeField()
 	status = models.FloatField()
+	# 0 stream or 1 file
+	type = models.IntegerField()
 
 
 
