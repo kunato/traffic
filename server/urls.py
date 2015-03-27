@@ -8,9 +8,12 @@ v1_api.register(CameraResource())
 v1_api.register(VideoResource())
 v1_api.register(MapResource())
 v1_api.register(MapPointResource())
+v1_api.register(CameraPointResource())
+v1_api.register(DataRelationResource())
 urlpatterns = patterns('',
 url(r'^$',views.index),
 url(r'^app/', views.app),
+url(r'^traffic/',views.traffic),
 url(r'^upload/',views.upload),
 url(r'^logout/', views.logout_view),
 url(r'^api/', include(v1_api.urls)),

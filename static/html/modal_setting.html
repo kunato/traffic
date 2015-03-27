@@ -6,10 +6,21 @@
     <span style="margin-right: 10px"> Select Camera :</span>
     <select class="input-large" ng-model="selected_camera" ng-options="c as c.resource_uri for c in camera">
     </select>
-    <div id="camera-wrapper" ng-style="getCameraImg()" style="margin-top:20px; background-repeat: round;">
-        <div id="draggable-zone" class="draggable-camera" style="{{getStyle(item)}}">
+    <div id="camera-wrapper" ng-style="getCameraImg()" style="border: 1px solid #eee; margin-top:20px; background-repeat: round;">
+        <div ng-if="selected_camera.id"id="draggable-zone1" class="draggable-camera" ng-style="getStyle(0)"></div>
+        <div ng-if="selected_camera.id"id="draggable-zone2" class="draggable-camera" ng-style="getStyle(1)"></div>
+    </div >
+    <div class="row">
+    <select class="input-large col-md-3" style="top:10px" ng-model="marker1" ng-options="c as c.resource_uri for c in markers">
+    </select>
+    <select class="input-large col-md-3" style="top:10px" ng-model="marker2" ng-options="c as c.resource_uri for c in markers">
+    </select>
+    <div class="form-group col-md-3">
+    <input type="text" class="form-control" ng-model="formData.camera_length" placeholder="Camera Length">
     </div>
-
+    <div class="form-group col-md-3">
+    <input type="text" class="form-control" ng-model="formData.map_length" placeholder="Map length">
+    </div>
     </div>
 </div>
 <div class="modal-footer">
@@ -18,5 +29,4 @@
     <button class="btn btn-default" ng-click="remove()">Remove</button>
 </div>
 <script type="text/javascript">
-    $( "#draggable-zone" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable();
 </script>

@@ -3,50 +3,15 @@
 </div>
 <div class="modal-body row">
    <!-- table -->
-   <div class="col-md-5">
-    <h4 style="margin-bottom:10px">{{item.start}} to {{item.end}}</h4>
-   <table class="table  table-bordered" style="float:left">
-    <thead>
-        <tr>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">Speed</th>
-          <td>{{item.speed}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Traffic</th>
-          <td>{{item.traffic}}</td>
-        </tr>
-      </tbody>
-    </table>
-    
-<canvas id="bar" class="chart chart-line" data="data"
+   <h3 style="margin-left:40px">Speed/Time</h3>
+    <canvas id="bar" style="margin-left:15%;height:200px!important" class="chart chart-line" data="data" legend="true" series="series"
   labels="labels"></canvas>
-</div>
-<div class="col-md-offset-2 col-md-5">
-    <h4 style="margin-bottom:10px">{{item.end}} to {{item.start}}</h4>
-<table class="table  table-bordered" style="float:right">
-    <thead>
-        <tr>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">Speed</th>
-          <td>{{item.speed}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Traffic</th>
-          <td>{{item.traffic}}</td>
-        </tr>
-      </tbody>
-    </table>
+ 
 
-<canvas id="bar" class="chart chart-line" data="data2"
+
+  <h3 style="margin-left:40px">Number/Time</h3>
+<canvas id="bar" style="margin-left:15%;height:200px!important" class="chart chart-line" data="data2" legend="true" series="series"
   labels="labels"></canvas>
-</div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">OK</button>

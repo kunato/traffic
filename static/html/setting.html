@@ -27,24 +27,25 @@
         </nav>
 
         <!-- Intro Header -->
-        <div style="width:100%;">
-        <div id="map-wrapper" class="intro" style="height:620px;width:1400px;margin:0 auto;" ng-controller="MapSettingController">
-    <div ng-repeat="point in points" load-finish-draggable>
-        <div href=""  ng-click="open(point)" ng-attr-id='{{point.id}}' class="draggable-map ui-draggable ui-draggable-handle"  style="{{getStyle(point)}}">
+<div style="width:100%;">
+    <ui-gmap-google-map center='map.center' events='map.events' zoom='map.zoom'>
+    <ui-gmap-marker ng-repeat="m in markers" coords="m" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
+            <ui-gmap-window ng-cloak  coords="map.infoWindowWithCustomClass.coords" isIconVisibleOnClick="true" options="map.infoWindowWithCustomClass.options">
+                <div>
+                    <p> ID: {{m.id}} lat {{m.latitude}} lng {{m.longitude}}</p>
+                    <button class="btn btn-success" ng-click="$parent.$parent.removeMarker($parent.m)">Remove Marker</button>
+                </div>
+            </ui-gmap-window>
+        </ui-gmap-marker>
+        <ui-gmap-polyline ng-repeat="m in polys" path="m.path" clickable="true" static="true" icons="m.id" stroke="m.stroke" events="m.events">
+        </ui-gmap-polyline>
+    
+    </ui-gmap-google-map>
+    <div style="  float: right;
+  margin-right: 50px;
+  margin-top: 5px;
+  margin-bottom: 5px;">
+    <button class="btn btn-success" ng-click="save()">Save</button>
+    <button class="btn btn-warning" ng-click="open()">Camera Setting</button>
     </div>
-            
-            
-    </div>
-            <div class="navbar-footer"  style="position: absolute; 
-            bottom: 0;width: 100%;
-            margin: 0 auto;">
-            <!-- set of drag object-->
-            
-        <!-- end -->
-        <div class="btn-group" style="">
-            <a class="btn btn-default" href="" ng-click="add()"><i class="fa fa-plus fa-3x"></i></a>
-            <a class="btn btn-default" href="" ng-click="save()"><i class="fa fa-floppy-o fa-3x"></i></a>
-        </div>
-    </div>
-</div>
 </div>

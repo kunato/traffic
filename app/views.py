@@ -37,18 +37,28 @@ def upload(request):
     if(request.user.is_authenticated()):
         if(request.method == "POST"):
             f = request.FILES['sentFile']
+            #change to Camera.objects.get(pk=request.POST['camera_id'])
             cam = Camera.objects.all()[0]
-            video = Video(name="",url="",camera=cam,start_time=datetime.datetime.now(),status=0.0)
+            video = Video(name="", url="", camera=cam, start_time=datetime.datetime.now(), status=0.0)
             video.save()
             url = helper.saveFile(video.id,f.name.split('.')[-1],f)
             video.url = url
             video.save()
-            process.delay(path=url,message="test")
+            process.delay(video=video,message="test")
             return HttpResponse("FIN")
         else:
             return render(request, 'upload.html')
     else:
         return redirect('/')
+
+def traffic(request):
+    id = request.GET['id']
+    time = request.GET['time']
+    duration = request.GET['duration']
+    #genarate Traffic object from data relation and time, duration
+    #change to json response
+    return HttpResponse(str(id)+str(time)+str(duration))
+
 
 def logout_view(request):
     logout(request)

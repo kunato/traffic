@@ -32,23 +32,7 @@ class Migration(migrations.Migration):
                 ('left', models.FloatField()),
                 ('height', models.FloatField()),
                 ('width', models.FloatField()),
-                ('length', models.FloatField()),
                 ('camera', models.ForeignKey(to='app.Camera')),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='Car',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=200)),
-                ('appear_position_x', models.IntegerField()),
-                ('appear_position_y', models.IntegerField()),
-                ('last_position_x', models.IntegerField()),
-                ('last_position_y', models.IntegerField()),
-                ('diff_time', models.IntegerField()),
             ],
             options={
             },
@@ -72,10 +56,9 @@ class Migration(migrations.Migration):
             name='Map',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=200)),
-                ('url', models.CharField(max_length=200)),
-                ('height', models.IntegerField()),
-                ('width', models.IntegerField()),
+                ('center_lat', models.FloatField()),
+                ('center_lng', models.FloatField()),
+                ('zoom', models.IntegerField()),
             ],
             options={
             },
@@ -85,21 +68,57 @@ class Migration(migrations.Migration):
             name='MapPoint',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=200)),
-                ('color', models.CharField(max_length=8)),
-                ('top', models.FloatField()),
-                ('left', models.FloatField()),
+                ('name', models.CharField(max_length=200, null=True)),
+                ('latitude', models.FloatField()),
+                ('longitude', models.FloatField()),
                 ('map', models.ForeignKey(to='app.Map')),
             ],
             options={
             },
             bases=(models.Model,),
         ),
-        migrations.AddField(
-            model_name='car',
-            name='data_relation',
-            field=models.ForeignKey(to='app.DataRelation'),
-            preserve_default=True,
+        migrations.CreateModel(
+            name='Traffic',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=200)),
+                ('speed', models.FloatField()),
+                ('data_relation', models.ForeignKey(to='app.DataRelation')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Video',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=200)),
+                ('url', models.CharField(max_length=200)),
+                ('start_time', models.DateTimeField()),
+                ('status', models.FloatField()),
+                ('camera', models.ForeignKey(to='app.Camera')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='VideoData',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('appear_position_x', models.FloatField()),
+                ('appear_position_y', models.FloatField()),
+                ('last_position_x', models.FloatField()),
+                ('last_position_y', models.FloatField()),
+                ('diff_time', models.FloatField()),
+                ('appear_time', models.DateTimeField()),
+                ('process', models.IntegerField()),
+                ('video', models.ForeignKey(to='app.Video')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='camerapoint',

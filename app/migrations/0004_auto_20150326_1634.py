@@ -7,18 +7,18 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0005_remove_camerapoint_length'),
+        ('app', '0003_auto_20150324_1717'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='camerapoint',
-            name='mapPoint',
+            model_name='videodata',
+            name='video',
         ),
         migrations.AddField(
-            model_name='mappoint',
-            name='cameraPoint',
-            field=models.ForeignKey(default='', to='app.CameraPoint'),
+            model_name='videodata',
+            name='camera',
+            field=models.ForeignKey(default=1, to='app.Camera'),
             preserve_default=False,
         ),
     ]

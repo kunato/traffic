@@ -7,12 +7,12 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app', '0004_auto_20150322_0131'),
+        ('app', '0004_auto_20150326_1634'),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='camerapoint',
-            name='length',
+            model_name='videodata',
+            name='process',
         ),
     ]

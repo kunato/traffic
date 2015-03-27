@@ -7,15 +7,17 @@ import tracking
 
 
 @task()
-def process(path, message):
-	print message
-	out = tracking.process(path)
-	ins = open(out,"r")
-	print "save to db"
-	for line in ins:
-		print line
-	ins.close()
-	print "task finish"
+def process(video, message):
+    # print message
+    img = tracking.saveImg(video.url,[])
+    video.camera.url = img
+    video.camera.height = 480
+    video.camera.width = 854
+    video.camera.save()
+    #get data
+    dataRelation = DataRelation.objects.get(camera=video.camera)
+    tracking.process(video.url,dataRelation)
+    print "task finish"
 
 def get_task_status(task_id):
  

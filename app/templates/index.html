@@ -21,7 +21,7 @@
     <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-
+    <link rel="stylesheet" href="/static/css/angular-chart.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.css">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -32,10 +32,9 @@
 
     </head>
     <style>
-    .draggable-map { width: 10px; height: 10px; float: left; position: relative;}
     h3 { clear: left; }
-
-    .draggable-camera { width: 90px; height: 90px; padding: 0.5em; float: left;  opacity: 0.6;}
+    .angular-google-map-container { height: 550px; }
+    .draggable-camera { width: 90px; height: 90px; padding: 0.5em; float: left;  opacity: 0.6; position: relative!important;}
     </style>  
 
     <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top" ng-app="app" style='background-color:#fff;color:#000'>
@@ -47,7 +46,6 @@
 <script src="/static/js/jquery.js"></script>
 <!-- Bootstrap Core JavaScript -->
 <script src="/static/js/bootstrap.min.js"></script>
-
 <!-- Plugin JavaScript -->
 <script src="/static/js/jquery.easing.min.js"></script>
 
@@ -58,7 +56,11 @@
 <script src="/static/js/angular-route.js"></script>
 <script src="/static/js/Chart.min.js"></script>
 <script src="/static/js/angular-chart.min.js"></script>
+
+<script src='/static/js/lodash.min.js'></script>
+<script src='/static/js/angular-google-maps.min.js'></script>
 <script src="/static/js/app.js"></script>
+<script src="/static/js/app-report.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
 </body>
 
