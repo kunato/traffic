@@ -299,8 +299,6 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
 });
 
 app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance) {
-
-  $scope.oneway = false;
   $scope.draggable = true;
   $scope.selected_camera = {};
   $scope.draggable_item = [{color:'red',left:0.45,top:0,height:0.1,width:0.1},{color:'blue',left:0.45,top:0.9,height:0.1,width:0.1}];
@@ -308,13 +306,9 @@ app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance)
     $scope.camera = response.data.objects;
     
   });
-  $scope.$watch('oneway',function(){
-    if($scope.oneway == false){
-      }
-  })
   $scope.marker1 = {};
   $scope.marker2 = {};
-  $scope.formData = {camera_length:'',map_length:''}
+  $scope.formData = {camera_length:'',map_length:'',one_way:false}
   restService.getMapPoint().then(function(response){
     $scope.markers = response.data.objects;
   });
@@ -380,13 +374,19 @@ $scope.ok = function () {
   height:convertToPercent(pInt(element.css('height')),$scope.selected_camera.height),
   width:convertToPercent(pInt(element.css('width')),$scope.selected_camera.width)
   };
-  var cameraPoint2 = {
-  mapPoint:$scope.marker2.resource_uri,
-  top:(convertToPercent(pInt(element2.css('top')),$scope.selected_camera.height)),
-  left:(convertToPercent(pInt(element2.css('left')),$scope.selected_camera.width)),
-  height:convertToPercent(pInt(element2.css('height')),$scope.selected_camera.height),
-  width:convertToPercent(pInt(element2.css('width')),$scope.selected_camera.width)
-  }; 
+   
+  if($scope.formData.one_way == true){
+    var cameraPoint2 = {mapPoint:$scope.marker2.resource_uri,top:0,left:0,height:0,width:0}
+  }
+  else{
+    var cameraPoint2 = {
+    mapPoint:$scope.marker2.resource_uri,
+    top:(convertToPercent(pInt(element2.css('top')),$scope.selected_camera.height)),
+    left:(convertToPercent(pInt(element2.css('left')),$scope.selected_camera.width)),
+    height:convertToPercent(pInt(element2.css('height')),$scope.selected_camera.height),
+    width:convertToPercent(pInt(element2.css('width')),$scope.selected_camera.width)
+    }
+  }
   console.log(cameraPoint1,cameraPoint2);
   if($scope.draggable_item[0].resource_uri != undefined){
     restService.putDataByUri($scope.draggable_item[0].resource_uri,cameraPoint1).then(function(response){

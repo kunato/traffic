@@ -8,7 +8,7 @@
     </select>
     <div id="camera-wrapper" ng-style="getCameraImg()" style="position:relative;border: 1px solid #eee; margin-top:20px; background-repeat: round;">
         <div ng-if="selected_camera.id"id="draggable-zone1" class="draggable-camera" ng-style="getStyle(0)"></div>
-        <div ng-if="selected_camera.id && !oneway"id="draggable-zone2" class="draggable-camera" ng-style="getStyle(1)"></div>
+        <div ng-if="selected_camera.id && !formData.one_way"id="draggable-zone2" class="draggable-camera" ng-style="getStyle(1)"></div>
     </div >
     <div class="row">
     <select class="input-large col-md-3" style="top:10px" ng-model="marker1" ng-options="c as c.resource_uri for c in markers">
@@ -22,7 +22,7 @@
     <input type="text" class="form-control" ng-model="formData.camera_aspect" placeholder="Street Proportion/Width Of Camera">
     </div>
     <label class="btn btn-primary">
-    <input type="checkbox" ng-model="oneway" >One Way
+    <input type="checkbox" ng-model="formData.one_way" >One Way
     </label>
     </div>
 </div>

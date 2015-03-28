@@ -38,6 +38,7 @@ def upload(request):
         if(request.method == "POST"):
             f = request.FILES['sentFile']
             #change to Camera.objects.get(pk=request.POST['camera_id'])
+            # 0 = oneway 1 = bi-direction
             cam = Camera.objects.all()[1]
             video = Video(name="", url="", camera=cam, start_time=datetime.datetime.now(), status=0.0,type=1)
             video.save()

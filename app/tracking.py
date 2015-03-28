@@ -75,10 +75,10 @@ def process(path,dataRelation):
     #set exit cutof from setting
     #set exit position from setting
     #set area cut of from setting
-    EXIT_CUTOFF = np.array(((float(dataRelation.cameraPoint2.width) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint2.height) * float(dataRelation.camera.height))))
-    START_CUTOFF = np.array(((float(dataRelation.cameraPoint1.width) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint1.height) * float(dataRelation.camera.height))))
-    EXIT_POSITION = (((float(dataRelation.cameraPoint2.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint2.top) * float(dataRelation.camera.height))))
-    START_POSITION = (((float(dataRelation.cameraPoint1.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint1.top) * float(dataRelation.camera.height))))
+    EXIT_CUTOFF = np.array(((float(dataRelation.cameraPoint1.width) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint1.height) * float(dataRelation.camera.height))))
+    START_CUTOFF = np.array(((float(dataRelation.cameraPoint2.width) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint2.height) * float(dataRelation.camera.height))))
+    EXIT_POSITION = (((float(dataRelation.cameraPoint1.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint1.top) * float(dataRelation.camera.height))))
+    START_POSITION = (((float(dataRelation.cameraPoint2.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint2.top) * float(dataRelation.camera.height))))
     KERNEL_PIXEL = int(dataRelation.camera.width/30)
     BLUR_PIXEL = 5
     print (START_POSITION,EXIT_POSITION)
@@ -154,7 +154,7 @@ def process(path,dataRelation):
                 #check diff pos before save
                 i.save()
                 peoples.remove(i)
-                if(i.diff_time > VIDEO_FPS):
+                if(i.diff_time > VIDEO_FPS and dataRelation.one_way != True):
 
                     # print "out2",i.id
                     speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS)))

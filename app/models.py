@@ -48,6 +48,7 @@ class DataRelation(models.Model):
 	camera = models.ForeignKey(Camera)
 	camera_length = models.IntegerField()
 	camera_aspect = models.FloatField()
+	one_way = models.BooleanField()
 
 class VideoData(models.Model):
 	data_relation = models.ForeignKey(DataRelation)
