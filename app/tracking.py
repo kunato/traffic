@@ -80,7 +80,9 @@ def process(path,dataRelation):
     EXIT_POSITION = (((float(dataRelation.cameraPoint2.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint2.top) * float(dataRelation.camera.height))))
     START_POSITION = (((float(dataRelation.cameraPoint1.left) * float(dataRelation.camera.width)),(float(dataRelation.cameraPoint1.top) * float(dataRelation.camera.height))))
     KERNEL_PIXEL = int(dataRelation.camera.width/30)
-    BLUR_PIXEL = 3
+    BLUR_PIXEL = 5
+    print (START_POSITION,EXIT_POSITION)
+    print (START_CUTOFF,EXIT_CUTOFF)
     cap = cv2.VideoCapture(path)
     # fgbg = cv2.BackgroundSubtractorMOG()
     fgbg = cv2.BackgroundSubtractorMOG2(history=50,varThreshold=4,bShadowDetection=False)
@@ -140,7 +142,11 @@ def process(path,dataRelation):
                     # print "out1",i.id
                     x = i.appear_position
                     y = i.last_position
-                    speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS/5)))
+                    speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS)))
+                    speed = (dataRelation.camera_length/((dataRelation.camera_aspect*dataRelation.camera.width)/speed)) * 3.6
+                    #   1m/s = 3.6km/h calc equation = length of road / (pixel of road / speed) * 3.6
+                    #   50.0/(1100/245.0)*3.6
+
                     VideoData(data_relation=dataRelation,go_to=0,speed=speed,appear_time=datetime.datetime.now()).save()
                     end_exit.append(i)
                     continue
@@ -151,7 +157,8 @@ def process(path,dataRelation):
                 if(i.diff_time > VIDEO_FPS):
 
                     # print "out2",i.id
-                    speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS/5)))
+                    speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS)))
+                    speed = (dataRelation.camera_length/((dataRelation.camera_aspect*dataRelation.camera.width)/speed)) * 3.6
                     VideoData(data_relation=dataRelation,go_to=1,speed=speed,appear_time=datetime.datetime.now()).save()
                     start_exit.append(i)
                     continue
@@ -227,13 +234,14 @@ def process(path,dataRelation):
                 cnt = contours[contours_sorted[min_index][0]]
                 x,y,w,h =  cv2.boundingRect(cnt)
                 i.move((x,y),frame_no,cv2.contourArea(cnt))
-                # cv2.putText(fgmask,str(people.id), (int(people.position[0]),int(people.position[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
-                # cv2.drawContours(fgmask, [cnt], 0, DRAW_COLOR, 3)
-        #print cap.get(0)/1000
+        #         cv2.putText(fgmask,str(people.id), (int(people.position[0]),int(people.position[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
+        #         cv2.drawContours(fgmask, [cnt], 0, DRAW_COLOR, 3)
         # cv2.imshow('frame',fgmask)
         # k = cv2.waitKey(25)
         # if k == 27:
         #    break
+
+        # print cap.get(0)/1000
     cap.release()
     cv2.destroyAllWindows()
     return

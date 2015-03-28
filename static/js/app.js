@@ -300,6 +300,7 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
 
 app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance) {
 
+  $scope.oneway = false;
   $scope.draggable = true;
   $scope.selected_camera = {};
   $scope.draggable_item = [{color:'red',left:0.45,top:0,height:0.1,width:0.1},{color:'blue',left:0.45,top:0.9,height:0.1,width:0.1}];
@@ -307,6 +308,10 @@ app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance)
     $scope.camera = response.data.objects;
     
   });
+  $scope.$watch('oneway',function(){
+    if($scope.oneway == false){
+      }
+  })
   $scope.marker1 = {};
   $scope.marker2 = {};
   $scope.formData = {camera_length:'',map_length:''}
@@ -336,7 +341,7 @@ app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance)
           }
         }
         console.log('$scope.marker1',$scope.marker1);
-        $( "#draggable-zone1" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable()
+        
       })
       restService.getDataByUri(response.data.objects[0].cameraPoint2).then(function(response){
         console.log('getDataByUri cameraPoint2',response)
@@ -347,7 +352,7 @@ app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance)
             $scope.marker2 = $scope.markers[i];
           }
         }
-        $( "#draggable-zone2" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable()
+        
       })
       $scope.formData = response.data.objects[0];
     });
@@ -378,7 +383,7 @@ $scope.ok = function () {
   var cameraPoint2 = {
   mapPoint:$scope.marker2.resource_uri,
   top:(convertToPercent(pInt(element2.css('top')),$scope.selected_camera.height)),
-  left:(convertToPercent(pInt(element2.css('left')),$scope.selected_camera.width)+cameraPoint1.width),
+  left:(convertToPercent(pInt(element2.css('left')),$scope.selected_camera.width)),
   height:convertToPercent(pInt(element2.css('height')),$scope.selected_camera.height),
   width:convertToPercent(pInt(element2.css('width')),$scope.selected_camera.width)
   }; 
@@ -426,6 +431,9 @@ $scope.getStyle = function(item_no) {
 
   var height = $scope.selected_camera.height;
   var width = $scope.selected_camera.width;
+  $( "#draggable-zone1" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable()
+  $( "#draggable-zone2" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable()
+    
   if(item_no == 0){
     return {'background-color':item.color,
       'left':item.left*width+'px',
@@ -436,7 +444,7 @@ $scope.getStyle = function(item_no) {
   }else{
     var item1 = $scope.draggable_item[0]
     return {'background-color':item.color,
-      'left':((item.left*width)-(item1.width*width))+'px',
+      'left':item.left*width+'px',
       'top':item.top*height+'px',
       'width':item.width*width+'px',
       'height':item.height*height+'px'
