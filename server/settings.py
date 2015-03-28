@@ -24,10 +24,13 @@ SECRET_KEY = '&s)^y=-kfi$rd(-a0(f!(k8%aup!15v*yfd0y*xa#=owm7#9*6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = []
 
+
+TASTYPIE_FULL_DEBUG = False
+API_LIMIT_PER_PAGE = 50
 
 # Application definition
 
@@ -76,7 +79,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 

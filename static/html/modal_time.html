@@ -1,0 +1,36 @@
+<div class="modal-header">
+  <h4 class="modal-title" style="color:#00000F" id="myModalLabel">Edit Report Time</h4>
+</div>
+<div class="modal-body row">
+ <div class="col-xs-offset-2 col-xs-10">
+  <div class="row">
+    <span class="col-xs-1" style="margin-top:38px">Start:</span>
+
+    <timepicker class="col-xs-1" ng-model="start.time" style="margin-left:2%" show-meridian="false"></timepicker>
+    <div class="input-group col-xs-6" style="margin-left:25%;margin-top:33.5px">
+    <input type="text" class="form-control" datepicker-popup="dd.MM.yyyy" ng-model="start.date" is-open="opened1" close-text="Close" />
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" ng-click="open_start($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+    </span>
+  </div>
+
+  </div>
+  <div class="row">
+    <span class="col-xs-1" style="margin-top:38px">End:</span>
+
+    <timepicker class="col-xs-1" ng-model="end.time" style="margin-left:2%" show-meridian="false"></timepicker>
+    <div class="input-group col-xs-6" style="margin-left:25%;margin-top:33.5px">
+    <input type="text" class="form-control" datepicker-popup="dd.MM.yyyy" ng-model="end.date" is-open="opened2" close-text="Close" />
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" ng-click="open_end($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+    </span>
+  </div>
+
+  </div>
+
+</div>
+  <div class=""></div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="ok()">OK</button>
+</div>

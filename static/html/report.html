@@ -6,9 +6,11 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
                     <ul class="nav navbar-nav">
+                        <li><a class="alert alert-info" href="" ng-click="editTime()">Report at {{datetime.end | date:'dd/MM/yyyy @ h:mma'}}</a></li>
                         <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
                         <li class="hidden">
                             <a href="#page-top"></a>
+
                         </li>
                         <li>
                             <a class="page-scroll" href="/app/#/setting/">Setting</a>
@@ -37,7 +39,7 @@
                 </div>
             </ui-gmap-window>
         </ui-gmap-marker>
-        <ui-gmap-polyline ng-repeat="m in polys" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
+        <ui-gmap-polyline ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
         </ui-gmap-polyline>
     
     </ui-gmap-google-map>

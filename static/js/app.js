@@ -99,8 +99,8 @@ app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
       var path = uri+'?format=json'
       return $http.put(path,data);
     },
-    getTrafficFromDataRelation: function(id,time,duration){
-      var path = '/traffic/?id='+id+'&time='+time+'&duration='+duration;
+    getTrafficFromDataRelation: function(id,start,end){
+      var path = '/traffic/?id='+id+'&start='+start.toISOString()+'&end='+end.toISOString();
       return $http.get(path); 
     }
 
@@ -116,6 +116,11 @@ function getRandomColor() {
     color += letters[Math.floor(Math.random() * 16)];
   }
   return color;
+}
+function getColorFromTraffic(speed,count) {
+  if(speed < 10)return 'red'
+  else if(speed < 40) return 'yellow'
+  else return 'green'
 }
 function convertToPercent(value,max){
   return value/max;
@@ -184,7 +189,6 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
         $scope.polys[i] = $scope.dataRelation[i]
 
-        $scope.polys[i].stroke = {color:getRandomColor(),width:1,opacity:1.0}
         $scope.polys[i].events = {
           click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
@@ -452,3 +456,22 @@ $scope.getStyle = function(item_no) {
   }
 }
 });
+app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFilter', function (datepickerPopupConfig, dateParser, dateFilter) {
+    return {
+        'restrict': 'A',
+        'require': '^ngModel',
+        'link': function ($scope, element, attrs, ngModel) {
+            var dateFormat;
+
+            //*** Temp fix for Angular 1.3 support [#2659](https://github.com/angular-ui/bootstrap/issues/2659)
+            attrs.$observe('datepickerPopup', function(value) {
+                dateFormat = value || datepickerPopupConfig.datepickerPopup;
+                ngModel.$render();
+            });
+
+            ngModel.$formatters.push(function (value) {
+                return ngModel.$isEmpty(value) ? value : dateFilter(value, dateFormat);
+            });
+        }
+    };
+}]);

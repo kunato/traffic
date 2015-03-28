@@ -1,6 +1,7 @@
 app.controller('ReportController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
   $scope.polys = [];
   $scope.time = new Date()
+  $scope.datetime = {start:new Date((new Date().getTime() - 5 * 60000)),end:new Date()}
   $scope.duration = 1
   console.log("we in ReportController");
   $scope.dataRelation = [];
@@ -13,11 +14,29 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   //     console.log('points',$scope.points);
   //   });
   // });
+  $scope.$watch('datetime',function(){
+    //re-render poly line and request traffic from server
+    for(var i = 0 ; i < $scope.dataRelation.length ; i++){
 
+      restService.getTrafficFromDataRelation($scope.dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
+        console.log('traffic',response.data)
+        for(var j = 0 ; j < $scope.dataRelation.length ; j++){
+          if($scope.dataRelation[j].id == response.data.data_relation_id){
+            $scope.dataRelation[j].traffic = response.data.data;
+          }
+        }
+        console.log($scope.dataRelation)
+      });
+    }
+    console.log("datetime change",$scope.datetime)
+  },true);
   $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     if(i == length){
       return;
     }
+      restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
+        var traffic = response.data
+      console.log('traffc',response.data)
       restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
         var cameraPoint1 = response.data.mapPoint;
         console.log('cameraPoint1',response.data)
@@ -33,7 +52,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
           console.log('sent directionsService with', request);
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
-            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path})
+            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data})
             console.log($scope.dataRelation);
             $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
           });
@@ -41,19 +60,25 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
 
         });
       });
+    });
   }
+  //TODO set start time and end time then go will refresh traffic object
+
   restService.getDataRelation().then(function(response){
     console.log('data',response.data.objects)
     var dataRelation = response.data.objects
     var i = 0;
+
     $scope.getLatLngDataFromDataRelation(dataRelation,i,dataRelation.length);
     
   });
-  $scope.$watch('dataRelation',function(){
-    console.log("dataRelation change",$scope.dataRelation)
+  $scope.renderPolyline = function(){
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-        $scope.polys[i] = $scope.dataRelation[i]
-        $scope.polys[i].events = {
+        $scope.polys[i*2] = {}
+        $scope.polys[i*2].id = $scope.dataRelation[i].id
+        $scope.polys[i*2].path = angular.copy($scope.dataRelation[i].path)
+        $scope.polys[i*2].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),width:1,opacity:1.0}
+        $scope.polys[i*2].events = {
           click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
 
@@ -61,12 +86,34 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
             //this is hotfix id
             var id = originalEventArgs.icons
             $log.info("dataRelation id :",originalEventArgs.icons)
-            restService.getTrafficFromDataRelation(id,$scope.time,$scope.duration).then(function(response){
+        }
+      }
+      var path = angular.copy($scope.dataRelation[i].path)
+      for(var j = 0 ; j < path.length ; j++){
+        path[j].B += 0.00003
+        path[j].k += 0.00000
+      }
+      $scope.polys[i*2+1] = {}
+        $scope.polys[i*2+1].id = $scope.dataRelation[i].id
+        $scope.polys[i*2+1].path = path
+        $scope.polys[i*2+1].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),width:1,opacity:1.0}
+        $scope.polys[i*2+1].events = {
+          click: function (mapModel, eventName, originalEventArgs) {
+          // 'this' is the directive's scope
 
-            });
+            $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
+            //this is hotfix id
+            var id = originalEventArgs.icons
+            $log.info("dataRelation id :",originalEventArgs.icons)
         }
       }
     }
+    console.log('polys',$scope.polys);
+  }
+
+  $scope.$watch('dataRelation',function(){
+    console.log("dataRelation change",$scope.dataRelation)
+    $scope.renderPolyline();
     console.log($scope.polys)
   },true);
   $scope.$watch('polys',function(){
@@ -129,6 +176,26 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     marker.showWindow = true;
     $scope.$apply();
   };
+  $scope.editTime = function () {
+    console.log("openTime");
+    var modalInstance = $modal.open({
+      templateUrl: '/static/html/modal_time.html',
+      controller: 'ModalTimeCtrl',
+      size:'lg',
+      resolve: {
+        datetime: function () {
+          return $scope.datetime;
+        }
+      }
+    });
+
+    modalInstance.result.then(function () {
+    }, function () {
+      $log.info('datetime',$scope.datetime)
+      $log.info('Modal dismissed at: ' + new Date());
+    });
+  }
+
   $scope.open = function () {
     var modalInstance = $modal.open({
       templateUrl: '/static/html/modal_report.html',
@@ -142,6 +209,35 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     //   $log.info('Modal dismissed at: ' + new Date());
     // });
   };
+});
+app.controller('ModalTimeCtrl', function (restService, $scope, $modalInstance , datetime) {
+  $scope.datetime = datetime;
+  console.log(datetime.end)
+  $scope.start = {date:new Date(datetime.start.getTime()),time:new Date(datetime.start.getTime())}
+  $scope.end = {date:new Date(datetime.end.getTime()),time:new Date(datetime.end.getTime())}
+  $scope.open_start = function($event) {
+    $event.preventDefault();
+    $event.stopPropagation();
+
+    $scope.opened1 = true;
+  };
+  $scope.open_end = function($event) {
+    $event.preventDefault();
+    $event.stopPropagation();
+
+    $scope.opened2 = true;
+  };
+
+$scope.ok = function () {
+  $scope.datetime.start = new Date($scope.start.date.getFullYear(),$scope.start.date.getMonth(),$scope.start.date.getDate(),$scope.start.time.getHours(),$scope.start.time.getMinutes())
+  $scope.datetime.end = new Date($scope.end.date.getFullYear(),$scope.end.date.getMonth(),$scope.end.date.getDate(),$scope.end.time.getHours(),$scope.end.time.getMinutes())
+  $modalInstance.close();
+};
+
+$scope.cancel = function () {
+  $modalInstance.dismiss('cancel');
+};
+
 });
 
 app.controller('ModalReportCtrl', function (restService, $scope, $modalInstance) {

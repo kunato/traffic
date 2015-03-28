@@ -4,6 +4,8 @@ from tastypie.authentication import SessionAuthentication
 from tastypie.authorization import DjangoAuthorization
 from app.models import *
 
+TASTYPIE_FULL_DEBUG = False
+API_LIMIT_PER_PAGE = 50
 
 class CameraResource(ModelResource):
 	class Meta:
