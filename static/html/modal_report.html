@@ -3,20 +3,19 @@
 </div>
 <div class="modal-body row">
    <!-- table -->
+   <div style="margin-left:70px;height:430px;width:60%">
    <h3 style="margin-left:40px">Speed/Time</h3>
-    <canvas id="bar" style="margin-left:15%;height:200px!important" class="chart chart-line" data="data" legend="true" series="series"
+    <canvas id="bar" style="margin-left:15%" class="chart chart-line" data="data" legend="true" series="series"
   labels="labels"></canvas>
- 
+  </div>
 
-
+  <div style="margin-left:70px;height:400px;width:60%">
   <h3 style="margin-left:40px">Number/Time</h3>
-<canvas id="bar" style="margin-left:15%;height:200px!important" class="chart chart-line" data="data2" legend="true" series="series"
+<canvas id="bar" style="margin-left:15%" class="chart chart-line" data="data2" legend="true" series="series"
   labels="labels"></canvas>
+</div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">OK</button>
     <button class="btn btn-warning" ng-click="export()">Export</button>
 </div>
-<script type="text/javascript">
-    $( "#draggable-zone" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable();
-</script>

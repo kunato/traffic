@@ -1,7 +1,7 @@
 app.controller('ReportController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
   $scope.polys = [];
   $scope.time = new Date()
-  $scope.datetime = {start:new Date((new Date().getTime() - 5 * 60000)),end:new Date()}
+  $scope.datetime = {start:new Date((new Date().getTime() - 10 * 60000)),end:new Date()}
   $scope.duration = 1
   $scope.render = false;
   console.log("we in ReportController");
@@ -54,11 +54,12 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
           console.log('sent directionsService with', request);
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
-            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data})
+            console.log('directionsService',response)
+            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data,'description':response.routes[0].summary})
             console.log($scope.dataRelation);
             $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
           });
-      });
+          });
 
         });
       });
@@ -188,13 +189,22 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   }
 
   $scope.open = function (id) {
+    var object = undefined;
+    for(var i = 0 ; i < $scope.dataRelation.length ;i++){
+      if(id == $scope.dataRelation[i].id){
+        object = $scope.dataRelation[i]
+      }
+    }
     var modalInstance = $modal.open({
       templateUrl: '/static/html/modal_report.html',
       controller: 'ModalReportCtrl',
       size:'lg',
       resolve:{
-        id: function() {
-          return id;
+        item: function() {
+          return object;
+        },
+        datetime: function() {
+          return $scope.datetime;
         }
       }
     });
@@ -236,33 +246,52 @@ $scope.cancel = function () {
 
 });
 
-app.controller('ModalReportCtrl', function (restService, $scope, $modalInstance,id) {
-  $scope.item = { id:id };
-  $scope.data = [];
-  for(var i = 0 ; i < 24 ; i++){
-
+app.controller('ModalReportCtrl', function (restService, $filter,$scope, $modalInstance,item,datetime) {
+  console.log(item);
+  $scope.render = false
+  $scope.item = item;
+  $scope.data = [[],[]];
+  $scope.data2 = [[],[]];
+  $scope.timeData = [];
+  var start = datetime.start.getTime();
+  var end = datetime.end.getTime();
+  var diff = end - start;
+  $scope.labels = [];
+  diff /= 11
+  for(var i = 0 ; i < 11 ; i++){
+    $scope.timeData.push(new Date(start+(diff*i)))
   }
   $scope.getTraffic = function(current,timeData){
-    if(current == timeData.length-2){
-      //render
+    if(current == timeData.length-1){
+      console.log($scope.data)
+      $scope.render = true;
       return
     }
-    restService.getTrafficFromDataRelation(id,timeData[current],timeData[current+1]).then(function(response){
-      $scope.data.push(response.data);
+
+    restService.getTrafficFromDataRelation($scope.item.id,timeData[current],timeData[current+1]).then(function(response){
+      var traffic_data = response.data.data
+      $scope.data[0].push(traffic_data[0].speed)
+      $scope.data[1].push(traffic_data[1].speed)
+
+      $scope.data2[0].push(traffic_data[0].count)
+      $scope.data2[1].push(traffic_data[1].count)
       $scope.getTraffic(current+1,timeData)
+
+      $scope.labels.push($filter('date')($scope.timeData[current], 'short'))
     });
   }
-  $scope.labels = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
-  $scope.series = ['ซอย สุธรรมอารีกุล ไป ซอย จันทรสถิตย์', 'ซอย จันทรสถิตย์ ไป ซอย สุธรรมอารีกุล'];
+  $scope.getTraffic(0,$scope.timeData);
 
-  $scope.data = [
-    [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
-    [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
-  ];
-  $scope.data2 = [
-    [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
-    [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
-  ];
+  $scope.series = [$scope.item.description+' ขาเข้า', $scope.item.description+' ขาออก'];
+
+  // $scope.data = [
+  //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
+  //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
+  // ];
+  // $scope.data2 = [
+  //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
+  //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
+  // ];
 
 $scope.ok = function () {
   $modalInstance.close();
