@@ -77,7 +77,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
         $scope.polys[i*2] = {}
         $scope.polys[i*2].id = $scope.dataRelation[i].id
         $scope.polys[i*2].path = angular.copy($scope.dataRelation[i].path)
-        $scope.polys[i*2].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),width:1,opacity:1.0}
+        $scope.polys[i*2].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
         $scope.polys[i*2].events = {
           click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
@@ -90,13 +90,15 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
       }
       var path = angular.copy($scope.dataRelation[i].path)
       for(var j = 0 ; j < path.length ; j++){
-        path[j].B += 0.00003
-        path[j].k += 0.00000
+        //if(!(j == 0 || j == path.length-1 || j ==1 || j == path.length-2)){
+        path[j].B += 0.00005
+        path[j].k += 0.00002
+      //}
       }
       $scope.polys[i*2+1] = {}
         $scope.polys[i*2+1].id = $scope.dataRelation[i].id
         $scope.polys[i*2+1].path = path
-        $scope.polys[i*2+1].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),width:1,opacity:1.0}
+        $scope.polys[i*2+1].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
         $scope.polys[i*2+1].events = {
           click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
