@@ -146,7 +146,7 @@ function pInt(value){
 }
 //TODO implement login
 app.controller('MainCtrl',function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
-  
+  //
 });
 app.controller('MapSettingController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
   $scope.polys = [];

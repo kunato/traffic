@@ -12,19 +12,22 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 import numpy as np
 @ensure_csrf_cookie
 def index(request):
-    username = request.GET['username']
-    password = request.GET['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-            return redirect('/app/')
-            # Redirect to a success page.
+    if(request.method == "POST"):
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('/app/')
+                # Redirect to a success page.
+            else:
+            	return HttpResponse("error")
+                # Return a 'disabled account' error message
         else:
         	return HttpResponse("error")
-            # Return a 'disabled account' error message
     else:
-    	return HttpResponse("error")
+        return render(request,'login.html')
         # Return an 'invalid login' error message.
 
 @ensure_csrf_cookie
@@ -81,4 +84,4 @@ def traffic(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponse("OK");
+    return redirect('/')
