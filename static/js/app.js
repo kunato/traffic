@@ -118,7 +118,8 @@ function getRandomColor() {
   return color;
 }
 function getColorFromTraffic(speed,count) {
-  if(speed < 10)return 'red'
+  if(speed == 0)return 'black'
+  else if(speed < 10)return 'red'
   else if(speed < 40) return 'yellow'
   else return 'green'
 }

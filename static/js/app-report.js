@@ -3,6 +3,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   $scope.time = new Date()
   $scope.datetime = {start:new Date((new Date().getTime() - 5 * 60000)),end:new Date()}
   $scope.duration = 1
+  $scope.render = false;
   console.log("we in ReportController");
   $scope.dataRelation = [];
   // restService.getMap().then(function(response){
@@ -32,6 +33,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   },true);
   $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     if(i == length){
+      $scope.render = true;
       return;
     }
       restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
@@ -73,21 +75,23 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     
   });
   $scope.renderPolyline = function(){
-    for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-        $scope.polys[i*2] = {}
-        $scope.polys[i*2].id = $scope.dataRelation[i].id
-        $scope.polys[i*2].path = angular.copy($scope.dataRelation[i].path)
-        $scope.polys[i*2].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
-        $scope.polys[i*2].events = {
+    var events = {
           click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
 
             $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
             //this is hotfix id
             var id = originalEventArgs.icons
+            $scope.open(id);
             $log.info("dataRelation id :",originalEventArgs.icons)
         }
       }
+    for (var i = 0 ; i < $scope.dataRelation.length ;i++){
+        $scope.polys[i*2] = {}
+        $scope.polys[i*2].id = $scope.dataRelation[i].id
+        $scope.polys[i*2].path = angular.copy($scope.dataRelation[i].path)
+        $scope.polys[i*2].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
+        $scope.polys[i*2].events = events;
       var path = angular.copy($scope.dataRelation[i].path)
       for(var j = 0 ; j < path.length ; j++){
         //if(!(j == 0 || j == path.length-1 || j ==1 || j == path.length-2)){
@@ -99,16 +103,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
         $scope.polys[i*2+1].id = $scope.dataRelation[i].id
         $scope.polys[i*2+1].path = path
         $scope.polys[i*2+1].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
-        $scope.polys[i*2+1].events = {
-          click: function (mapModel, eventName, originalEventArgs) {
-          // 'this' is the directive's scope
-
-            $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
-            //this is hotfix id
-            var id = originalEventArgs.icons
-            $log.info("dataRelation id :",originalEventArgs.icons)
-        }
-      }
+        $scope.polys[i*2+1].events = events;
     }
     console.log('polys',$scope.polys);
   }
@@ -128,12 +123,6 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   //   }
   //   return out;
   // }
-  $scope.test = function(){
-    console.log("test",$scope.dataRelation)
-    for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-        $scope.polys[i] = $scope.dataRelation[i]
-    }
-  }
   $scope.deletedMarkers = []
   restService.getMap().then(function(response){
     $log.info('getMap',response)
@@ -198,11 +187,16 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     });
   }
 
-  $scope.open = function () {
+  $scope.open = function (id) {
     var modalInstance = $modal.open({
       templateUrl: '/static/html/modal_report.html',
       controller: 'ModalReportCtrl',
-      size:'lg'
+      size:'lg',
+      resolve:{
+        id: function() {
+          return id;
+        }
+      }
     });
 
     // modalInstance.result.then(function (selectedItem) {
@@ -242,8 +236,23 @@ $scope.cancel = function () {
 
 });
 
-app.controller('ModalReportCtrl', function (restService, $scope, $modalInstance) {
-$scope.labels = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
+app.controller('ModalReportCtrl', function (restService, $scope, $modalInstance,id) {
+  $scope.item = { id:id };
+  $scope.data = [];
+  for(var i = 0 ; i < 24 ; i++){
+
+  }
+  $scope.getTraffic = function(current,timeData){
+    if(current == timeData.length-2){
+      //render
+      return
+    }
+    restService.getTrafficFromDataRelation(id,timeData[current],timeData[current+1]).then(function(response){
+      $scope.data.push(response.data);
+      $scope.getTraffic(current+1,timeData)
+    });
+  }
+  $scope.labels = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
   $scope.series = ['ซอย สุธรรมอารีกุล ไป ซอย จันทรสถิตย์', 'ซอย จันทรสถิตย์ ไป ซอย สุธรรมอารีกุล'];
 
   $scope.data = [
