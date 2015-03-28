@@ -96,8 +96,8 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
       var path = angular.copy($scope.dataRelation[i].path)
       for(var j = 0 ; j < path.length ; j++){
         //if(!(j == 0 || j == path.length-1 || j ==1 || j == path.length-2)){
-        path[j].B += 0.00005
-        path[j].k += 0.00002
+        path[j].B += 0.00011
+        path[j].k += 0.000035
       //}
       }
       $scope.polys[i*2+1] = {}
@@ -296,7 +296,9 @@ app.controller('ModalReportCtrl', function (restService, $filter,$scope, $modalI
 $scope.ok = function () {
   $modalInstance.close();
 };
-
+$scope.export = function(){
+  console.log('export');
+}
 $scope.cancel = function () {
   $modalInstance.dismiss('cancel');
 };

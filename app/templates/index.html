@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="app" ng-controller='MainCtrl' lang="en">
 
 <head>
 
@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Setting</title>
+    <title ng-bind="$root.title"></title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
@@ -37,7 +37,7 @@
     .draggable-camera { position:absolute!important;width: 90px; height: 90px; padding: 0.5em; float: left;  opacity: 0.6; }
     </style>  
 
-    <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top" ng-app="app" style='background-color:#fff;color:#000'>
+    <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top"  style='background-color:#fff;color:#000'>
 
         <ng-view></ng-view>
 

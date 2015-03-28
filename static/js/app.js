@@ -10,16 +10,25 @@ app.config(['$httpProvider', function($httpProvider){
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 }])
+app.run(['$location', '$rootScope', function($location, $rootScope) {
+    $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
+        console.log("routeChangeSuccess");
+        console.log(current.$$route.title);
+        $rootScope.title = current.$$route.title;
+    });
+}]);
 app.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
       when('/report', {
         templateUrl: '/static/html/report.html',
-        controller: 'ReportController'
+        controller: 'ReportController',
+        title:'Report'
       }).
       when('/setting', {
         templateUrl: '/static/html/setting.html',
-        controller: 'MapSettingController'
+        controller: 'MapSettingController',
+        title:'Setting'
       }).
       when('/',{
         redirectTo: "/setting"
@@ -135,6 +144,10 @@ function pInt(value){
   }
   return i[0];
 }
+//TODO implement login
+app.controller('MainCtrl',function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
+  
+});
 app.controller('MapSettingController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
   $scope.polys = [];
   $scope.dataRelation = [];
