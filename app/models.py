@@ -12,8 +12,7 @@ class Video(models.Model):
 	name = models.CharField(max_length=200)
 	url = models.CharField(max_length=200)
 	camera = models.ForeignKey(Camera)
-	start_time = models.DateTimeField()
-	status = models.FloatField()
+	start_time = models.DateTimeField(null=True)
 	# 0 stream or 1 file
 	type = models.IntegerField()
 

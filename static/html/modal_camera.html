@@ -9,7 +9,7 @@
     <div class="col-xs-5">
     <div >
     <input type="text" ng-model="c.video_url" ng-disabled="c.video_date" class="form-control" style="width: 260px;" placeholder="Video Stream URL"></input>
-    <div class="btn btn-warning" style="width: 87px;" ng-disabled="!c.video_url">Save</div>
+    <div class="btn btn-warning" style="width: 87px;" ng-click="save(c)" ng-disabled="!c.video_url">Save</div>
     </div>
     <div style="margin-top:10px">
     <input type="datetime-local" ng-model="c.video_date" ng-disabled="c.video_url" class="form-control" placeholder="Video DateTime"></input>

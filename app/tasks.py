@@ -7,7 +7,7 @@ import tracking
 
 
 @task()
-def process(video, message):
+def process(video):
     # print message
     if(video.camera.url == ''):
         img = tracking.saveImg(video.url,[])
@@ -20,6 +20,17 @@ def process(video, message):
 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
     print "task finish"
+
+@task()
+def process_stream(video):
+    if(video.camera.url == ''):
+        img = tracking.saveImg(video.url,[])
+        video.camera.url = img
+        video.camera.save()
+    dataRelation = DataRelation.objects.get(camera=video.camera)
+    current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
+    #never finish
+    tracking.process(video,dataRelation)
 
 def get_task_status(task_id):
  

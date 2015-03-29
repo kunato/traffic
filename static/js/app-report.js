@@ -91,7 +91,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
       var path1 = angular.copy($scope.dataRelation[i].path);
       for(var j = 0 ; j < path1.length ; j++){
-        if(j == 0 || j == path1.length-1){
+        if(j == 0 || j == path1.length-1 ){
           path1[j].B += 0.00010/2.0
           path1[j].k += 0.00003/2.0
         }

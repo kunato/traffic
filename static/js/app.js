@@ -116,9 +116,13 @@ app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
       var path = '/upload/'
       return $http.post(path,data);
     },
+    postStream: function(data){
+      var path = '/stream/'
+      return $http.post(path,data);
+    },
     getState: function(id){
       var path = '/state/?task_id='+id
-      return $http.get(path)
+      return $http.get(path);
     }
 
   }
@@ -343,6 +347,14 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
   }
   $scope.ok = function(){
     $modalInstance.close()
+  }
+  $scope.save = function(c){
+    console.log('save')
+    var data = {'id':c.id,'url':c.video_url};
+    console.log('data',data);
+    restService.postStream(data).then(function(response){
+      console.log(response)
+    });
   }
   $scope.poll = function(formData,id){
     $timeout(function() {
