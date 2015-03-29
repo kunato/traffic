@@ -111,6 +111,10 @@ app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
     getTrafficFromDataRelation: function(id,start,end){
       var path = '/traffic/?id='+id+'&start='+start.toISOString()+'&end='+end.toISOString();
       return $http.get(path); 
+    },
+    postVideo: function(data){
+      var path = '/upload/'
+      return $http.post(path,data);
     }
 
   }
@@ -301,10 +305,17 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
     marker.showWindow = true;
     $scope.$apply();
   };
+  $scope.openCamera = function () {
+    var modalInstance = $modal.open({
+      templateUrl: '/static/html/modal_camera.html',
+      controller: 'ModalCameraCtrl',
+      size:'lg'
+    });
+  }
   $scope.open = function () {
     var modalInstance = $modal.open({
       templateUrl: '/static/html/modal_setting.html',
-      controller: 'ModalCameraCtrl',
+      controller: 'ModalSettingCtrl',
       size:'lg'
     });
 
@@ -315,8 +326,10 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
     // });
   };
 });
+app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance){
 
-app.controller('ModalCameraCtrl', function (restService, $scope, $modalInstance) {
+});
+app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance) {
   $scope.draggable = true;
   $scope.selected_camera = {};
   $scope.draggable_item = [{color:'red',left:0.45,top:0,height:0.1,width:0.1},{color:'blue',left:0.45,top:0.9,height:0.1,width:0.1}];
