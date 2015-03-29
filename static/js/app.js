@@ -3,7 +3,7 @@ Array.prototype.remove = function(val) {
     var i = this.indexOf(val);
          return i>-1 ? this.splice(i, 1) : [];
   };
-var app = angular.module('app', ['uiGmapgoogle-maps','ngRoute','ui.bootstrap','chart.js']);
+var app = angular.module('app', ['uiGmapgoogle-maps','ngRoute','ui.bootstrap','chart.js','angularFileUpload']);
 app.config(['$httpProvider', function($httpProvider){
         // django and angular both support csrf tokens. This tells
         // angular which cookie to add to what header.
@@ -326,9 +326,40 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
     // });
   };
 });
-app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance){
+app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$upload){
+  $scope.camera = []
+  restService.getCamera().then(function(response){
+    $scope.camera = response.data.objects
+    console.log($scope.camera)
+  });
 
+  $scope.fileChange = function(file,event,formData){
+
+    $scope.upload(formData,file);
+  }
+  $scope.ok = function(){
+    $modalInstance.close()
+  }
+    $scope.upload = function (formData,files) {
+        if (files && files.length) {
+          console.log('upload')
+            var file = files[0];
+            $upload.upload({
+                url: '/upload/',
+                file: file,
+                fields: {'id': formData.id,'datetime':formData.video_date.toISOString()}
+            }).progress(function (evt) {
+                formData.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                console.log('progress: ' + formData.progressPercentage + '% ' + evt.config.file.name);
+            }).success(function (data, status, headers, config) {
+                console.log('file ' + config.file.name + ' uploaded. Response: ' + data);
+            });
+            
+        }
+    };
 });
+
+
 app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance) {
   $scope.draggable = true;
   $scope.selected_camera = {};

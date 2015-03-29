@@ -40,11 +40,12 @@ def app(request):
 def upload(request):
     if(request.user.is_authenticated()):
         if(request.method == "POST"):
-            f = request.FILES['sentFile']
+            print request.POST
+            f = request.FILES['file']
             #change to Camera.objects.get(pk=request.POST['camera_id'])
             # 0 = oneway 1 = bi-direction
-            cam = Camera.objects.all()[1]
-            video = Video(name="", url="", camera=cam, start_time=datetime.datetime.now(), status=0.0,type=1)
+            cam = Camera.objects.get(pk=request.POST['id'])
+            video = Video(name="", url="", camera=cam, start_time=request.POST['datetime'], status=0.0,type=1)
             video.save()
             url = helper.saveFile(video.id,f.name.split('.')[-1],f)
             video.url = url
