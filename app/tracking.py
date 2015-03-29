@@ -5,6 +5,7 @@ import os
 import math
 from models import *
 import datetime
+import dateutil.parser
 
 class People:
     newid = 0
@@ -71,7 +72,7 @@ def saveImg(path,options):
     cap.release()
     return '/static/img/'+file_name;
 
-def process(path,dataRelation):
+def process(video,dataRelation):
     #set exit cutof from setting
     #set exit position from setting
     #set area cut of from setting
@@ -83,7 +84,7 @@ def process(path,dataRelation):
     BLUR_PIXEL = 5
     print (START_POSITION,EXIT_POSITION)
     print (START_CUTOFF,EXIT_CUTOFF)
-    cap = cv2.VideoCapture(path)
+    cap = cv2.VideoCapture(video.url)
     # fgbg = cv2.BackgroundSubtractorMOG()
     fgbg = cv2.BackgroundSubtractorMOG2(history=50,varThreshold=4,bShadowDetection=False)
     kernel = np.ones((KERNEL_PIXEL,KERNEL_PIXEL),np.uint8)
@@ -94,8 +95,8 @@ def process(path,dataRelation):
     start_exit = []
     end_exit = []
     frame_no = 0
-    start = time.time()
     last_gen_bg = frame_no
+    startdate = dateutil.parser.parse(video.start_time)
     while(1):
         ret, frame = cap.read()
         frame_no += 1
@@ -132,6 +133,11 @@ def process(path,dataRelation):
             continue
         #sort contourSize
         contours_sorted = np.empty((len(contours)),dtype = [('index', int), ('area', float)])
+        
+        if(video.type == 1):
+            time = startdate + datetime.timedelta(seconds=(frame_no/VIDEO_FPS))
+        else:
+            time = datetime.datetime.now()
         for i in peoples:
             #check position if near exit use short time check
             if((i.position - EXIT_POSITION < EXIT_CUTOFF).all() and (i.position - EXIT_POSITION > (0,0)).all()):
@@ -146,8 +152,7 @@ def process(path,dataRelation):
                     speed = (dataRelation.camera_length/((dataRelation.camera_aspect*dataRelation.camera.width)/speed)) * 3.6
                     #   1m/s = 3.6km/h calc equation = length of road / (pixel of road / speed) * 3.6
                     #   50.0/(1100/245.0)*3.6
-
-                    VideoData(data_relation=dataRelation,go_to=0,speed=speed,appear_time=datetime.datetime.now()).save()
+                    VideoData(data_relation=dataRelation,go_to=0,speed=speed,appear_time=time).save()
                     end_exit.append(i)
                     continue
             if((i.position - START_POSITION < START_CUTOFF).all() and (i.position - START_POSITION > (0,0)).all()):
@@ -159,7 +164,7 @@ def process(path,dataRelation):
                     # print "out2",i.id
                     speed = (math.sqrt( (i.appear_position[0] - i.last_position[0])**2 + (i.appear_position[1] - i.last_position[1])**2 )/(i.diff_time/(VIDEO_FPS)))
                     speed = (dataRelation.camera_length/((dataRelation.camera_aspect*dataRelation.camera.width)/speed)) * 3.6
-                    VideoData(data_relation=dataRelation,go_to=1,speed=speed,appear_time=datetime.datetime.now()).save()
+                    VideoData(data_relation=dataRelation,go_to=1,speed=speed,appear_time=time).save()
                     start_exit.append(i)
                     continue
             if(frame_no - i.time > VIDEO_FPS):

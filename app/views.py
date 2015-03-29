@@ -10,6 +10,7 @@ from django.core import serializers
 from django.contrib.auth import authenticate, login , logout
 from django.views.decorators.csrf import ensure_csrf_cookie
 import numpy as np
+from celery.result import AsyncResult
 @ensure_csrf_cookie
 def index(request):
     if(request.method == "POST"):
@@ -50,12 +51,20 @@ def upload(request):
             url = helper.saveFile(video.id,f.name.split('.')[-1],f)
             video.url = url
             video.save()
-            process.delay(video=video,message="test")
-            return HttpResponse("FIN")
+            process_obj = process.delay(video=video,message="test")
+            return JsonResponse({'job_id':process_obj.id})
         else:
-            return render(request, 'upload.html')
+
+            return JsonResponse({'progress':''})
     else:
         return redirect('/')
+def state(request):
+    task_id = request.GET['task_id']
+    task = AsyncResult(task_id)
+    try:
+        return JsonResponse({'task':task.result['process_percent']})
+    except Exception, e:
+        return JsonResponse({'task': 0 })
 
 def traffic(request):
     data_relation_id = request.GET['id']

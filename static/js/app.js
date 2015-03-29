@@ -115,6 +115,10 @@ app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
     postVideo: function(data){
       var path = '/upload/'
       return $http.post(path,data);
+    },
+    getState: function(id){
+      var path = '/state/?task_id='+id
+      return $http.get(path)
     }
 
   }
@@ -326,7 +330,7 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
     // });
   };
 });
-app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$upload){
+app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$upload ,$timeout){
   $scope.camera = []
   restService.getCamera().then(function(response){
     $scope.camera = response.data.objects
@@ -340,6 +344,20 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
   $scope.ok = function(){
     $modalInstance.close()
   }
+  $scope.poll = function(formData,id){
+    $timeout(function() {
+            restService.getState(id).then(function(response){
+              console.log(id);
+              console.log(response)
+              formData.progressPercentage = response.data.task;
+              if(response.data.task != 100){
+                    $scope.poll(formData,id);
+              }
+              
+            })
+
+        }, 5000);
+  }
     $scope.upload = function (formData,files) {
         if (files && files.length) {
           console.log('upload')
@@ -352,7 +370,9 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
                 formData.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
                 console.log('progress: ' + formData.progressPercentage + '% ' + evt.config.file.name);
             }).success(function (data, status, headers, config) {
-                console.log('file ' + config.file.name + ' uploaded. Response: ' + data);
+                $scope.poll(formData,data['job_id'])
+                console.log('file ' + config.file.name + ' uploaded. Response: ' + data['job_id']);
+            
             });
             
         }

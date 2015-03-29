@@ -55,7 +55,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
             console.log('directionsService',response)
-            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data,'description':response.routes[0].summary})
+            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data,'description':response.routes[0].summary,one_way:dataRelation[i].one_way})
             console.log($scope.dataRelation);
             $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
           });
@@ -87,24 +87,42 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
             $log.info("dataRelation id :",originalEventArgs.icons)
         }
       }
+      $scope.polys = [];
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-        $scope.polys[i*2] = {}
-        $scope.polys[i*2].id = $scope.dataRelation[i].id
-        $scope.polys[i*2].path = angular.copy($scope.dataRelation[i].path)
-        $scope.polys[i*2].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
-        $scope.polys[i*2].events = events;
+      var path1 = angular.copy($scope.dataRelation[i].path);
+      for(var j = 0 ; j < path1.length ; j++){
+        if(j == 0 || j == path1.length-1){
+          path1[j].B += 0.00010/2.0
+          path1[j].k += 0.00003/2.0
+        }
+      }
+        $scope.polys.push({})
+        var index = $scope.polys.length-1
+        $scope.polys[index].id = $scope.dataRelation[i].id
+        $scope.polys[index].path = path1
+        $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
+        $scope.polys[index].events = events;
+      if($scope.dataRelation[i].one_way == true){
+        //$scope.polys[i*2+1] = {}
+        continue;
+      }
       var path = angular.copy($scope.dataRelation[i].path)
       for(var j = 0 ; j < path.length ; j++){
-        //if(!(j == 0 || j == path.length-1 || j ==1 || j == path.length-2)){
-        path[j].B += 0.00011
-        path[j].k += 0.000035
-      //}
+        if(!(j == 0 || j == path.length-1 )){
+
+        path[j].B += 0.00010
+        path[j].k += 0.00003
+      }else{
+        path[j].B += 0.00010/2.0
+        path[j].k += 0.00003/2.0
       }
-      $scope.polys[i*2+1] = {}
-        $scope.polys[i*2+1].id = $scope.dataRelation[i].id
-        $scope.polys[i*2+1].path = path
-        $scope.polys[i*2+1].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
-        $scope.polys[i*2+1].events = events;
+      }
+      $scope.polys.push({})
+      var index = $scope.polys.length-1
+        $scope.polys[index].id = $scope.dataRelation[i].id
+        $scope.polys[index].path = path
+        $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
+        $scope.polys[index].events = events;
     }
     console.log('polys',$scope.polys);
   }

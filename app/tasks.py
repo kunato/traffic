@@ -2,7 +2,7 @@
 Celery tasks
 """
 from models import *
-from celery import task
+from celery import task, current_task
 import tracking
 
 
@@ -15,7 +15,10 @@ def process(video, message):
         video.camera.save()
     #get data
     dataRelation = DataRelation.objects.get(camera=video.camera)
-    tracking.process(video.url,dataRelation)
+    current_task.update_state(state='PROGRESS', meta={'process_percent': 10})
+    tracking.process(video,dataRelation)
+
+    current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
     print "task finish"
 
 def get_task_status(task_id):
