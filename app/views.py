@@ -69,6 +69,7 @@ def stream(request):
             return JsonResponse({'job_id':process_obj.id})
         return JsonResponse({'progress':''})
     return redirect('/')
+    
 def state(request):
     task_id = request.GET['task_id']
     task = AsyncResult(task_id)
