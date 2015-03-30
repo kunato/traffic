@@ -160,7 +160,7 @@ function pInt(value){
 app.controller('MainCtrl',function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
   //
 });
-app.controller('MapSettingController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
+app.controller('MapSettingController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi , $location) {
   $scope.polys = [];
   $scope.dataRelation = [];
   // restService.getMap().then(function(response){
@@ -275,22 +275,27 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
         }
   }
   };
-  $scope.save = function(){
-    $log.info('save')
-    for(var i = 0 ; i < $scope.markers.length ; i++){
-      
-      var formData = {latitude:$scope.markers[i].latitude,longitude:$scope.markers[i].longitude,map:$scope.map_id};
-      if($scope.markers[i].options != undefined){
+  $scope.sendMarker = function(i,markers){
+    if(i == markers.length)
+      return;
+    var formData = {latitude:markers[i].latitude,longitude:markers[i].longitude,map:$scope.map_id};
+      if(markers[i].options != undefined){
         restService.postMapPoint(formData).then(function(response){
-          $log.info('sent post resp : '+response);
+
+          markers[i].id = response.data.id
+          console.log('sent post resp : ',response);
         });
       }
       else{
-        restService.postMapPointById($scope.markers[i].id,formData).then(function(response){
-          $log.info('sent post by id resp : '+response);
+        restService.postMapPointById(markers[i].id,formData).then(function(response){
+          console.log('sent post by id resp : ',response);
         });
       }
-    }
+      $scope.sendMarker(i+1,markers);
+  }
+  $scope.save = function(){
+    $log.info('save')
+    $scope.sendMarker(0,$scope.markers);
     for(var i = 0 ; i < $scope.deletedMarkers.length ; i++){
       if($scope.deletedMarkers[i].id > 0){
         restService.deleteMapPoint($scope.deletedMarkers[i].id).then(function(response){
@@ -298,7 +303,8 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
         })
       }
     }
-
+    $scope.deletedMarkers = [];
+    // $location.path('/setting')
   }
 
   $scope.removeMarker = function (marker){
@@ -392,7 +398,8 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
 });
 
 
-app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance) {
+
+app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance ,$location) {
   $scope.draggable = true;
   $scope.selected_camera = {};
   $scope.draggable_item = [{color:'red',left:0.45,top:0,height:0.1,width:0.1},{color:'blue',left:0.45,top:0.9,height:0.1,width:0.1}];
@@ -514,6 +521,7 @@ $scope.ok = function () {
   }
   
   $modalInstance.close();
+  $location.path("/setting/");
 };
 
 $scope.cancel = function () {
