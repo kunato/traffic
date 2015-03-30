@@ -28,7 +28,11 @@ def index(request):
         else:
         	return HttpResponse("error")
     else:
-        return render(request,'login.html')
+        if(request.user.is_authenticated()):
+            return redirect('/app/')
+        else:
+
+            return render(request,'login.html')
         # Return an 'invalid login' error message.
 
 @ensure_csrf_cookie

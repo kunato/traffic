@@ -161,6 +161,7 @@ app.controller('MainCtrl',function(restService, $scope , $http , $modal , $log, 
   //
 });
 app.controller('MapSettingController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi , $location) {
+  $scope.render = false
   $scope.polys = [];
   $scope.dataRelation = [];
   // restService.getMap().then(function(response){
@@ -175,6 +176,7 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
 
   $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     if(i == length){
+      $scope.render = true;
       return;
     }
       restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
