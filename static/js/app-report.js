@@ -47,8 +47,8 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
           console.log('cameraPoint2',response2.data)
           uiGmapGoogleMapApi.then(function(){
           var request = {
-            origin: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
-            destination: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
+            origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
+            destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
             travelMode: google.maps.DirectionsTravelMode.WALKING
           };
           console.log('sent directionsService with', request);
@@ -91,9 +91,9 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
       var path1 = angular.copy($scope.dataRelation[i].path);
       for(var j = 0 ; j < path1.length ; j++){
-        if(j == 0 || j == path1.length-1 ){
-          path1[j].B += 0.00010/2.0
-          path1[j].k += 0.00003/2.0
+        if((j == 0 || j == path1.length -1 ) && $scope.dataRelation[i].one_way == false){
+          // path1[j].B += 0.00010/2.0
+          // path1[j].k += 0.00003/2.0
         }
       }
         $scope.polys.push({})
@@ -108,13 +108,15 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
       }
       var path = angular.copy($scope.dataRelation[i].path)
       for(var j = 0 ; j < path.length ; j++){
-        if(!(j == 0 || j == path.length-1 )){
+        if(true){
+          //calculate from average of all path
+        path[j].B += 0.00003
+        path[j].k += 0.00006
 
-        path[j].B += 0.00010
-        path[j].k += 0.00003
+        
       }else{
-        path[j].B += 0.00010/2.0
-        path[j].k += 0.00003/2.0
+        // path[j].B += 0.00010/2.0
+        // path[j].k += 0.00003/2.0
       }
       }
       $scope.polys.push({})

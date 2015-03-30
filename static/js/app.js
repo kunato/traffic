@@ -399,7 +399,7 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
 
 
 
-app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance ,$location) {
+app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance ,$location ,$route) {
   $scope.draggable = true;
   $scope.selected_camera = {};
   $scope.draggable_item = [{color:'red',left:0.45,top:0,height:0.1,width:0.1},{color:'blue',left:0.45,top:0.9,height:0.1,width:0.1}];
@@ -521,7 +521,7 @@ $scope.ok = function () {
   }
   
   $modalInstance.close();
-  $location.path("/setting/");
+  $route.reload();
 };
 
 $scope.cancel = function () {
