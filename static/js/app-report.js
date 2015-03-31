@@ -148,6 +148,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   restService.getMap().then(function(response){
     $log.info('getMap',response)
     $scope.map_id = response.data.objects[0].resource_uri;
+    $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom}
   });
   $scope.markers = [];
   restService.getMapPoint().then(function(response){
@@ -156,8 +157,6 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   });
   //get from databases
   var nextId = -1;
-  $scope.map = { center: { latitude: 13.8468, longitude: 100.5680 }, zoom: 17 
-  };
   $scope.save = function(){
     $log.info('save')
     for(var i = 0 ; i < $scope.markers.length ; i++){

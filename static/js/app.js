@@ -30,6 +30,11 @@ app.config(['$routeProvider',
         controller: 'MapSettingController',
         title:'Setting'
       }).
+      when('/plan',{
+        templateUrl: '/static/html/plan.html',
+        controller: 'PlannerController',
+        title:'Planner'
+      }).
       when('/',{
         redirectTo: "/setting"
       })
@@ -247,16 +252,7 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
   restService.getMap().then(function(response){
     $log.info('getMap',response)
     $scope.map_id = response.data.objects[0].resource_uri;
-  });
-  $scope.markers = [];
-  restService.getMapPoint().then(function(response){
-    console.log('getMapPoint',response)
-    $scope.markers = response.data.objects;
-  });
-  //get from databases
-  var nextId = -1;
-  $scope.map = { center: { latitude: 13.8468, longitude: 100.5680 }, zoom: 17 ,
-  events: {
+    $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom ,events: {
     click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
           $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
@@ -275,8 +271,16 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
           //scope apply required because this event handler is outside of the angular domain
           $scope.$apply();
         }
-  }
-  };
+  }};
+  });
+  $scope.markers = [];
+  restService.getMapPoint().then(function(response){
+    console.log('getMapPoint',response)
+    $scope.markers = response.data.objects;
+  });
+  //get from databases
+  var nextId = -1;
+  
   $scope.sendMarker = function(i,markers){
     if(i == markers.length)
       return;
