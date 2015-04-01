@@ -34,14 +34,14 @@
         <!-- Intro Header -->
 <div style="width:100%;">
     <ui-gmap-google-map center='map.center' events='map.events' zoom='map.zoom'>
-    <!-- <ui-gmap-marker ng-repeat="m in markers" coords="m" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
+    <ui-gmap-marker ng-repeat="m in markers2" coords="m" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
             <ui-gmap-window ng-cloak  coords="map.infoWindowWithCustomClass.coords" isIconVisibleOnClick="true" options="map.infoWindowWithCustomClass.options">
                 <div>
                     <p> ID: {{m.id}} lat {{m.latitude}} lng {{m.longitude}}</p>
                     <button class="btn btn-success" ng-click="$parent.$parent.removeMarker($parent.m)">Remove Marker</button>
                 </div>
             </ui-gmap-window>
-        </ui-gmap-marker> -->
+        </ui-gmap-marker>
         <ui-gmap-polyline ng-if="render" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
         </ui-gmap-polyline>
     

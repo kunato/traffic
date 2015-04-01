@@ -38,10 +38,10 @@ function Graph(){
       this.vertices[name] = {};
       this.vertices[name][Object.keys(edges)[0]] = edges[Object.keys(edges)[0]];
     }
-    console.log(this.vertices);
   }
 
   this.shortestPath = function (start, finish) {
+    console.log(this.vertices);
     var nodes = new PriorityQueue(),
         distances = {},
         previous = {},

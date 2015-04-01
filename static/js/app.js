@@ -161,6 +161,10 @@ function pInt(value){
   }
   return i[0];
 }
+function calcDistance(latLng1,latLng2){
+  var i = Math.sqrt((Math.pow((latLng1.B-latLng2.B),2)+(Math.pow((latLng1.k-latLng2.k),2))))
+  return i
+}
 //TODO implement login
 app.controller('MainCtrl',function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
   //
