@@ -57,8 +57,9 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
             console.log('directionsService',response)
+            var saved_path = response.route[0].overview_path; 
             $scope.dataRelation.push({id:dataRelation[i].id,
-            path:response.routes[0].overview_path,traffic:traffic.data,'description':response.routes[0].summary,
+            path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
             distance:response.routes[0].legs[0].distance.value,
             cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
             console.log($scope.dataRelation);
@@ -105,6 +106,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       }
 
     }
+
     var start_min_index = -1;
     var start_min_node = -1;
     var end_min_index = -1;
@@ -112,9 +114,8 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var end_min = 10000.0;
     var start_min = 10000.0;
     //calc where the start point and end point
-
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
-      for(var j = 0 ;j < $scope.dataRelation[i].path.length ; j++){
+      for(var j = 0 ;j < $scope.dataRelation[i].path.length-1 ; j++){
         var value = calcDistance($scope.dataRelation[i].path[j],latlng_start)
         if(value < start_min){
           start_min = value;
@@ -127,6 +128,15 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           end_min_index = i;
           end_min_node = j;
         }
+        // slope of path
+        // var slope = ($scope.dataRelation[i].path[j].B - $scope.dataRelation[i].path[j+1].B )/ ($scope.dataRelation[i].path[j].k - $scope.dataRelation[i].path[j+1].k)
+        // var invert_slope = -slope;
+        // var line_ans = (slope*$scope.dataRelation[i].path[j].B)+$scope.dataRelation[i].path[j].k
+        // var point_ans = (invert_slope*latlng_start.B)+latlng_start.k
+        // var y = (point_ans+line_ans)/2
+        // var x =line_ans-y/slope
+        // //check point is < lat lng path or not
+
       }
     }
     var start = [0,0]
@@ -310,6 +320,10 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           console.log($scope.markers);
           var e = originalEventArgs[0];
           var lat = e.latLng.lat(),lon = e.latLng.lng();
+          if($scope.markers2.length == 2){
+            $scope.markers2 = [];
+            $scope.polys2 = [];
+          }
           $scope.markers2.push({
             id: nextId,
             options: {
