@@ -39,9 +39,11 @@ function Graph(){
       this.vertices[name][Object.keys(edges)[0]] = edges[Object.keys(edges)[0]];
     }
   }
-
+  this.getVertices = function(){
+    return this.vertices;
+  }
   this.shortestPath = function (start, finish) {
-    console.log(this.vertices);
+    console.log('vertices',this.vertices);
     var nodes = new PriorityQueue(),
         distances = {},
         previous = {},
@@ -95,6 +97,3 @@ function Graph(){
   }
 }
 
-
-
-// Log test, with the addition of reversing the path and prepending the first node so it's more readable
