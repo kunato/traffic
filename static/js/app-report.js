@@ -65,8 +65,6 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
       });
     });
   }
-  //TODO set start time and end time then go will refresh traffic object
-
   restService.getDataRelation().then(function(response){
     console.log('data',response.data.objects)
     var dataRelation = response.data.objects
