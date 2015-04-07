@@ -101,8 +101,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var end_min_node = -1;
     var end_min = 1.0/0;
     var start_min = 1.0/0;
-    var start_line_loc = {B:0,k:0}
-    var end_line_loc = {B:0,k:0}
     //calc where the start point and end point
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ;j < $scope.dataRelation[i].path.length-1 ; j++){
@@ -371,7 +369,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
             //this is hotfix id
             var id = originalEventArgs.icons
-            $scope.open(id);
+            // $scope.open(id);
             $log.info("dataRelation id :",originalEventArgs.icons)
           }
         }

@@ -257,13 +257,7 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
   $scope.$watch('polys',function(){
     console.log('polys change');
   },true);
-  // $scope.polylineRenderer = function(path){
-  //   var out = [];
-  //   for(var i = 0 ; i < path.length ; i++){
-  //     out[i] = {latitude:path[i].B,longitude:path[i].k}
-  //   }
-  //   return out;
-  // }
+  
   $scope.test = function(){
     console.log("test",$scope.dataRelation)
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
