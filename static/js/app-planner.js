@@ -13,16 +13,16 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
 
       restService.getTrafficFromDataRelation($scope.dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
-        console.log('traffic',response.data)
+        // console.log('traffic',response.data)
         for(var j = 0 ; j < $scope.dataRelation.length ; j++){
           if($scope.dataRelation[j].id == response.data.data_relation_id){
             $scope.dataRelation[j].traffic = response.data.data;
           }
         }
-        console.log($scope.dataRelation)
+        // console.log($scope.dataRelation)
       });
     }
-    console.log("datetime change",$scope.datetime)
+    // console.log("datetime change",$scope.datetime)
   },true);
   $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     if(i == length){
@@ -31,29 +31,29 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     }
     restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
       var traffic = response.data
-      console.log('traffc',response.data)
+      // console.log('traffc',response.data)
       restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
         var cameraPoint1 = response.data.mapPoint;
-        console.log('cameraPoint1',response.data)
+        // console.log('cameraPoint1',response.data)
         restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
           var cameraPoint2 = response2.data.mapPoint;
-          console.log('cameraPoint2',response2.data)
+          // console.log('cameraPoint2',response2.data)
           uiGmapGoogleMapApi.then(function(){
             var request = {
               origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
               destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
               travelMode: google.maps.DirectionsTravelMode.WALKING
             };
-            console.log('sent directionsService with', request);
+            // console.log('sent directionsService with', request);
             directionsService = new google.maps.DirectionsService(),
             directionsService.route(request, function (response, status) {
-              console.log('directionsService',response)
+              // console.log('directionsService',response)
               var saved_path = response.routes[0].overview_path; 
               $scope.dataRelation.push({id:dataRelation[i].id,
                 path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
                 distance:response.routes[0].legs[0].distance.value,
                 cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
-              console.log($scope.dataRelation);
+              // console.log($scope.dataRelation);
               $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
             });
           });
@@ -62,7 +62,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     });
   }
   restService.getDataRelation().then(function(response){
-    console.log('data',response.data.objects)
+    // console.log('data',response.data.objects)
     var dataRelation = response.data.objects
     var i = 0;
 
@@ -198,11 +198,9 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     for(var i = 0 ; i < start_path_temp.length-1 ; i++){
       var distance = getDistance(start_path_temp[i],start_path_temp[i+1]);
       var divideBy = 0;
-      console.log('distance',distance)
       for(var j = 0 ; j < distance ; j+=20){
         divideBy+=1;
       }
-      console.log('divideBy',divideBy)
       var diff = [(start_path_temp[i+1].B-start_path_temp[i].B)/divideBy,(start_path_temp[i+1].k-start_path_temp[i].k)/divideBy]
       save_start_path.push(start_path_temp[i])
       for(var j = 0 ; j < divideBy ; j++){
@@ -217,11 +215,9 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     for(var i = 0 ; i < end_path_temp.length-1 ; i++){
       var distance = getDistance(end_path_temp[i],end_path_temp[i+1]);
       var divideBy = 0;
-      console.log('distance',distance)
       for(var j = 0 ; j < distance ; j+=20){
         divideBy+=1;
       }
-      console.log('divideBy',divideBy)
       var diff = [(end_path_temp[i+1].B-end_path_temp[i].B)/divideBy,(end_path_temp[i+1].k-end_path_temp[i].k)/divideBy]
       save_end_path.push(end_path_temp[i])
       for(var j = 0 ; j < divideBy ; j++){
@@ -347,12 +343,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     $scope.polys2[2].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
     $scope.polys2[3].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
     $scope.polys2[2].path = [{latitude:latlng_start.k,longitude:latlng_start.B},start_path[start_path.length-1]]
-    $scope.polys2[3].path = [{latitude:latlng_end.k,longitude:latlng_end.B},end_path[end_path.length-1]] 
-    // console.log('test',start_id[min_start],end_id[min_end])
-    if(start_id[min_start] == end_id[min_end]){
-      console.log('ok')
-      return
-    }
+    $scope.polys2[3].path = [{latitude:latlng_end.k,longitude:latlng_end.B},end_path[end_path.length-1]]
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < result_node[min_start][min_end].length ; j++){
         if((result_node[min_start][min_end][j] == $scope.dataRelation[i].cameraPoint1.id && result_node[min_start][min_end][j+1] == $scope.dataRelation[i].cameraPoint2.id)){
@@ -416,16 +407,12 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
         $scope.polys[index].events = events;
       }
-      console.log('polys',$scope.polys);
     }
 
     $scope.$watch('dataRelation',function(){
-      console.log("dataRelation change",$scope.dataRelation)
       $scope.renderPolyline();
-      console.log($scope.polys)
     },true);
     $scope.$watch('polys',function(){
-      console.log('polys change');
     },true);
     $scope.deletedMarkers = []
     restService.getMap().then(function(response){
@@ -434,7 +421,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         click: function (mapModel, eventName, originalEventArgs) {
             // 'this' is the directive's scope
             $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
-            console.log($scope.markers);
             var e = originalEventArgs[0];
             var lat = e.latLng.lat(),lon = e.latLng.lng();
             if($scope.markers2.length == 2){
@@ -456,11 +442,10 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         }}
         $scope.map_id = response.data.objects[0].resource_uri;
       });
-$scope.markers = [];
-restService.getMapPoint().then(function(response){
-  console.log('getMapPoint',response)
-  $scope.markers = response.data.objects;
-});
+  $scope.markers = [];
+  restService.getMapPoint().then(function(response){
+    $scope.markers = response.data.objects;
+  });
     //get from databases
     var nextId = -1;
     $scope.save = function(){
