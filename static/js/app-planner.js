@@ -17,7 +17,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
   //     console.log('points',$scope.points);
   //   });
   // });
-  $scope.$watch('datetime',function(){
+$scope.$watch('datetime',function(){
     //re-render poly line and request traffic from server
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
 
@@ -33,21 +33,21 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     }
     console.log("datetime change",$scope.datetime)
   },true);
-  $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
-    if(i == length){
-      $scope.render = true;
-      return;
-    }
-      restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
-        var traffic = response.data
-      console.log('traffc',response.data)
-      restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
-        var cameraPoint1 = response.data.mapPoint;
-        console.log('cameraPoint1',response.data)
-        restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
-          var cameraPoint2 = response2.data.mapPoint;
-          console.log('cameraPoint2',response2.data)
-          uiGmapGoogleMapApi.then(function(){
+$scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
+  if(i == length){
+    $scope.render = true;
+    return;
+  }
+  restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
+    var traffic = response.data
+    console.log('traffc',response.data)
+    restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
+      var cameraPoint1 = response.data.mapPoint;
+      console.log('cameraPoint1',response.data)
+      restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
+        var cameraPoint2 = response2.data.mapPoint;
+        console.log('cameraPoint2',response2.data)
+        uiGmapGoogleMapApi.then(function(){
           var request = {
             origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
             destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
@@ -57,20 +57,20 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
             console.log('directionsService',response)
-            var saved_path = response.route[0].overview_path; 
+            var saved_path = response.routes[0].overview_path; 
             $scope.dataRelation.push({id:dataRelation[i].id,
-            path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
-            distance:response.routes[0].legs[0].distance.value,
-            cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
+              path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
+              distance:response.routes[0].legs[0].distance.value,
+              cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
             console.log($scope.dataRelation);
             $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
           });
-          });
-
         });
-      });
-    });
-  }
+
+});
+});
+});
+}
   //TODO set start time and end time then go will refresh traffic object
 
   restService.getDataRelation().then(function(response){
@@ -85,8 +85,8 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
 
   $scope.calculateRoute = function(){
     //markers2 [0] is start [1] is end
-    var latlng_start = {B:$scope.markers2[0].longitude,k:$scope.markers2[0].latitude}
-    var latlng_end = {B:$scope.markers2[1].longitude,k:$scope.markers2[1].latitude}
+    var latlng_start = new google.maps.LatLng($scope.markers2[0].latitude,$scope.markers2[0].longitude)
+    var latlng_end = new google.maps.LatLng($scope.markers2[1].latitude,$scope.markers2[1].longitude)
     var g = new Graph();
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       var obj = {}
@@ -111,8 +111,10 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var start_min_node = -1;
     var end_min_index = -1;
     var end_min_node = -1;
-    var end_min = 10000.0;
-    var start_min = 10000.0;
+    var end_min = 1.0/0;
+    var start_min = 1.0/0;
+    var start_line_loc = {B:0,k:0}
+    var end_line_loc = {B:0,k:0}
     //calc where the start point and end point
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ;j < $scope.dataRelation[i].path.length-1 ; j++){
@@ -120,22 +122,145 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         if(value < start_min){
           start_min = value;
           start_min_index = i;
-          start_min_node = j;
         }
         var value2 = calcDistance($scope.dataRelation[i].path[j],latlng_end)
         if(value2 < end_min){
           end_min = value2;
           end_min_index = i;
-          end_min_node = j;
         }
-        // slope of path
-        // var slope = ($scope.dataRelation[i].path[j].B - $scope.dataRelation[i].path[j+1].B )/ ($scope.dataRelation[i].path[j].k - $scope.dataRelation[i].path[j+1].k)
-        // var invert_slope = -slope;
-        // var line_ans = (slope*$scope.dataRelation[i].path[j].B)+$scope.dataRelation[i].path[j].k
-        // var point_ans = (invert_slope*latlng_start.B)+latlng_start.k
-        // var y = (point_ans+line_ans)/2
-        // var x =line_ans-y/slope
-        // //check point is < lat lng path or not
+      }
+    }
+    //check if start_min_index == end_min_index
+    if(start_min_index == end_min_index){
+      var start_path_temp = $scope.dataRelation[start_min_index].path
+      var save_start_path = []
+      for(var i = 0 ; i < start_path_temp.length-1 ; i++){
+        var distance = getDistance(start_path_temp[i],start_path_temp[i+1]);
+        var divideBy = 0;
+        for(var j = 0 ; j < distance ; j+=20){
+          divideBy+=1;
+        }
+        var diff = [(start_path_temp[i+1].B-start_path_temp[i].B)/divideBy,(start_path_temp[i+1].k-start_path_temp[i].k)/divideBy]
+        save_start_path.push(start_path_temp[i])
+        for(var j = 0 ; j < divideBy ; j++){
+          var t = new google.maps.LatLng(start_path_temp[i].k+(diff[1]*j),start_path_temp[i].B+(diff[0]*j))
+          save_start_path.push(t)
+        }
+        if(i == start_path_temp.length-2)
+          save_start_path.push(start_path_temp[i+1])
+      }
+      $scope.dataRelation[start_min_index].path = save_start_path;
+      start_min = 1/0; 
+      for(var i = 0 ; i < $scope.dataRelation[start_min_index].path.length ; i++){
+        var value = calcDistance($scope.dataRelation[start_min_index].path[i],latlng_start)
+        if(value <= start_min){
+          start_min = value
+          start_min_node = i
+
+        }
+      }
+      end_min = 1/0;
+      for(var i = 0 ; i < $scope.dataRelation[end_min_index].path.length ; i++){
+        var value = calcDistance($scope.dataRelation[end_min_index].path[i],latlng_end)
+        if(value <= end_min){
+          end_min = value
+          end_min_node = i
+
+        }
+      }
+      
+    //render
+    var all_path = [];
+    var lower_node = undefined
+    var higher_node = undefined
+    if(start_min_node > end_min_node){
+      lower_node = end_min_node;
+      higher_node = start_min_node
+    }else if(end_min_node >= start_min_node && ! $scope.dataRelation[start_min_index].one_way){
+      lower_node = start_min_node;
+      higher_node = end_min_node;
+    }
+    else{
+      console.log('ROUTE NOT FOUND')
+      return
+    }
+    $scope.polys2 = [{},{},{}]
+    for(var i = lower_node ; i < higher_node ; i++){
+      all_path.push($scope.dataRelation[start_min_index].path[i])
+    }
+    $scope.polys2[0].path = all_path;
+    $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
+    $scope.polys2[1].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
+    $scope.polys2[2].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
+    if(end_min_node > start_min_node){
+      $scope.polys2[1].path = [{latitude:latlng_start.k,longitude:latlng_start.B},all_path[0]]
+      $scope.polys2[2].path = [{latitude:latlng_end.k,longitude:latlng_end.B},all_path[all_path.length-1]] 
+    }
+    else{
+      $scope.polys2[1].path = [{latitude:latlng_start.k,longitude:latlng_start.B},all_path[all_path.length-1]]
+      $scope.polys2[2].path = [{latitude:latlng_end.k,longitude:latlng_end.B},all_path[0]] 
+    }
+    return
+  }
+    //seperate min path
+    var start_path_temp = $scope.dataRelation[start_min_index].path
+    var save_start_path = []
+    var end_path_temp = $scope.dataRelation[end_min_index].path
+    var save_end_path = []
+    for(var i = 0 ; i < start_path_temp.length-1 ; i++){
+      var distance = getDistance(start_path_temp[i],start_path_temp[i+1]);
+      var divideBy = 0;
+      console.log('distance',distance)
+      for(var j = 0 ; j < distance ; j+=20){
+        divideBy+=1;
+      }
+      console.log('divideBy',divideBy)
+      var diff = [(start_path_temp[i+1].B-start_path_temp[i].B)/divideBy,(start_path_temp[i+1].k-start_path_temp[i].k)/divideBy]
+      save_start_path.push(start_path_temp[i])
+      for(var j = 0 ; j < divideBy ; j++){
+        var t = new google.maps.LatLng(start_path_temp[i].k+(diff[1]*j),start_path_temp[i].B+(diff[0]*j))
+        save_start_path.push(t)
+      }
+      if(i == start_path_temp.length-2)
+        save_start_path.push(start_path_temp[i+1])
+    }
+    $scope.dataRelation[start_min_index].path = save_start_path;
+
+    for(var i = 0 ; i < end_path_temp.length-1 ; i++){
+      var distance = getDistance(end_path_temp[i],end_path_temp[i+1]);
+      var divideBy = 0;
+      console.log('distance',distance)
+      for(var j = 0 ; j < distance ; j+=20){
+        divideBy+=1;
+      }
+      console.log('divideBy',divideBy)
+      var diff = [(end_path_temp[i+1].B-end_path_temp[i].B)/divideBy,(end_path_temp[i+1].k-end_path_temp[i].k)/divideBy]
+      save_end_path.push(end_path_temp[i])
+      for(var j = 0 ; j < divideBy ; j++){
+        var t = new google.maps.LatLng(end_path_temp[i].k+(diff[1]*j),end_path_temp[i].B+(diff[0]*j))
+        save_end_path.push(t)
+      }
+      if(i == end_path_temp.length-2)
+        save_end_path.push(end_path_temp[i+1])
+    }
+    $scope.dataRelation[end_min_index].path = save_end_path;
+
+    start_min = 1/0
+    for(var i = 0 ; i < $scope.dataRelation[start_min_index].path.length ; i++){
+      var value = calcDistance($scope.dataRelation[start_min_index].path[i],latlng_start)
+      if(value <= start_min){
+        start_min = value
+        start_min_node = i
+
+      }
+    }
+
+    end_min = 1/0
+    for(var i = 0 ; i < $scope.dataRelation[end_min_index].path.length ; i++){
+      var value = calcDistance($scope.dataRelation[end_min_index].path[i],latlng_end)
+      if(value <= end_min){
+        end_min = value
+        end_min_node = i
 
       }
     }
@@ -145,19 +270,23 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var end_id = [-1,-1]
     var result = [[0,0],[0,0]]
     var result_node = [[0,0],[0,0]]
-    var start_distance = calcDistance({B:$scope.dataRelation[start_min_index].cameraPoint1.longitude,k:$scope.dataRelation[start_min_index].cameraPoint1.latitude},{B:$scope.dataRelation[start_min_index].cameraPoint2.longitude,k:$scope.dataRelation[start_min_index].cameraPoint2.latitude});
-    var end_distance = calcDistance({B:$scope.dataRelation[end_min_index].cameraPoint1.longitude,k:$scope.dataRelation[end_min_index].cameraPoint1.latitude},{B:$scope.dataRelation[end_min_index].cameraPoint2.longitude,k:$scope.dataRelation[end_min_index].cameraPoint2.latitude});
-    start[0] = calcDistance({B:$scope.dataRelation[start_min_index].cameraPoint1.longitude,k:$scope.dataRelation[start_min_index].cameraPoint1.latitude},$scope.dataRelation[start_min_index].path[start_min_node]);
-    start[1] = calcDistance({B:$scope.dataRelation[start_min_index].cameraPoint2.longitude,k:$scope.dataRelation[start_min_index].cameraPoint2.latitude},$scope.dataRelation[start_min_index].path[start_min_node]);
+    // if one way calc only on start[1] or end[1]
+    start[0] = getDistance(new google.maps.LatLng($scope.dataRelation[start_min_index].cameraPoint1.latitude,$scope.dataRelation[start_min_index].cameraPoint1.longitude),$scope.dataRelation[start_min_index].path[start_min_node]);
+    start[1] = getDistance(new google.maps.LatLng($scope.dataRelation[start_min_index].cameraPoint2.latitude,$scope.dataRelation[start_min_index].cameraPoint2.longitude),$scope.dataRelation[start_min_index].path[start_min_node]);
     start_id[0] = $scope.dataRelation[start_min_index].cameraPoint1.id
     start_id[1] = $scope.dataRelation[start_min_index].cameraPoint2.id
     end_id[0] = $scope.dataRelation[end_min_index].cameraPoint1.id
     end_id[1] = $scope.dataRelation[end_min_index].cameraPoint2.id
-    end[0] = calcDistance({B:$scope.dataRelation[end_min_index].cameraPoint1.longitude,k:$scope.dataRelation[end_min_index].cameraPoint1.latitude},$scope.dataRelation[end_min_index].path[end_min_node]);
-    end[1] = calcDistance({B:$scope.dataRelation[end_min_index].cameraPoint2.longitude,k:$scope.dataRelation[end_min_index].cameraPoint2.latitude},$scope.dataRelation[end_min_index].path[end_min_node]);
+    end[0] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint1.latitude,$scope.dataRelation[end_min_index].cameraPoint1.longitude),$scope.dataRelation[end_min_index].path[end_min_node]);
+    end[1] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint2.latitude,$scope.dataRelation[end_min_index].cameraPoint2.longitude),$scope.dataRelation[end_min_index].path[end_min_node]);
+    
+    if($scope.dataRelation[start_min_index].one_way)
+      start[0] = 1/0
+    if($scope.dataRelation[end_min_index].one_way)
+      end[1] = 1/0
     for(var i = 0; i < start.length ; i++){
       for(var j = 0 ; j < end.length ; j++){
-        result[i][j]= ((start[i]/start_distance)*$scope.dataRelation[start_min_index].distance)+((end[j]/end_distance)*$scope.dataRelation[end_min_index].distance);
+        result[i][j]= start[i]+end[j];
         var route_temp = g.shortestPath(String(start_id[i]),String(end_id[j])).concat([String(start_id[i])]).reverse();
 
         console.log(route_temp)
@@ -167,14 +296,15 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         }
         if((route_temp[0] != String(start_id[0]) && route_temp[0] != String(start_id[1]) ) || (route_temp[route_temp.length-1] != String(end_id[0]) && route_temp[route_temp.length-1] != String(end_id[1]))){
          result[i][j] = 1/0   
-        }
-        console.log('result',result[i][j]);
-      }
-    }
+       }
 
-    var min_start = -1
-    var min_end = -1
-    var min_result = 1/0;
+       console.log('result',result[i][j]);
+     }
+   }
+
+   var min_start = -1
+   var min_end = -1
+   var min_result = 1/0;
     //sort and check there is no route or not
     for(var i = 0 ; i < start.length ; i++){
       for(var j = 0 ; j < end.length ; j++){
@@ -188,23 +318,25 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var start_path = []
     var end_path = []
 
+    if(min_start == -1){
+      $scope.polys2 = []
+      console.log("NO ROUTE FOUND")
+      return
+    }
     $scope.polys2 = [{},{},{},{}]
-    console.log('node',start_min_node,end_min_node)
-    console.log('result_node',result_node[min_start][min_end])
     if(result_node[min_start][min_end][0] == $scope.dataRelation[start_min_index].cameraPoint1.id){
       for(var i = $scope.dataRelation[start_min_index].path.length-1 ; i >= start_min_node  ; i--){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
       $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
-    
+      
     }
     else{
-      console.log('start_min_node',start_min_node)
       for(var i = 0 ; i <= start_min_node ; i++){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
       $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed,$scope.dataRelation[start_min_index].traffic[1].count),weight:2,opacity:1.0}
-    
+      
     }
 
     if(result_node[min_start][min_end][result_node[min_start][min_end].length-1] == $scope.dataRelation[end_min_index].cameraPoint1.id){
@@ -212,14 +344,14 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         end_path.push($scope.dataRelation[end_min_index].path[i])
       }
       $scope.polys2[1].stroke = {color:getColorFromTraffic($scope.dataRelation[end_min_index].traffic[0].speed,$scope.dataRelation[end_min_index].traffic[0].count),weight:2,opacity:1.0}
-    
+      
     }
     else{
       for(var i = 0 ; i <= end_min_node ; i++){
         end_path.push($scope.dataRelation[end_min_index].path[i])
       }
       $scope.polys2[1].stroke = {color:getColorFromTraffic($scope.dataRelation[end_min_index].traffic[1].speed,$scope.dataRelation[end_min_index].traffic[1].count),weight:2,opacity:1.0}
-    
+      
     }
     $scope.polys2[0].path = start_path;
     $scope.polys2[1].path = end_path;
@@ -228,7 +360,11 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     $scope.polys2[3].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
     $scope.polys2[2].path = [{latitude:latlng_start.k,longitude:latlng_start.B},start_path[start_path.length-1]]
     $scope.polys2[3].path = [{latitude:latlng_end.k,longitude:latlng_end.B},end_path[end_path.length-1]] 
-
+    // console.log('test',start_id[min_start],end_id[min_end])
+    if(start_id[min_start] == end_id[min_end]){
+      console.log('ok')
+      return
+    }
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < result_node[min_start][min_end].length ; j++){
         if((result_node[min_start][min_end][j] == $scope.dataRelation[i].cameraPoint1.id && result_node[min_start][min_end][j+1] == $scope.dataRelation[i].cameraPoint2.id)){
@@ -242,7 +378,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           var index = $scope.polys2.length-1
           $scope.polys2[index].path =  $scope.dataRelation[i].path
           $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[end_min_index].traffic[0].count),weight:2,opacity:1.0}
-        
+          
         }
       }
       
@@ -250,31 +386,31 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
   }
   $scope.renderPolyline = function(){
     var events = {
-          click: function (mapModel, eventName, originalEventArgs) {
+      click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
 
-            $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
+          $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
             //this is hotfix id
             var id = originalEventArgs.icons
             $scope.open(id);
             $log.info("dataRelation id :",originalEventArgs.icons)
+          }
         }
-      }
-      $scope.polys = [];
-    for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-      var path1 = angular.copy($scope.dataRelation[i].path);
-      for(var j = 0 ; j < path1.length ; j++){
-        if((j == 0 || j == path1.length -1 ) && $scope.dataRelation[i].one_way == false){
+        $scope.polys = [];
+        for (var i = 0 ; i < $scope.dataRelation.length ;i++){
+          var path1 = angular.copy($scope.dataRelation[i].path);
+          for(var j = 0 ; j < path1.length ; j++){
+            if((j == 0 || j == path1.length -1 ) && $scope.dataRelation[i].one_way == false){
           // path1[j].B += 0.00010/2.0
           // path1[j].k += 0.00003/2.0
         }
       }
-        $scope.polys.push({})
-        var index = $scope.polys.length-1
-        $scope.polys[index].id = $scope.dataRelation[i].id
-        $scope.polys[index].path = path1
-        $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
-        $scope.polys[index].events = events;
+      $scope.polys.push({})
+      var index = $scope.polys.length-1
+      $scope.polys[index].id = $scope.dataRelation[i].id
+      $scope.polys[index].path = path1
+      $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
+      $scope.polys[index].events = events;
       if($scope.dataRelation[i].one_way == true){
         //$scope.polys[i*2+1] = {}
         continue;
@@ -283,37 +419,37 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       for(var j = 0 ; j < path.length ; j++){
         if(true){
           //calculate from average of all path
-        path[j].B += 0.00003
-        path[j].k += 0.00006
+          path[j].B += 0.00003
+          path[j].k += 0.00006
 
-        
-      }else{
+          
+        }else{
         // path[j].B += 0.00010/2.0
         // path[j].k += 0.00003/2.0
       }
-      }
-      $scope.polys.push({})
-      var index = $scope.polys.length-1
-        $scope.polys[index].id = $scope.dataRelation[i].id
-        $scope.polys[index].path = path
-        $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
-        $scope.polys[index].events = events;
     }
-    console.log('polys',$scope.polys);
+    $scope.polys.push({})
+    var index = $scope.polys.length-1
+    $scope.polys[index].id = $scope.dataRelation[i].id
+    $scope.polys[index].path = path
+    $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
+    $scope.polys[index].events = events;
   }
+  console.log('polys',$scope.polys);
+}
 
-  $scope.$watch('dataRelation',function(){
-    console.log("dataRelation change",$scope.dataRelation)
-    $scope.renderPolyline();
-    console.log($scope.polys)
-  },true);
-  $scope.$watch('polys',function(){
-    console.log('polys change');
-  },true);
-  $scope.deletedMarkers = []
-  restService.getMap().then(function(response){
-    $log.info('getMap',response)
-    $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom,events: {
+$scope.$watch('dataRelation',function(){
+  console.log("dataRelation change",$scope.dataRelation)
+  $scope.renderPolyline();
+  console.log($scope.polys)
+},true);
+$scope.$watch('polys',function(){
+  console.log('polys change');
+},true);
+$scope.deletedMarkers = []
+restService.getMap().then(function(response){
+  $log.info('getMap',response)
+  $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom,events: {
     click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
           $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
@@ -336,14 +472,14 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           //scope apply required because this event handler is outside of the angular domain
           $scope.$apply();
         }
-  }}
-    $scope.map_id = response.data.objects[0].resource_uri;
-  });
-  $scope.markers = [];
-  restService.getMapPoint().then(function(response){
-    console.log('getMapPoint',response)
-    $scope.markers = response.data.objects;
-  });
+      }}
+      $scope.map_id = response.data.objects[0].resource_uri;
+    });
+$scope.markers = [];
+restService.getMapPoint().then(function(response){
+  console.log('getMapPoint',response)
+  $scope.markers = response.data.objects;
+});
   //get from databases
   var nextId = -1;
   $scope.save = function(){
