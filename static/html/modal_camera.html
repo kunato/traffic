@@ -4,16 +4,16 @@
 <div class="modal-body row">
   <!-- repeat in camera-->
   <div ng-repeat="c in camera">
-  <div class="form-inline row" style="margin-top:10px;margin-bottom:10px">
+  <div class="form-inline row" style="margin-top:10px; margin-bottom:10px">
     <label class="col-xs-2 col-xs-offset-1" style="margin-top:25px">{{c.resource_uri}} -></label>
     <div class="col-xs-5">
-    <div >
+    <div>
     <input type="text" ng-model="c.video_url" ng-disabled="c.video_date" class="form-control" style="width: 260px;" placeholder="Video Stream URL"></input>
-    <div class="btn btn-warning" style="width: 87px;" ng-click="save(c)" ng-disabled="!c.video_url">Save</div>
+    <div class="btn btn-warning" style="width: 75px;" ng-click="save(c)" ng-disabled="!c.video_url">Save</div>
     </div>
     <div style="margin-top:10px">
-    <input type="datetime-local" ng-model="c.video_date" ng-disabled="c.video_url" class="form-control" placeholder="Video DateTime"></input>
-    <div class="btn btn-warning" ng-disabled="!c.video_date" ng-accept="'video/*'" ng-file-select ng-file-change="fileChange($files, $event, c)">Upload</div>
+    <input type="datetime-local" ng-model="c.video_date" ng-disabled="c.video_url" class="form-control" style="width: 260px;" placeholder="Video DateTime"></input>
+    <div class="btn btn-warning" ng-disabled="!c.video_date" ng-accept="'video/*'" ng-file-select ng-file-change="fileChange($files, $event, c)" style="width: 75px;">Upload</div>
     </div>
   </div>
     <div class="col-xs-4" style="width: 30%;margin-top: 25px;">
@@ -21,7 +21,8 @@
     </div>
   </div>
 </div>
-  <div>
+
+<div><!---->
   <!-- camera add button-->
 </div>
 <div class="modal-footer">

@@ -4,28 +4,38 @@
 <div class="modal-body">
     <!-- select cam -->
     <span style="margin-right: 10px"> Select Camera :</span>
-    <select class="input-large" ng-model="selected_camera" ng-options="c as c.resource_uri for c in camera">
+    <select class="form-control" style="width:47.3%;  display: inline;" ng-model="selected_camera" ng-options="c as c.resource_uri for c in camera">
     </select>
     <div id="camera-wrapper" ng-style="getCameraImg()" style="position:relative;border: 1px solid #eee; margin-top:20px; background-repeat: round;">
         <div ng-if="selected_camera.id"id="draggable-zone1" class="draggable-camera" ng-style="getStyle(0)"></div>
         <div ng-if="selected_camera.id && !formData.one_way"id="draggable-zone2" class="draggable-camera" ng-style="getStyle(1)"></div>
     </div >
-    <div class="row">
-    <select class="input-large col-md-3" style="top:10px" ng-model="marker1" ng-options="c as c.resource_uri for c in markers">
+    
+    <div class="form-horizontal" style="padding-left: 15px; padding-top: 20px; padding-right:15px">
+    <div class="form-group" style="margin-bottom:1%;">
+    <select class="form-control col-sm-4 col-xs-12" style="margin-right:1%; margin-bottom:1%;" ng-model="marker1" ng-options="c as c.resource_uri for c in markers">
+    <option value="">- Red Mark -</option>
     </select>
-    <select class="input-large col-md-3" style="top:10px" ng-model="marker2" ng-options="c as c.resource_uri for c in markers">
+    <select class="form-control col-sm-4 col-xs-12" style="margin-right:1%; margin-bottom:1%;" ng-model="marker2" ng-options="c as c.resource_uri for c in markers">
+    <option value="">- Blue Mark -</option>
     </select>
-    <div class="form-group col-md-3">
-    <input type="text" class="form-control" ng-model="formData.camera_length" placeholder="Camera Length">
-    </div>
-    <div class="form-group col-md-3">
-    <input type="text" class="form-control" ng-model="formData.camera_aspect" placeholder="Street Proportion/Width Of Camera">
-    </div>
-    <label class="btn btn-primary">
-    <input type="checkbox" ng-model="formData.one_way" >One Way
+    <!-- <label class="checkbox col-sm-3 col-xs-12" style="">
+    <input type="checkbox" ng-model="formData.one_way" >One Way</input>
+    </label> -->
+    <div class="checkbox">
+    <label class="checkbox col-sm-3 col-xs-12" style="padding-top: 0px;">
+    <input type="checkbox" ng-model="formData.one_way" >One Way</input>
     </label>
+  </div>
     </div>
-</div>
+
+    <div class="form-group" style="margin-button:1%;">
+    <input type="text" class="col-sm-4 col-xs-12 form-control" style="margin-right:1%; margin-bottom:1%;" ng-model="formData.camera_length" placeholder="Camera Length">
+    <input type="text" class="col-sm-4 col-xs-12 form-control" style="" ng-model="formData.camera_aspect" placeholder="Street Proportion/Width Of Camera">
+    </div>
+
+    </div><!--horizontal-->
+
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">OK</button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>

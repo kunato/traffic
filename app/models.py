@@ -7,6 +7,8 @@ class Camera(models.Model):
 	url = models.CharField(max_length=200)
 	height = models.IntegerField()
 	width = models.IntegerField()
+	def __unicode__(self):
+		return str(self.id)
 
 class Video(models.Model):
 	name = models.CharField(max_length=200)
@@ -15,6 +17,8 @@ class Video(models.Model):
 	start_time = models.DateTimeField(null=True)
 	# 0 stream or 1 file
 	type = models.IntegerField()
+	def __unicode__(self):
+		return "ID : "+str(self.id)+" CAMERA : "+str(self.camera)+" URL : "+self.url
 
 
 
@@ -29,6 +33,8 @@ class MapPoint(models.Model):
 	latitude = models.FloatField()
 	longitude = models.FloatField()
 	map = models.ForeignKey(Map)
+	def __unicode__(self):
+		return str(self.id)
 
 
 class CameraPoint(models.Model):
@@ -38,6 +44,8 @@ class CameraPoint(models.Model):
 	left = models.FloatField()
 	height = models.FloatField()
 	width = models.FloatField()
+	def __unicode__(self):
+		return "[ID :"+str(self.id)+" MapPoint :"+str(self.mapPoint)+"]"
 
 class DataRelation(models.Model):
 	name = models.CharField(max_length=200)
@@ -48,6 +56,8 @@ class DataRelation(models.Model):
 	camera_length = models.IntegerField()
 	camera_aspect = models.FloatField()
 	one_way = models.BooleanField(default=False)
+	def __unicode__(self):
+		return " ID : "+str(self.id)+" CameraPoint1 : "+str(self.cameraPoint1)+" CameraPoint2 : "+str(self.cameraPoint2)+" CAMERA : "+str(self.camera)
 
 class VideoData(models.Model):
 	data_relation = models.ForeignKey(DataRelation)
