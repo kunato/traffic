@@ -17,6 +17,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         for(var j = 0 ; j < $scope.dataRelation.length ; j++){
           if($scope.dataRelation[j].id == response.data.data_relation_id){
             $scope.dataRelation[j].traffic = response.data.data;
+            console.log('traffic',$scope.dataRelation[j],response.data.data)
           }
         }
         // console.log($scope.dataRelation)
@@ -122,10 +123,8 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       var save_start_path = []
       for(var i = 0 ; i < start_path_temp.length-1 ; i++){
         var distance = getDistance(start_path_temp[i],start_path_temp[i+1]);
-        var divideBy = 0;
-        for(var j = 0 ; j < distance ; j+=20){
-          divideBy+=1;
-        }
+        var divideBy = Math.floor(distance/20);
+
         var diff = [(start_path_temp[i+1].B-start_path_temp[i].B)/divideBy,(start_path_temp[i+1].k-start_path_temp[i].k)/divideBy]
         save_start_path.push(start_path_temp[i])
         for(var j = 0 ; j < divideBy ; j++){
@@ -155,7 +154,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         }
       }
 
-    //render
+    //TODO add traffic
     var all_path = [];
     var lower_node = undefined
     var higher_node = undefined
@@ -195,10 +194,8 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var save_end_path = []
     for(var i = 0 ; i < start_path_temp.length-1 ; i++){
       var distance = getDistance(start_path_temp[i],start_path_temp[i+1]);
-      var divideBy = 0;
-      for(var j = 0 ; j < distance ; j+=20){
-        divideBy+=1;
-      }
+      var divideBy = Math.floor(distance/20);
+      
       var diff = [(start_path_temp[i+1].B-start_path_temp[i].B)/divideBy,(start_path_temp[i+1].k-start_path_temp[i].k)/divideBy]
       save_start_path.push(start_path_temp[i])
       for(var j = 0 ; j < divideBy ; j++){
@@ -268,16 +265,17 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       end[1] = 1/0
     for(var i = 0; i < start.length ; i++){
       for(var j = 0 ; j < end.length ; j++){
-        result[i][j]= start[i]+end[j];
+        //TODO add traffic on start+end
+        result[i][j] = start[i]+end[j];
         var route_temp = g.shortestPath(String(start_id[i]),String(end_id[j])).concat([String(start_id[i])]).reverse();
 
-        console.log(route_temp)
+        console.log(route_temp);
         result_node[i][j] = route_temp;
         for(var k = 0 ; k < route_temp.length-1 ;k++){
-          result[i][j] += g.getVertices()[route_temp[k]][route_temp[k+1]]
+          result[i][j] += g.getVertices()[route_temp[k]][route_temp[k+1]];
         }
         if((route_temp[0] != String(start_id[0]) && route_temp[0] != String(start_id[1]) ) || (route_temp[route_temp.length-1] != String(end_id[0]) && route_temp[route_temp.length-1] != String(end_id[1]))){
-         result[i][j] = 1/0   
+         result[i][j] = 1/0;   
        }
 
        console.log('result',result[i][j]);
@@ -310,18 +308,19 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       for(var i = $scope.dataRelation[start_min_index].path.length-1 ; i >= start_min_node  ; i--){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
-      $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
+      $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed,$scope.dataRelation[start_min_index].traffic[1].count),weight:2,opacity:1.0}
 
     }
     else{
       for(var i = 0 ; i <= start_min_node ; i++){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
-      $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed,$scope.dataRelation[start_min_index].traffic[1].count),weight:2,opacity:1.0}
+      $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
 
     }
 
     if(result_node[min_start][min_end][result_node[min_start][min_end].length-1] == $scope.dataRelation[end_min_index].cameraPoint1.id){
+      
       for(var i = $scope.dataRelation[end_min_index].path.length-1 ; i  >= end_min_node ; i--){
         end_path.push($scope.dataRelation[end_min_index].path[i])
       }
@@ -348,13 +347,13 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
           $scope.polys2.push({})
           var index = $scope.polys2.length-1
           $scope.polys2[index].path =  $scope.dataRelation[i].path
-          $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[end_min_index].traffic[1].count),weight:2,opacity:1.0}
+          $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[end_min_index].traffic[0].count),weight:2,opacity:1.0}
         }
         else if((result_node[min_start][min_end][j] == $scope.dataRelation[i].cameraPoint2.id && result_node[min_start][min_end][j+1] == $scope.dataRelation[i].cameraPoint1.id)){
           $scope.polys2.push({})
           var index = $scope.polys2.length-1
           $scope.polys2[index].path =  $scope.dataRelation[i].path
-          $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[end_min_index].traffic[0].count),weight:2,opacity:1.0}
+          $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[end_min_index].traffic[1].count),weight:2,opacity:1.0}
 
         }
       }
