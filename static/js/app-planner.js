@@ -73,6 +73,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
 
 
   $scope.calculateRoute = function(){
+    var backup_dataRelation = angular.copy($scope.dataRelation)
     //markers2 [0] is start [1] is end
     var latlng_start = new google.maps.LatLng($scope.markers2[0].latitude,$scope.markers2[0].longitude)
     var latlng_end = new google.maps.LatLng($scope.markers2[1].latitude,$scope.markers2[1].longitude)
@@ -103,20 +104,46 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var end_min = 1.0/0;
     var start_min = 1.0/0;
     //calc where the start point and end point
+    //edit this
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
-      for(var j = 0 ;j < $scope.dataRelation[i].path.length-1 ; j++){
-        var value = calcDistance($scope.dataRelation[i].path[j],latlng_start)
-        if(value < start_min){
-          start_min = value;
-          start_min_index = i;
+      for(var j = 0 ; j < $scope.dataRelation[i].path.length-1 ; j++){
+        var distance = getDistance($scope.dataRelation[i].path[j],$scope.dataRelation[i].path[j+1]);
+        var divideBy = Math.floor(distance/20);
+        var diff = [($scope.dataRelation[i].path[j+1].B-$scope.dataRelation[i].path[j].B)/divideBy,($scope.dataRelation[i].path[j+1].k-$scope.dataRelation[i].path[j].k)/divideBy]
+        
+        for(var k = 1 ; k < divideBy ; k++){
+          if((j == 0 && k == 0) || (k == divideBy && j == $scope.dataRelation[i].path.length-2)){
+            console.log("SADASD")
+            continue
+          }
+          if(k > divideBy/2){
+            var check_pos = new google.maps.LatLng($scope.dataRelation[i].path[j+1].k-(diff[1]*(divideBy-k)),$scope.dataRelation[i].path[j+1].B-(diff[0]*(divideBy-k)));
+          }
+          else{
+            var check_pos = new google.maps.LatLng($scope.dataRelation[i].path[j].k+(diff[1]*k),$scope.dataRelation[i].path[j].B+(diff[0]*k));
+          }
+          var value = getDistance(check_pos,latlng_start)
+          // $scope.markers2.push({
+          //   id: nextId,
+          //   latitude: check_pos.lat(),
+          //   longitude: check_pos.lng()
+          // });
+          if(value < start_min){
+            start_min = value;
+            start_min_index = i;
+          }
+          var value2 = getDistance(check_pos,latlng_end)
+          if(value2 < end_min){
+            end_min = value2;
+            end_min_index = i;
+          }
+          console.log($scope.dataRelation[i].id,value,value2)  
         }
-        var value2 = calcDistance($scope.dataRelation[i].path[j],latlng_end)
-        if(value2 < end_min){
-          end_min = value2;
-          end_min_index = i;
-        }
+
+
       }
     }
+    console.log("index",start_min_index,end_min_index)
     //check if start_min_index == end_min_index
     if(start_min_index == end_min_index){
       var start_path_temp = $scope.dataRelation[start_min_index].path
@@ -209,10 +236,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
 
     for(var i = 0 ; i < end_path_temp.length-1 ; i++){
       var distance = getDistance(end_path_temp[i],end_path_temp[i+1]);
-      var divideBy = 0;
-      for(var j = 0 ; j < distance ; j+=20){
-        divideBy+=1;
-      }
+      var divideBy = Math.floor(distance/20);
       var diff = [(end_path_temp[i+1].B-end_path_temp[i].B)/divideBy,(end_path_temp[i+1].k-end_path_temp[i].k)/divideBy]
       save_end_path.push(end_path_temp[i])
       for(var j = 0 ; j < divideBy ; j++){
@@ -359,6 +383,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       }
       
     }
+    $scope.dataRelation = backup_dataRelation;
   }
   $scope.renderPolyline = function(){
     var events = {
