@@ -48,10 +48,12 @@
         <ui-gmap-polyline ng-if="polys2.length == 0 && render" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
         </ui-gmap-polyline>
     </ui-gmap-google-map>
-    <div style="  float: right;
-  margin-right: 50px;
-  margin-top: 5px;
-  margin-bottom: 5px;">
+    <div style=
+     "float: right;
+      right: 10px;
+      bottom: 20px;
+      position: absolute;
+      ">
     <button class="btn btn-success" ng-click="calculateRoute()">Calculate Route</button>
     </div>
 </div>

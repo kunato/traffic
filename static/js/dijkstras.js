@@ -43,7 +43,6 @@ function Graph(){
     return this.vertices;
   }
   this.shortestPath = function (start, finish) {
-    console.log('vertices',this.vertices);
     var nodes = new PriorityQueue(),
         distances = {},
         previous = {},

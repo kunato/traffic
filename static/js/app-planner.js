@@ -105,6 +105,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var start_min = 1.0/0;
     //calc where the start point and end point
     //edit this
+    console.log($scope.dataRelation)
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < $scope.dataRelation[i].path.length-1 ; j++){
         var distance = getDistance($scope.dataRelation[i].path[j],$scope.dataRelation[i].path[j+1]);
@@ -188,12 +189,18 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     if(start_min_node > end_min_node){
       lower_node = end_min_node;
       higher_node = start_min_node
-    }else if(end_min_node >= start_min_node && ! $scope.dataRelation[start_min_index].one_way){
+    }else if(end_min_node > start_min_node && ! $scope.dataRelation[start_min_index].one_way){
       lower_node = start_min_node;
       higher_node = end_min_node;
     }
+    else if(end_min_node == start_min_node){
+      console.log("ROUTE NOT FOUND")
+      $scope.dataRelation = backup_dataRelation;
+      return
+    }
     else{
-      console.log('ROUTE NOT FOUND')
+      console.log("ROUTE NOT FOUND")
+      $scope.dataRelation = backup_dataRelation;
       return
     }
     $scope.polys2 = [{},{},{}]
@@ -201,17 +208,21 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       all_path.push($scope.dataRelation[start_min_index].path[i])
     }
     $scope.polys2[0].path = all_path;
-    $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
     $scope.polys2[1].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
     $scope.polys2[2].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
     if(end_min_node > start_min_node){
+      $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed,$scope.dataRelation[start_min_index].traffic[1].count),weight:2,opacity:1.0}
+    
       $scope.polys2[1].path = [{latitude:latlng_start.k,longitude:latlng_start.B},all_path[0]]
       $scope.polys2[2].path = [{latitude:latlng_end.k,longitude:latlng_end.B},all_path[all_path.length-1]] 
     }
     else{
+      $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
+    
       $scope.polys2[1].path = [{latitude:latlng_start.k,longitude:latlng_start.B},all_path[all_path.length-1]]
       $scope.polys2[2].path = [{latitude:latlng_end.k,longitude:latlng_end.B},all_path[0]] 
     }
+    $scope.dataRelation = backup_dataRelation;
     return
   }
     //seperate min path
@@ -292,8 +303,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         //TODO add traffic on start+end
         result[i][j] = start[i]+end[j];
         var route_temp = g.shortestPath(String(start_id[i]),String(end_id[j])).concat([String(start_id[i])]).reverse();
-
-        console.log(route_temp);
         result_node[i][j] = route_temp;
         for(var k = 0 ; k < route_temp.length-1 ;k++){
           result[i][j] += g.getVertices()[route_temp[k]][route_temp[k+1]];
@@ -301,8 +310,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         if((route_temp[0] != String(start_id[0]) && route_temp[0] != String(start_id[1]) ) || (route_temp[route_temp.length-1] != String(end_id[0]) && route_temp[route_temp.length-1] != String(end_id[1]))){
          result[i][j] = 1/0;   
        }
-
-       console.log('result',result[i][j]);
      }
    }
 
@@ -325,6 +332,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     if(min_start == -1){
       $scope.polys2 = []
       console.log("NO ROUTE FOUND")
+      $scope.dataRelation = backup_dataRelation;
       return
     }
     $scope.polys2 = [{},{},{},{}]
@@ -390,7 +398,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
 
-          $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
             //this is hotfix id
             var id = originalEventArgs.icons
             // $scope.open(id);
@@ -442,7 +449,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom,events: {
         click: function (mapModel, eventName, originalEventArgs) {
             // 'this' is the directive's scope
-            $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
             var e = originalEventArgs[0];
             var lat = e.latLng.lat(),lon = e.latLng.lng();
             if($scope.markers2.length == 2){
