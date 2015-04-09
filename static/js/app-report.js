@@ -55,6 +55,10 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
             console.log('directionsService',response)
+            if(response == null){
+              $scope.getLatLngDataFromDataRelation(dataRelation,i,length)
+              return
+            }
             $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data,'description':response.routes[0].summary,one_way:dataRelation[i].one_way})
             console.log($scope.dataRelation);
             $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
