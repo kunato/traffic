@@ -194,7 +194,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     var modalInstance = $modal.open({
       templateUrl: '/static/html/modal_time.html',
       controller: 'ModalTimeCtrl',
-      size:'lg',
+      size:'sm',
       resolve: {
         datetime: function () {
           return $scope.datetime;
@@ -240,8 +240,10 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
 app.controller('ModalTimeCtrl', function (restService, $scope, $modalInstance , datetime) {
   $scope.datetime = datetime;
   console.log(datetime.end)
-  $scope.start = {date:new Date(datetime.start.getTime()),time:new Date(datetime.start.getTime())}
-  $scope.end = {date:new Date(datetime.end.getTime()),time:new Date(datetime.end.getTime())}
+  datetime.start.setMilliseconds(0)
+  datetime.end.setMilliseconds(0)
+  $scope.start = datetime.start
+  $scope.end = datetime.end
   $scope.open_start = function($event) {
     $event.preventDefault();
     $event.stopPropagation();
@@ -256,9 +258,12 @@ app.controller('ModalTimeCtrl', function (restService, $scope, $modalInstance , 
   };
 
 $scope.ok = function () {
-  $scope.datetime.start = new Date($scope.start.date.getFullYear(),$scope.start.date.getMonth(),$scope.start.date.getDate(),$scope.start.time.getHours(),$scope.start.time.getMinutes())
-  $scope.datetime.end = new Date($scope.end.date.getFullYear(),$scope.end.date.getMonth(),$scope.end.date.getDate(),$scope.end.time.getHours(),$scope.end.time.getMinutes())
+  // $scope.datetime.start = new Date($scope.start.date.getFullYear(),$scope.start.date.getMonth(),$scope.start.date.getDate(),$scope.start.time.getHours(),$scope.start.time.getMinutes())
+  // $scope.datetime.end = new Date($scope.end.date.getFullYear(),$scope.end.date.getMonth(),$scope.end.date.getDate(),$scope.end.time.getHours(),$scope.end.time.getMinutes())
+  $scope.datetime.start = $scope.start
+  $scope.datetime.end = $scope.end
   $modalInstance.close();
+
 };
 
 $scope.cancel = function () {

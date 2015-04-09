@@ -82,16 +82,23 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var latlng_start = new google.maps.LatLng($scope.markers2[0].latitude,$scope.markers2[0].longitude)
     var latlng_end = new google.maps.LatLng($scope.markers2[1].latitude,$scope.markers2[1].longitude)
     var g = new Graph();
+    var traffic_data = []
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
+      //if no traffic data set traffic = 10
+      for(var j = 0 ; j < $scope.dataRelation[i].traffic.length ; j++){
+        if($scope.dataRelation[i].traffic[j].speed == 0){
+          $scope.dataRelation[i].traffic[j].speed = 10;
+        }
+      }
       var obj = {}
       //TODO add traffic
-      obj[$scope.dataRelation[i].cameraPoint2.id] = $scope.dataRelation[i].distance*1.0
+      obj[$scope.dataRelation[i].cameraPoint2.id] = $scope.dataRelation[i].distance/$scope.dataRelation[i].traffic[0].speed
       g.addVertex($scope.dataRelation[i].cameraPoint1.id, obj);
 
       if(!$scope.dataRelation[i].one_way){
         var obj = {}
         //TODO add traffic
-        obj[$scope.dataRelation[i].cameraPoint1.id] = $scope.dataRelation[i].distance*1.0
+        obj[$scope.dataRelation[i].cameraPoint1.id] = $scope.dataRelation[i].distance/$scope.dataRelation[i].traffic[1].speed
         g.addVertex($scope.dataRelation[i].cameraPoint2.id, obj);
       }
       else{
@@ -118,7 +125,6 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         
         for(var k = 1 ; k < divideBy ; k++){
           if((j == 0 && k == 0) || (k == divideBy && j == $scope.dataRelation[i].path.length-2)){
-            console.log("SADASD")
             continue
           }
           if(k > divideBy/2){
@@ -142,13 +148,11 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
             end_min = value2;
             end_min_index = i;
           }
-          console.log($scope.dataRelation[i].id,value,value2)  
         }
 
 
       }
     }
-    console.log("index",start_min_index,end_min_index)
     //check if start_min_index == end_min_index
     if(start_min_index == end_min_index){
       var start_path_temp = $scope.dataRelation[start_min_index].path
@@ -190,10 +194,13 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var all_path = [];
     var lower_node = undefined
     var higher_node = undefined
+    var result = 0
     if(start_min_node > end_min_node){
+      result = getDistance($scope.dataRelation[start_min_index].path[start_min_node],$scope.dataRelation[start_min_index].path[end_min_node]) / $scope.dataRelation[start_min_index].traffic[0].speed 
       lower_node = end_min_node;
       higher_node = start_min_node
     }else if(end_min_node > start_min_node && ! $scope.dataRelation[start_min_index].one_way){
+      result =  getDistance($scope.dataRelation[start_min_index].path[start_min_node],$scope.dataRelation[start_min_index].path[end_min_node]) / $scope.dataRelation[start_min_index].traffic[1].speed;
       lower_node = start_min_node;
       higher_node = end_min_node;
     }
@@ -305,7 +312,22 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     for(var i = 0; i < start.length ; i++){
       for(var j = 0 ; j < end.length ; j++){
         //TODO add traffic on start+end
-        result[i][j] = start[i]+end[j];
+        //if start[0] traffic[0] 
+        //if start[1] traffic[1]
+        result[i][j] = 0
+        if(i == 0){
+          result[i][j] += start[i]/$scope.dataRelation[start_min_index].traffic[1].speed
+        }
+        else{
+          result[i][j] += start[i]/$scope.dataRelation[start_min_index].traffic[0].speed
+        }
+        if(j == 0){
+          result[i][j] += end[j]/$scope.dataRelation[end_min_index].traffic[1].speed
+        }
+        else{
+          result[i][j] += end[j]/$scope.dataRelation[end_min_index].traffic[0].speed
+        }
+
         var route_temp = g.shortestPath(String(start_id[i]),String(end_id[j])).concat([String(start_id[i])]).reverse();
         result_node[i][j] = route_temp;
         for(var k = 0 ; k < route_temp.length-1 ;k++){
@@ -330,6 +352,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         }
       }
     }
+    console.log(min_result);
     var start_path = []
     var end_path = []
 
@@ -515,7 +538,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       var modalInstance = $modal.open({
         templateUrl: '/static/html/modal_time.html',
         controller: 'ModalTimeCtrl',
-        size:'lg',
+        size:'sm',
         resolve: {
           datetime: function () {
             return $scope.datetime;
