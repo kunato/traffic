@@ -25,13 +25,18 @@ app.config(['$routeProvider',
         controller: 'ReportController',
         title:'Report'
       }).
+      when('/setting', {
+        templateUrl: '/static/html/setting.html',
+        controller: 'MapSettingController',
+        title:'Setting'
+      }).
       when('/plan',{
         templateUrl: '/static/html/plan.html',
         controller: 'PlannerController',
         title:'Planner'
       }).
       when('/',{
-        redirectTo: "/report"
+        redirectTo: "/setting"
       })
   }]);
 app.config(function(uiGmapGoogleMapApiProvider) {

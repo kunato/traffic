@@ -12,6 +12,8 @@ v1_api.register(CameraPointResource())
 v1_api.register(DataRelationResource())
 urlpatterns = patterns('',
 url(r'^$',views.index),
+url(r'^login/',views.login_view),
+url(r'^setting/',views.setting),
 url(r'^app/', views.app),
 url(r'^traffic/',views.traffic),
 url(r'^upload/',views.upload),

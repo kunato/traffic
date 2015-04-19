@@ -13,6 +13,9 @@ import numpy as np
 import dateutil.parser
 @ensure_csrf_cookie
 def index(request):
+    return redirect('/app/')
+
+def login_view(request):
     if(request.method == "POST"):
         username = request.POST['username']
         password = request.POST['password']
@@ -20,27 +23,28 @@ def index(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return redirect('/app/')
+                return redirect('/setting/')
                 # Redirect to a success page.
             else:
-            	return HttpResponse("error")
+                return HttpResponse("error")
                 # Return a 'disabled account' error message
         else:
-        	return HttpResponse("error")
+            return HttpResponse("error")
     else:
         if(request.user.is_authenticated()):
-            return redirect('/app/')
+            return redirect('/setting/')
         else:
-
             return render(request,'login.html')
-        # Return an 'invalid login' error message.
 
 @ensure_csrf_cookie
 def app(request):
+    return render(request, 'index.html')
+    
+def setting(request):
     if(request.user.is_authenticated()):
-	   return render(request, 'index.html')
+        return render(request, 'setting.html')
     else:
-        return redirect('/')
+        return redirect('/login/')
 
 def upload(request):
     if(request.user.is_authenticated()):

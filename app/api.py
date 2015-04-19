@@ -1,6 +1,6 @@
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
-from tastypie.authentication import SessionAuthentication
+from auth import AnonymousGetAuthentication
 from tastypie.authorization import DjangoAuthorization
 from app.models import *
 
@@ -14,7 +14,7 @@ class CameraResource(ModelResource):
 		queryset = Camera.objects.all()
 		resource_name = 'camera'
 
-		authentication = SessionAuthentication()
+		authentication = AnonymousGetAuthentication()
 		authorization = DjangoAuthorization()
 		allowed_methods = ['get','post','put','delete']
 		filtering = {
@@ -27,7 +27,7 @@ class VideoResource(ModelResource):
 		queryset = Video.objects.all()
 		resource_name = 'video'
 		allowed_methods = ['get','post']
-		authentication = SessionAuthentication()
+		authentication = AnonymousGetAuthentication()
 		authorization = DjangoAuthorization()
 		ordering = {
 			'added_time'
@@ -40,7 +40,7 @@ class MapResource(ModelResource):
 		queryset = Map.objects.all()
 		resource_name = 'map'
 		allowed_methods = ['get','post']
-		authentication = SessionAuthentication()
+		authentication = AnonymousGetAuthentication()
 		authorization = DjangoAuthorization()
 
 
@@ -52,7 +52,7 @@ class MapPointResource(ModelResource):
 		queryset = MapPoint.objects.all()
 		resource_name = 'mapPoint'
 		allowed_methods = ['get','post','put','delete']
-		authentication = SessionAuthentication()
+		authentication = AnonymousGetAuthentication()
 		authorization = DjangoAuthorization()
 
 class CameraPointResource(ModelResource):
@@ -62,7 +62,7 @@ class CameraPointResource(ModelResource):
 		queryset = CameraPoint.objects.all()
 		resource_name = 'cameraPoint'
 		allowed_methods = ['get','post','put','delete']
-		authentication = SessionAuthentication()
+		authentication = AnonymousGetAuthentication()
 		authorization = DjangoAuthorization()
 
 class DataRelationResource(ModelResource):
@@ -75,7 +75,7 @@ class DataRelationResource(ModelResource):
 		queryset = DataRelation.objects.all()
 		resource_name = 'dataRelation'
 		allowed_methods = ['get','post','put','delete']
-		authentication = SessionAuthentication()
+		authentication = AnonymousGetAuthentication()
 		authorization = DjangoAuthorization()
 		filtering = {
             'camera': ALL_WITH_RELATIONS,
