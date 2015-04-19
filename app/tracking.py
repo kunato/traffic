@@ -5,7 +5,7 @@ import os
 import math
 from models import *
 import datetime
-import dateutil.parser
+
 
 class People:
     newid = 0
@@ -97,7 +97,6 @@ def process(video,dataRelation):
     frame_no = 0
     last_gen_bg = frame_no
     if(video.type == 1):
-        print video.start_time
         startdate = video.start_time
     while(1):
         ret, frame = cap.read()

@@ -17,23 +17,7 @@ app.run(['$location', '$rootScope', function($location, $rootScope) {
         $rootScope.title = current.$$route.title;
     });
 }]);
-app.config(['$routeProvider',
-  function($routeProvider) {
-    $routeProvider.
-      when('/report', {
-        templateUrl: '/static/html/report.html',
-        controller: 'ReportController',
-        title:'Report'
-      }).
-      when('/plan',{
-        templateUrl: '/static/html/plan.html',
-        controller: 'PlannerController',
-        title:'Planner'
-      }).
-      when('/',{
-        redirectTo: "/report"
-      })
-  }]);
+
 app.config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({
         key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
