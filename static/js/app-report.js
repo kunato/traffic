@@ -1,18 +1,18 @@
-app.controller('ReportController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
+app.controller('ReportController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi, $timeout) {
   $scope.polys = [];
   $scope.time = new Date()
   $scope.datetime = {start:new Date((new Date().getTime() - 10 * 60000)),end:new Date()}
   $scope.duration = 1
   $scope.render = false;
-  console.log("we in ReportController");
+  //console.log("we in ReportController");
   $scope.dataRelation = [];
   // restService.getMap().then(function(response){
   //   $scope.map = response.data.objects[0]
   //   restService.getMapPoint().then(function(response){
-  //     console.log(response)
+  //     //console.log(response)
   //     $scope.points = response.data.objects;
 
-  //     console.log('points',$scope.points);
+  //     //console.log('points',$scope.points);
   //   });
   // });
   $scope.$watch('datetime',function(){
@@ -20,16 +20,16 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
 
       restService.getTrafficFromDataRelation($scope.dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
-        console.log('traffic',response.data)
+        //console.log('traffic',response.data)
         for(var j = 0 ; j < $scope.dataRelation.length ; j++){
           if($scope.dataRelation[j].id == response.data.data_relation_id){
             $scope.dataRelation[j].traffic = response.data.data;
           }
         }
-        console.log($scope.dataRelation)
+        //console.log($scope.dataRelation)
       });
     }
-    console.log("datetime change",$scope.datetime)
+    //console.log("datetime change",$scope.datetime)
   },true);
   $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     if(i == length){
@@ -38,30 +38,32 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     }
       restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
         var traffic = response.data
-      console.log('traffc',response.data)
+      //console.log('traffc',response.data)
       restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
         var cameraPoint1 = response.data.mapPoint;
-        console.log('cameraPoint1',response.data)
+        //console.log('cameraPoint1',response.data)
         restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
           var cameraPoint2 = response2.data.mapPoint;
-          console.log('cameraPoint2',response2.data)
+          //console.log('cameraPoint2',response2.data)
           uiGmapGoogleMapApi.then(function(){
           var request = {
             origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
             destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
             travelMode: google.maps.DirectionsTravelMode.WALKING
           };
-          console.log('sent directionsService with', request);
+          //console.log('sent directionsService with', request);
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
-            console.log('directionsService',response)
+            //console.log('directionsService',response)
             if(response == null){
               $scope.getLatLngDataFromDataRelation(dataRelation,i,length)
               return
             }
             $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path,traffic:traffic.data,'description':response.routes[0].summary,one_way:dataRelation[i].one_way})
-            console.log($scope.dataRelation);
-            $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
+            //console.log($scope.dataRelation);
+            $timeout(function(){
+              $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
+            },50);
           });
           });
 
@@ -70,7 +72,7 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     });
   }
   restService.getDataRelation().then(function(response){
-    console.log('data',response.data.objects)
+    //console.log('data',response.data.objects)
     var dataRelation = response.data.objects
     var i = 0;
 
@@ -82,11 +84,11 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
           click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
 
-            $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
+            //$log.info("user defined event: " + eventName, mapModel, originalEventArgs);
             //this is hotfix id
             var id = originalEventArgs.icons
             $scope.open(id);
-            $log.info("dataRelation id :",originalEventArgs.icons)
+            //$log.info("dataRelation id :",originalEventArgs.icons)
         }
       }
       $scope.polys = [];
@@ -128,16 +130,16 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
         $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
         $scope.polys[index].events = events;
     }
-    console.log('polys',$scope.polys);
+    //console.log('polys',$scope.polys);
   }
 
   $scope.$watch('dataRelation',function(){
-    console.log("dataRelation change",$scope.dataRelation)
+    //console.log("dataRelation change",$scope.dataRelation)
     $scope.renderPolyline();
-    console.log($scope.polys)
+    //console.log($scope.polys)
   },true);
   $scope.$watch('polys',function(){
-    console.log('polys change');
+    //console.log('polys change');
   },true);
   // $scope.polylineRenderer = function(path){
   //   var out = [];
@@ -148,49 +150,49 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
   // }
   $scope.deletedMarkers = []
   restService.getMap().then(function(response){
-    $log.info('getMap',response)
+    //$log.info('getMap',response)
     $scope.map_id = response.data.objects[0].resource_uri;
     $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom}
   });
   $scope.markers = [];
   restService.getMapPoint().then(function(response){
-    console.log('getMapPoint',response)
+    //console.log('getMapPoint',response)
     $scope.markers = response.data.objects;
   });
   //get from databases
   var nextId = -1;
   $scope.save = function(){
-    $log.info('save')
+    //$log.info('save')
     for(var i = 0 ; i < $scope.markers.length ; i++){
       
       var formData = {latitude:$scope.markers[i].latitude,longitude:$scope.markers[i].longitude,map:$scope.map_id};
       if($scope.markers[i].options != undefined){
         restService.postMapPoint(formData).then(function(response){
-          $log.info('sent post resp : '+response);
+          //$log.info('sent post resp : '+response);
         });
       }
       else{
         restService.postMapPointById($scope.markers[i].id,formData).then(function(response){
-          $log.info('sent post by id resp : '+response);
+          //$log.info('sent post by id resp : '+response);
         });
       }
     }
     for(var i = 0 ; i < $scope.deletedMarkers.length ; i++){
       if($scope.deletedMarkers[i].id > 0){
         restService.deleteMapPoint($scope.deletedMarkers[i].id).then(function(response){
-          console.log('delete marker resp :',response)
+          //console.log('delete marker resp :',response)
         })
       }
     }
 
   }
   $scope.onMarkerClicked = function (marker) {
-    $log.info('clicked on markers :'+marker)
+    //$log.info('clicked on markers :'+marker)
     marker.showWindow = true;
     $scope.$apply();
   };
   $scope.editTime = function () {
-    console.log("openTime");
+    //console.log("openTime");
     var modalInstance = $modal.open({
       templateUrl: '/static/html/modal_time.html',
       controller: 'ModalTimeCtrl',
@@ -204,8 +206,8 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
 
     modalInstance.result.then(function () {
     }, function () {
-      $log.info('datetime',$scope.datetime)
-      $log.info('Modal dismissed at: ' + new Date());
+      //$log.info('datetime',$scope.datetime)
+      //$log.info('Modal dismissed at: ' + new Date());
     });
   }
 
@@ -233,13 +235,13 @@ app.controller('ReportController', function(restService, $scope , $http , $modal
     // modalInstance.result.then(function (selectedItem) {
     //   $scope.selected = selectedItem;
     // }, function () {
-    //   $log.info('Modal dismissed at: ' + new Date());
+    //   //$log.info('Modal dismissed at: ' + new Date());
     // });
   };
 });
 app.controller('ModalTimeCtrl', function (restService, $scope, $modalInstance , datetime) {
   $scope.datetime = datetime;
-  console.log(datetime.end)
+  //console.log(datetime.end)
   datetime.start.setMilliseconds(0)
   datetime.end.setMilliseconds(0)
   $scope.start = datetime.start
@@ -273,7 +275,7 @@ $scope.cancel = function () {
 });
 
 app.controller('ModalReportCtrl', function (restService, $filter,$scope, $modalInstance,item,datetime) {
-  console.log(item);
+  //console.log(item);
   $scope.render = false
   $scope.item = item;
   $scope.data = [[],[]];
@@ -289,7 +291,7 @@ app.controller('ModalReportCtrl', function (restService, $filter,$scope, $modalI
   }
   $scope.getTraffic = function(current,timeData){
     if(current == timeData.length-1){
-      console.log($scope.data)
+      //console.log($scope.data)
       $scope.render = true;
       return
     }
@@ -323,7 +325,7 @@ $scope.ok = function () {
   $modalInstance.close();
 };
 $scope.export = function(){
-  console.log('export');
+  //console.log('export');
 }
 $scope.cancel = function () {
   $modalInstance.dismiss('cancel');

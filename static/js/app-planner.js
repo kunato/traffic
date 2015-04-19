@@ -1,10 +1,10 @@
-app.controller('PlannerController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi) {
+app.controller('PlannerController', function(restService, $scope , $http , $modal , $log, uiGmapGoogleMapApi, $timeout) {
   $scope.polys = [];
   $scope.time = new Date()
   $scope.datetime = {start:new Date((new Date().getTime() - 10 * 60000)),end:new Date()}
   $scope.duration = 1
   $scope.render = false;
-  console.log("we in PlannerController");
+  //console.log("we in PlannerController");
   $scope.dataRelation = [];
   $scope.markers2 = [];
   $scope.polys2 = [];
@@ -13,17 +13,17 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
 
       restService.getTrafficFromDataRelation($scope.dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
-        // console.log('traffic',response.data)
+        // //console.log('traffic',response.data)
         for(var j = 0 ; j < $scope.dataRelation.length ; j++){
           if($scope.dataRelation[j].id == response.data.data_relation_id){
             $scope.dataRelation[j].traffic = response.data.data;
-            console.log('traffic',$scope.dataRelation[j],response.data.data)
+            //console.log('traffic',$scope.dataRelation[j],response.data.data)
           }
         }
-        // console.log($scope.dataRelation)
+        // //console.log($scope.dataRelation)
       });
     }
-    // console.log("datetime change",$scope.datetime)
+    // //console.log("datetime change",$scope.datetime)
   },true);
   $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     if(i == length){
@@ -32,23 +32,23 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     }
     restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
       var traffic = response.data
-      // console.log('traffc',response.data)
+      // //console.log('traffc',response.data)
       restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
         var cameraPoint1 = response.data.mapPoint;
-        // console.log('cameraPoint1',response.data)
+        // //console.log('cameraPoint1',response.data)
         restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
           var cameraPoint2 = response2.data.mapPoint;
-          // console.log('cameraPoint2',response2.data)
+          // //console.log('cameraPoint2',response2.data)
           uiGmapGoogleMapApi.then(function(){
             var request = {
               origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
               destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
               travelMode: google.maps.DirectionsTravelMode.WALKING
             };
-            // console.log('sent directionsService with', request);
+            // //console.log('sent directionsService with', request);
             directionsService = new google.maps.DirectionsService(),
             directionsService.route(request, function (response, status) {
-              // console.log('directionsService',response)
+              // //console.log('directionsService',response)
               if(response == null){
                 $scope.getLatLngDataFromDataRelation(dataRelation,i,length)
                 return
@@ -58,8 +58,10 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
                 path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
                 distance:response.routes[0].legs[0].distance.value,
                 cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
-              // console.log($scope.dataRelation);
+              // //console.log($scope.dataRelation);
+              $timeout(function(){
               $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
+            },50);
             });
           });
         });
@@ -67,7 +69,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     });
   }
   restService.getDataRelation().then(function(response){
-    // console.log('data',response.data.objects)
+    // //console.log('data',response.data.objects)
     var dataRelation = response.data.objects
     var i = 0;
 
@@ -116,7 +118,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     var start_min = 1.0/0;
     //calc where the start point and end point
     //edit this
-    console.log($scope.dataRelation)
+    //console.log($scope.dataRelation)
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < $scope.dataRelation[i].path.length-1 ; j++){
         var distance = getDistance($scope.dataRelation[i].path[j],$scope.dataRelation[i].path[j+1]);
@@ -205,12 +207,12 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       higher_node = end_min_node;
     }
     else if(end_min_node == start_min_node){
-      console.log("ROUTE NOT FOUND")
+      //console.log("ROUTE NOT FOUND")
       $scope.dataRelation = backup_dataRelation;
       return
     }
     else{
-      console.log("ROUTE NOT FOUND")
+      //console.log("ROUTE NOT FOUND")
       $scope.dataRelation = backup_dataRelation;
       return
     }
@@ -352,13 +354,13 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
         }
       }
     }
-    console.log(min_result);
+    //console.log(min_result);
     var start_path = []
     var end_path = []
 
     if(min_start == -1){
       $scope.polys2 = []
-      console.log("NO ROUTE FOUND")
+      //console.log("NO ROUTE FOUND")
       $scope.dataRelation = backup_dataRelation;
       return
     }
@@ -428,7 +430,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
             //this is hotfix id
             var id = originalEventArgs.icons
             // $scope.open(id);
-            $log.info("dataRelation id :",originalEventArgs.icons)
+            //$log.info("dataRelation id :",originalEventArgs.icons)
           }
         }
         $scope.polys = [];
@@ -472,7 +474,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     },true);
     $scope.deletedMarkers = []
     restService.getMap().then(function(response){
-      $log.info('getMap',response)
+      //$log.info('getMap',response)
       $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom,events: {
         click: function (mapModel, eventName, originalEventArgs) {
             // 'this' is the directive's scope
@@ -504,37 +506,37 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     //get from databases
     var nextId = -1;
     $scope.save = function(){
-      $log.info('save')
+      //$log.info('save')
       for(var i = 0 ; i < $scope.markers.length ; i++){
 
         var formData = {latitude:$scope.markers[i].latitude,longitude:$scope.markers[i].longitude,map:$scope.map_id};
         if($scope.markers[i].options != undefined){
           restService.postMapPoint(formData).then(function(response){
-            $log.info('sent post resp : '+response);
+            //$log.info('sent post resp : '+response);
           });
         }
         else{
           restService.postMapPointById($scope.markers[i].id,formData).then(function(response){
-            $log.info('sent post by id resp : '+response);
+            //$log.info('sent post by id resp : '+response);
           });
         }
       }
       for(var i = 0 ; i < $scope.deletedMarkers.length ; i++){
         if($scope.deletedMarkers[i].id > 0){
           restService.deleteMapPoint($scope.deletedMarkers[i].id).then(function(response){
-            console.log('delete marker resp :',response)
+            //console.log('delete marker resp :',response)
           })
         }
       }
 
     }
     $scope.onMarkerClicked = function (marker) {
-      $log.info('clicked on markers :'+marker)
+      //$log.info('clicked on markers :'+marker)
       marker.showWindow = true;
       $scope.$apply();
     };
     $scope.editTime = function () {
-      console.log("openTime");
+      //console.log("openTime");
       var modalInstance = $modal.open({
         templateUrl: '/static/html/modal_time.html',
         controller: 'ModalTimeCtrl',
@@ -548,8 +550,8 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
 
       modalInstance.result.then(function () {
       }, function () {
-        $log.info('datetime',$scope.datetime)
-        $log.info('Modal dismissed at: ' + new Date());
+        //$log.info('datetime',$scope.datetime)
+        //$log.info('Modal dismissed at: ' + new Date());
       });
     }
 
@@ -577,13 +579,13 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
       // modalInstance.result.then(function (selectedItem) {
       //   $scope.selected = selectedItem;
       // }, function () {
-      //   $log.info('Modal dismissed at: ' + new Date());
+      //   //$log.info('Modal dismissed at: ' + new Date());
       // });
     // };
   });
   // app.controller('ModalTimeCtrl', function (restService, $scope, $modalInstance , datetime) {
   //   $scope.datetime = datetime;
-  //   console.log(datetime.end)
+  //   //console.log(datetime.end)
   //   $scope.start = {date:new Date(datetime.start.getTime()),time:new Date(datetime.start.getTime())}
   //   $scope.end = {date:new Date(datetime.end.getTime()),time:new Date(datetime.end.getTime())}
   //   $scope.open_start = function($event) {
@@ -612,7 +614,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
   // });
 
   // app.controller('ModalReportCtrl', function (restService, $filter,$scope, $modalInstance,item,datetime) {
-  //   console.log(item);
+  //   //console.log(item);
   //   $scope.render = false
   //   $scope.item = item;
   //   $scope.data = [[],[]];
@@ -628,7 +630,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
   //   }
   //   $scope.getTraffic = function(current,timeData){
   //     if(current == timeData.length-1){
-  //       console.log($scope.data)
+  //       //console.log($scope.data)
   //       $scope.render = true;
   //       return
   //     }
@@ -662,7 +664,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
   //   $modalInstance.close();
   // };
   // $scope.export = function(){
-  //   console.log('export');
+  //   //console.log('export');
   // }
   // $scope.cancel = function () {
   //   $modalInstance.dismiss('cancel');

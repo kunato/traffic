@@ -37,7 +37,7 @@ API_LIMIT_PER_PAGE = 50
 INSTALLED_APPS = (
     'app',
     'tastypie',
-    'djcelery',                 # Add Django Celery
+    'djcelery',
     'kombu.transport.django',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -87,20 +87,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-if DEBUG:
-    # will output to your console
-    logging.basicConfig(
-        level = logging.DEBUG,
-        format = '%(asctime)s %(levelname)s %(message)s',
-    )
-else:
-    # will output to logging file
-    logging.basicConfig(
-        level = logging.DEBUG,
-        format = '%(asctime)s %(levelname)s %(message)s',
-        filename = '/my_log_file.log',
-        filemode = 'a'
-    )
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
