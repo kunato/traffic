@@ -15,7 +15,9 @@ class Video(models.Model):
 	url = models.CharField(max_length=200)
 	camera = models.ForeignKey(Camera)
 	start_time = models.DateTimeField(null=True)
-	# 0 stream or 1 file
+	added_time = models.DateTimeField(null=True)
+	tracking_id = models.CharField(max_length=200,null=True)
+	# 0 stream or 1 file or 2 camera setting in progress
 	type = models.IntegerField()
 	def __unicode__(self):
 		return "ID : "+str(self.id)+" CAMERA : "+str(self.camera)+" URL : "+self.url

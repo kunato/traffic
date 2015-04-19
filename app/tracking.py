@@ -97,7 +97,8 @@ def process(video,dataRelation):
     frame_no = 0
     last_gen_bg = frame_no
     if(video.type == 1):
-        startdate = dateutil.parser.parse(video.start_time)
+        print video.start_time
+        startdate = video.start_time
     while(1):
         ret, frame = cap.read()
         frame_no += 1

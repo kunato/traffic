@@ -60,11 +60,19 @@ app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
       var path = '/api/v1/camera/?format=json';
       return $http.post(path,data);
     },
+    resumeVideo: function(video_id){
+      var path = '/resume/';
+      var data = {'id':video_id};
+      return $http.post(path,data);
+    },
     postVideo: function(data){
       var path = '/api/v1/video/?format=json';
-      return $http.post(path,data)
+      return $http.post(path,data);
     },
-
+    getVideoByCameraId: function(camera_id){
+      var path = '/api/v1/video/?camera__id='+camera_id+'&order_by=added_time&format=json';
+      return $http.get(path);
+    },
     getMap: function(data){
       var path = '/api/v1/map/?format=json';
       return $http.get(path);
@@ -364,14 +372,36 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
 });
 app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$upload ,$timeout){
   $scope.camera = []
+  $scope.cameraFormData = {};
   restService.getCamera().then(function(response){
     $scope.camera = response.data.objects
     console.log($scope.camera)
+    $scope.getTrackingStatus(0);
   });
-
+  $scope.getTrackingStatus = function(i){
+    if(i == $scope.camera.length)
+      return
+    restService.getVideoByCameraId($scope.camera[i].id).then(function(response){
+        console.log(response)
+        if(response.data.objects.length > 0 && response.data.objects[0].type == 2){
+          $scope.camera[i].resume = response.data.objects[0].id
+        }
+        if(response.data.objects.length > 0 && response.data.objects[0].type == 1 &&response.data.objects[0].tracking_id != null){
+          console.log('polling start',$scope.camera[i]);
+          $scope.poll($scope.camera[i],response.data.objects[0].tracking_id);
+        }
+        $scope.getTrackingStatus(i+1)
+      })
+  }
   $scope.fileChange = function(file,event,formData){
 
     $scope.upload(formData,file);
+  }
+  $scope.resume = function(camera){
+    restService.resumeVideo(camera.resume).then(function(response){
+      camera.resume = undefined
+      $scope.poll(camera,response.data['job_id'])
+    });
   }
   $scope.ok = function(){
     $modalInstance.close()
@@ -384,14 +414,26 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
       console.log(response)
     });
   }
+  $scope.add = function(){
+    console.log($scope.cameraFormData)
+    restService.postCamera($scope.cameraFormData).then(function(response){
+      console.log(response);
+      $scope.camera.push(response.data)
+      $scope.cameraFormData = {}
+    });
+  }
   $scope.poll = function(formData,id){
     $timeout(function() {
             restService.getState(id).then(function(response){
               console.log(id);
               console.log(response)
               formData.progressPercentage = response.data.task;
-              if(response.data.task != 100){
-                    $scope.poll(formData,id);
+              formData.status = response.data.status;
+              if(response.data.status == 'FAILURE' || response.data.status == 'SUCCESS'){
+                  return
+              }
+              else{
+                $scope.poll(formData,id);
               }
               
             })

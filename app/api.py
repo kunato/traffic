@@ -9,6 +9,8 @@ API_LIMIT_PER_PAGE = 50
 
 class CameraResource(ModelResource):
 	class Meta:
+
+		always_return_data = True
 		queryset = Camera.objects.all()
 		resource_name = 'camera'
 
@@ -27,6 +29,12 @@ class VideoResource(ModelResource):
 		allowed_methods = ['get','post']
 		authentication = SessionAuthentication()
 		authorization = DjangoAuthorization()
+		ordering = {
+			'added_time'
+		}
+		filtering = {
+            'camera': ALL_WITH_RELATIONS,
+        }
 class MapResource(ModelResource):
 	class Meta:
 		queryset = Map.objects.all()

@@ -10,7 +10,7 @@ from django.core import serializers
 from django.contrib.auth import authenticate, login , logout
 from django.views.decorators.csrf import ensure_csrf_cookie
 import numpy as np
-from celery.result import AsyncResult
+import dateutil.parser
 @ensure_csrf_cookie
 def index(request):
     if(request.method == "POST"):
@@ -50,18 +50,32 @@ def upload(request):
             #change to Camera.objects.get(pk=request.POST['camera_id'])
             # 0 = oneway 1 = bi-direction
             cam = Camera.objects.get(pk=request.POST['id'])
-            video = Video(name="", url="", camera=cam, start_time=request.POST['datetime'],type=1)
+            video = Video(name="", url="", camera=cam, start_time=dateutil.parser.parse(request.POST['datetime']),added_time=datetime.datetime.now(),type=1)
             video.save()
             url = helper.saveFile(video.id,f.name.split('.')[-1],f)
             video.url = url
             video.save()
             process_obj = process.delay(video=video)
+            video.tracking_id = process_obj.id
+            video.save()
             return JsonResponse({'job_id':process_obj.id})
         else:
 
             return JsonResponse({'progress':''})
     else:
         return redirect('/')
+def resume(request):
+    if(request.user.is_authenticated()):
+        video = Video.objects.get(pk=json.loads(request.body)['id'])
+        video.type = 1
+        video.save()
+        process_obj = process.delay(video=video)
+        video.tracking_id = process_obj.id
+        video.save()
+        return JsonResponse({'job_id':process_obj.id})
+    else:
+        return redirect('/')
+
 def stream(request):
     if(request.user.is_authenticated()):
         if(request.method == "POST"):
@@ -76,12 +90,9 @@ def stream(request):
     
 def state(request):
     task_id = request.GET['task_id']
-    task = AsyncResult(task_id)
-    try:
-        return JsonResponse({'task':task.result['process_percent']})
-    except Exception, e:
-        return JsonResponse({'task': 0 })
-
+    task = get_task_status(task_id)
+    return JsonResponse({'task':task['progress'],'status':task['status']})
+    
 def traffic(request):
     data_relation_id = request.GET['id']
     start = request.GET['start']
