@@ -44,6 +44,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
             };
             directionsService = new google.maps.DirectionsService();
             directionsService.route(request, function (response, status) {
+              console.log(status)
               var saved_path = response.routes[0].overview_path; 
               
               if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
@@ -55,6 +56,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
 
                 $timeout(function(){
                   directionsService.route(request2, function (response2, status) {
+                    console.log(status)
                     $scope.alt_dataRelation.push({id:dataRelation[i].id,
                       path:response2.routes[0].overview_path,'description':response2.routes[0].summary,
                       distance:response2.routes[0].legs[0].distance.value,
@@ -67,9 +69,9 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
 
                     $timeout(function(){
                       $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-                    },50);
+                    },100);
                   });
-                },50);
+                },100);
 
               }
             else{
@@ -80,7 +82,7 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
                 cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
               $timeout(function(){
                 $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-              },50);
+              },100);
             }
           });
         });
@@ -112,20 +114,17 @@ restService.getDataRelation().then(function(response){
     var g = new Graph();
     var traffic_data = []
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
-      //if no traffic data set traffic = 10
       for(var j = 0 ; j < $scope.dataRelation[i].traffic.length ; j++){
         if($scope.dataRelation[i].traffic[j].speed == 0){
           $scope.dataRelation[i].traffic[j].speed = 10;
         }
       }
       var obj = {}
-      //TODO add traffic
       obj[$scope.dataRelation[i].cameraPoint2.id] = $scope.dataRelation[i].distance/$scope.dataRelation[i].traffic[0].speed
       g.addVertex($scope.dataRelation[i].cameraPoint1.id, obj);
 
       if(!$scope.dataRelation[i].one_way){
         var obj = {}
-        //TODO add traffic
         obj[$scope.dataRelation[i].cameraPoint1.id] = $scope.dataRelation[i].distance/$scope.dataRelation[i].traffic[1].speed
         g.addVertex($scope.dataRelation[i].cameraPoint2.id, obj);
       }
@@ -142,9 +141,6 @@ restService.getDataRelation().then(function(response){
     var end_min_node = -1;
     var end_min = 1.0/0;
     var start_min = 1.0/0;
-    //calc where the start point and end point
-    //edit this
-    //console.log($scope.dataRelation)
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < $scope.dataRelation[i].path.length-1 ; j++){
         var distance = getDistance($scope.dataRelation[i].path[j],$scope.dataRelation[i].path[j+1]);
@@ -233,12 +229,12 @@ restService.getDataRelation().then(function(response){
       higher_node = end_min_node;
     }
     else if(end_min_node == start_min_node){
-      //console.log("ROUTE NOT FOUND")
+      console.log("ROUTE NOT FOUND")
       $scope.dataRelation = backup_dataRelation;
       return
     }
     else{
-      //console.log("ROUTE NOT FOUND")
+      console.log("ROUTE NOT FOUND")
       $scope.dataRelation = backup_dataRelation;
       return
     }
@@ -380,13 +376,13 @@ restService.getDataRelation().then(function(response){
         }
       }
     }
-    //console.log(min_result);
+    console.log(min_result);
     var start_path = []
     var end_path = []
 
     if(min_start == -1){
       $scope.polys2 = []
-      //console.log("NO ROUTE FOUND")
+      console.log("NO ROUTE FOUND")
       $scope.dataRelation = backup_dataRelation;
       return
     }
