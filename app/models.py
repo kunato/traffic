@@ -34,6 +34,8 @@ class MapPoint(models.Model):
 	name = models.CharField(max_length=200,null=True)
 	latitude = models.FloatField()
 	longitude = models.FloatField()
+	alt_latitude = models.FloatField(null=True)
+	alt_longitude = models.FloatField(null=True)
 	map = models.ForeignKey(Map)
 	def __unicode__(self):
 		return str(self.id)

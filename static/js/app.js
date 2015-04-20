@@ -188,37 +188,64 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
   //   });
   // });
 
-  $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
-    if(i == length){
-      $scope.render = true;
-      return;
-    }
-      restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
-        var cameraPoint1 = response.data.mapPoint;
+$scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
+  if(i == length){
+    $scope.render = true;
+    return;
+  }
+  restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
+    var cameraPoint1 = response.data.mapPoint;
         //console.log('cameraPoint1',response.data)
         restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
           var cameraPoint2 = response2.data.mapPoint;
           //console.log('cameraPoint2',response2.data)
           uiGmapGoogleMapApi.then(function(){
-          var request = {
-            origin: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
-            destination: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
-            travelMode: google.maps.DirectionsTravelMode.WALKING
-          };
+            var request = {
+              origin: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
+              destination: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
+              travelMode: google.maps.DirectionsTravelMode.WALKING
+            };
           //console.log('sent directionsService with', request);
           directionsService = new google.maps.DirectionsService(),
           directionsService.route(request, function (response, status) {
-            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path})
+
+            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path});
+            console.log(cameraPoint1,cameraPoint2)
+            if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
+              console.log("in")
+              console.log(status)
+              var request2 = {
+                origin: new google.maps.LatLng(cameraPoint2.alt_latitude,cameraPoint2.alt_longitude),
+                destination: new google.maps.LatLng(cameraPoint1.alt_latitude,cameraPoint1.alt_longitude),
+                travelMode: google.maps.DirectionsTravelMode.WALKING
+              };
+              $timeout(function(){
+              console.log(request2)
+              directionsService.route(request2, function (response2, status) {
+                console.log(status)
+                $scope.dataRelation.push({id:dataRelation[i].id,path:response2.routes[0].overview_path});
+                $timeout(function(){
+                  $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
+                  },50);
+                });
+              },50);
+            
+            }
+
+            else{
+              console.log("out")
+              $timeout(function(){
+                $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
+              },50);
+            }
             //console.log('direction',response);
-            $timeout(function(){
-              $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-            },50);
+            
             
           });
-      });
-
         });
+
       });
+    });
   }
   restService.getDataRelation().then(function(response){
     //console.log('data',response.data.objects)
@@ -261,11 +288,24 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
     $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom ,events: {
     click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
-          //$log.info("user defined event: " + eventName, mapModel, originalEventArgs);
-          //console.log($scope.markers);
+          $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
+          var window_e = window.event;
           var e = originalEventArgs[0];
           var lat = e.latLng.lat(),lon = e.latLng.lng();
-          $scope.markers.push({
+          if(window_e.shiftKey){
+            $scope.markers.push({
+            id: nextId+1,
+            options: {
+              draggable:true,
+            },
+            latitude: lat,
+            longitude: lon
+            });
+          //scope apply required because this event handler is outside of the angular domain
+          $scope.$apply();
+          }
+          else{
+            $scope.markers.push({
             id: nextId,
             options: {
               draggable:true,
@@ -276,8 +316,10 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
           nextId-=1;
           //scope apply required because this event handler is outside of the angular domain
           $scope.$apply();
+          }
+          
         }
-  }};
+    }};
   });
   $scope.markers = [];
   restService.getMapPoint().then(function(response){
@@ -288,9 +330,16 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
   var nextId = -1;
   
   $scope.sendMarker = function(i,markers){
+    var j = i;
     if(i == markers.length)
       return;
-    var formData = {latitude:markers[i].latitude,longitude:markers[i].longitude,map:$scope.map_id};
+    if(i < markers.length-1 && markers[i].id == markers[i+1].id){
+      var formData = {latitude:markers[i].latitude,longitude:markers[i].longitude,map:$scope.map_id,alt_latitude:markers[i+1].latitude,alt_longitude:markers[i+1].longitude}
+      j+=1;
+    }
+    else{
+      var formData = {latitude:markers[i].latitude,longitude:markers[i].longitude,map:$scope.map_id};
+    }
       if(markers[i].options != undefined){
         restService.postMapPoint(formData).then(function(response){
 
@@ -303,7 +352,7 @@ app.controller('MapSettingController', function(restService, $scope , $http , $m
           //console.log('sent post by id resp : ',response);
         });
       }
-      $scope.sendMarker(i+1,markers);
+      $scope.sendMarker(j+1,markers);
   }
   $scope.save = function(){
     //$log.info('save')
