@@ -479,11 +479,11 @@ app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance
     $scope.markers = response.data.objects;
   });
   $scope.$watch('selected_camera',function(){
-    //console.log('selected_camera',$scope.selected_camera)
+    console.log('selected_camera',$scope.selected_camera)
     if($scope.selected_camera.id == undefined)
       return
     restService.getDataRelationByCameraId($scope.selected_camera.id).then(function(response){
-      //console.log('getDataRelationByCameraId : '+$scope.selected_camera.id,response)
+      console.log('getDataRelationByCameraId : '+$scope.selected_camera.id,response)
       if(response.data.objects.length == 0){
         $scope.draggable_item = [{color:'red',left:0.45,top:0,height:0.1,width:0.1},{color:'blue',left:0.45,top:0.9,height:0.1,width:0.1}];
         $scope.formData = {};
@@ -491,8 +491,9 @@ app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance
         $scope.marker2 = {};
         return
       }
-      restService.getDataByUri(response.data.objects[0].cameraPoint1).then(function(response){
-        //console.log('getDataByUri cameraPoint1',response)
+
+      restService.getDataByUri(response.data.objects[0].cameraPoint1.resource_uri).then(function(response){
+        console.log('getDataByUri cameraPoint1',response)
         $scope.draggable_item[0] = response.data;
         $scope.draggable_item[0].color = 'red'
         for(var i = 0 ; i < $scope.markers.length ; i++){
@@ -503,8 +504,8 @@ app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance
         //console.log('$scope.marker1',$scope.marker1);
         
       })
-      restService.getDataByUri(response.data.objects[0].cameraPoint2).then(function(response){
-        //console.log('getDataByUri cameraPoint2',response)
+      restService.getDataByUri(response.data.objects[0].cameraPoint2.resource_uri).then(function(response){
+        console.log('getDataByUri cameraPoint2',response)
         $scope.draggable_item[1] = response.data;
         $scope.draggable_item[1].color = 'blue'
         for(var i = 0 ; i < $scope.markers.length ; i++){
