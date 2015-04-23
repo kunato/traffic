@@ -59,6 +59,9 @@ class DataRelation(models.Model):
 	camera = models.ForeignKey(Camera)
 	camera_length = models.IntegerField()
 	camera_aspect = models.FloatField()
+	path = models.TextField(max_length=1000)
+	alt_path = models.TextField(max_length=1000)
+	
 	one_way = models.BooleanField(default=False)
 	def __unicode__(self):
 		return " ID : "+str(self.id)+" CameraPoint1 : "+str(self.cameraPoint1)+" CameraPoint2 : "+str(self.cameraPoint2)+" CAMERA : "+str(self.camera)

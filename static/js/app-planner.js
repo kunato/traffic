@@ -30,68 +30,45 @@ app.controller('PlannerController', function(restService, $scope , $http , $moda
     $scope.render = true;
     return;
   }
+  console.log(dataRelation)
   restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
     var traffic = response.data
-      restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
-        var cameraPoint1 = response.data.mapPoint;
-        restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
-          var cameraPoint2 = response2.data.mapPoint;
-          uiGmapGoogleMapApi.then(function(){
-            var request = {
-              origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
-              destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
-              travelMode: google.maps.DirectionsTravelMode.WALKING
-            };
-            directionsService = new google.maps.DirectionsService();
-            directionsService.route(request, function (response, status) {
-              console.log(status)
-              var saved_path = response.routes[0].overview_path; 
-              
-              if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
-                var request2 = {
-                  origin: new google.maps.LatLng(cameraPoint2.alt_latitude,cameraPoint2.alt_longitude),
-                  destination: new google.maps.LatLng(cameraPoint1.alt_latitude,cameraPoint1.alt_longitude),
-                  travelMode: google.maps.DirectionsTravelMode.WALKING
-                };
+    uiGmapGoogleMapApi.then(function(){
 
-                $timeout(function(){
-                  directionsService.route(request2, function (response2, status) {
-                    console.log(status)
-                    $scope.alt_dataRelation.push({id:dataRelation[i].id,
-                      path:response2.routes[0].overview_path,'description':response2.routes[0].summary,
-                      distance:response2.routes[0].legs[0].distance.value,
-                      cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2});
-
-                    $scope.dataRelation.push({id:dataRelation[i].id,
-                      path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
-                      distance:response.routes[0].legs[0].distance.value,
-                      cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
-
-                    $timeout(function(){
-                      $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-                    },100);
-                  });
-                },100);
-
-              }
-            else{
-              $scope.alt_dataRelation.push({});
-              $scope.dataRelation.push({id:dataRelation[i].id,
-                path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
-                distance:response.routes[0].legs[0].distance.value,
-                cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
-              $timeout(function(){
-                $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-              },100);
-            }
-          });
-        });
-      });
-    });
+      if(dataRelation[i].alt_path != ""){
+        var _pathObj = JSON.parse(dataRelation[i].alt_path);
+        var path = [];
+        for(var j = 0 ; j < _pathObj.path.length ; j++){
+          path.push(new google.maps.LatLng(_pathObj.path[j].k,_pathObj.path[j].B))
+        }
+        $scope.alt_dataRelation.push({id:dataRelation[i].id,
+          path:path,description:_pathObj.summary,
+          distance:_pathObj.distance.value,cameraPoint2:dataRelation[i].cameraPoint2.mapPoint,cameraPoint1:dataRelation[i].cameraPoint1.mapPoint});
+        console.log('in')
+      }
+      else{
+        $scope.alt_dataRelation.push({})
+      }
+      if(dataRelation[i].path != ""){
+        var _pathObj = JSON.parse(dataRelation[i].path);
+        var path = [];
+        for(var j = 0 ; j < _pathObj.path.length ; j++){
+          path.push(new google.maps.LatLng(_pathObj.path[j].k,_pathObj.path[j].B))
+        }
+        $scope.dataRelation.push({id:dataRelation[i].id,
+          path:path,traffic:traffic.data,description:_pathObj.summary,
+          distance:_pathObj.distance.value,
+          one_way:dataRelation[i].one_way,cameraPoint2:dataRelation[i].cameraPoint2.mapPoint,cameraPoint1:dataRelation[i].cameraPoint1.mapPoint})
+        console.log('in')
+      }
+      console.log($scope.dataRelation)
+      $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length);
+    });  
   });
 }
 restService.getDataRelation().then(function(response){
     var dataRelation = response.data.objects
+    console.log('ddd',dataRelation)
     var i = 0;
     $scope.getLatLngDataFromDataRelation(dataRelation,i,dataRelation.length);
     
@@ -113,6 +90,7 @@ restService.getDataRelation().then(function(response){
     var latlng_end = new google.maps.LatLng($scope.markers2[1].latitude,$scope.markers2[1].longitude)
     var g = new Graph();
     var traffic_data = []
+
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < $scope.dataRelation[i].traffic.length ; j++){
         if($scope.dataRelation[i].traffic[j].speed == 0){
@@ -214,7 +192,6 @@ restService.getDataRelation().then(function(response){
         }
       }
 
-    //TODO add traffic
     var all_path = [];
     var lower_node = undefined
     var higher_node = undefined
@@ -387,7 +364,7 @@ restService.getDataRelation().then(function(response){
       return
     }
     $scope.polys2 = [{},{},{},{}]
-    if(result_node[min_start][min_end][0] == $scope.dataRelation[start_min_index].cameraPoint1.id){
+    if(result_node[min_start][min_end][0] == $scope.dataRelation[start_min_index].cameraPoint2.id){
       for(var i = $scope.dataRelation[start_min_index].path.length-1 ; i >= start_min_node  ; i--){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
@@ -402,7 +379,7 @@ restService.getDataRelation().then(function(response){
 
     }
 
-    if(result_node[min_start][min_end][result_node[min_start][min_end].length-1] == $scope.dataRelation[end_min_index].cameraPoint1.id){
+    if(result_node[min_start][min_end][result_node[min_start][min_end].length-1] == $scope.dataRelation[end_min_index].cameraPoint2.id){
       
       for(var i = $scope.dataRelation[end_min_index].path.length-1 ; i  >= end_min_node ; i--){
         end_path.push($scope.dataRelation[end_min_index].path[i])
@@ -492,9 +469,8 @@ restService.getDataRelation().then(function(response){
   }
 
     $scope.$watch('dataRelation',function(){
+      console.log('dataUpdate')
       $scope.renderPolyline();
-    },true);
-    $scope.$watch('polys',function(){
     },true);
     $scope.deletedMarkers = []
     restService.getMap().then(function(response){

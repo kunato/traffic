@@ -39,67 +39,44 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
   }
   restService.getTrafficFromDataRelation(dataRelation[i].id,$scope.datetime.start,$scope.datetime.end).then(function(response){
     var traffic = response.data
-      restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
-        var cameraPoint1 = response.data.mapPoint;
-        restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
-          var cameraPoint2 = response2.data.mapPoint;
-          uiGmapGoogleMapApi.then(function(){
-            var request = {
-              origin: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
-              destination: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
-              travelMode: google.maps.DirectionsTravelMode.WALKING
-            };
-            directionsService = new google.maps.DirectionsService();
-            directionsService.route(request, function (response, status) {
-              var saved_path = response.routes[0].overview_path; 
-              
-              if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
-                var request2 = {
-                  origin: new google.maps.LatLng(cameraPoint2.alt_latitude,cameraPoint2.alt_longitude),
-                  destination: new google.maps.LatLng(cameraPoint1.alt_latitude,cameraPoint1.alt_longitude),
-                  travelMode: google.maps.DirectionsTravelMode.WALKING
-                };
+    uiGmapGoogleMapApi.then(function(){
 
-                $timeout(function(){
-                  directionsService.route(request2, function (response2, status) {
-                    $scope.alt_dataRelation.push({id:dataRelation[i].id,
-                      path:response2.routes[0].overview_path,'description':response2.routes[0].summary,
-                      distance:response2.routes[0].legs[0].distance.value,
-                      cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2});
-
-                    $scope.dataRelation.push({id:dataRelation[i].id,
-                      path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
-                      distance:response.routes[0].legs[0].distance.value,
-                      cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
-
-                    $timeout(function(){
-                      $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-                    },50);
-                  });
-                },50);
-
-              }
-            else{
-              $scope.alt_dataRelation.push({});
-              $scope.dataRelation.push({id:dataRelation[i].id,
-                path:saved_path,traffic:traffic.data,'description':response.routes[0].summary,
-                distance:response.routes[0].legs[0].distance.value,
-                cameraPoint1:cameraPoint1,cameraPoint2:cameraPoint2,one_way:dataRelation[i].one_way})
-              $timeout(function(){
-                $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-              },50);
-            }
-          });
-        });
-      });
-    });
+      if(dataRelation[i].alt_path != ""){
+        var _pathObj = JSON.parse(dataRelation[i].alt_path);
+        var path = [];
+        for(var j = 0 ; j < _pathObj.path.length ; j++){
+          path.push(new google.maps.LatLng(_pathObj.path[j].k,_pathObj.path[j].B))
+        }
+        $scope.alt_dataRelation.push({id:dataRelation[i].id,
+          path:path,description:_pathObj.summary,
+          distance:_pathObj.distance.value});
+        console.log('in')
+      }
+      else{
+        $scope.alt_dataRelation.push({})
+      }
+      if(dataRelation[i].path != ""){
+        var _pathObj = JSON.parse(dataRelation[i].path);
+        var path = [];
+        for(var j = 0 ; j < _pathObj.path.length ; j++){
+          path.push(new google.maps.LatLng(_pathObj.path[j].k,_pathObj.path[j].B))
+        }
+        $scope.dataRelation.push({id:dataRelation[i].id,
+          path:path,traffic:traffic.data,description:_pathObj.summary,
+          distance:_pathObj.distance.value,
+          one_way:dataRelation[i].one_way})
+        console.log('in')
+      }
+      console.log($scope.dataRelation)
+      $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length);
+    });  
   });
 }
 restService.getDataRelation().then(function(response){
-    var dataRelation = response.data.objects
-    var i = 0;
-    $scope.getLatLngDataFromDataRelation(dataRelation,i,dataRelation.length);
-    
+  var dataRelation = response.data.objects
+  var i = 0;
+  $scope.getLatLngDataFromDataRelation(dataRelation,i,dataRelation.length);
+
 });
 $scope.renderPolyline = function(){
   console.log('render')
@@ -107,32 +84,33 @@ $scope.renderPolyline = function(){
   console.log('alt_dataRelation',$scope.alt_dataRelation)
   var events = {
     click: function (mapModel, eventName, originalEventArgs) {
-            var id = originalEventArgs.icons
-            $scope.open(id);
-          }
-        }
-        $scope.polys = [];
-        for (var i = 0 ; i < $scope.dataRelation.length ; i++){
-          var path1 = angular.copy($scope.dataRelation[i].path);
-          $scope.polys.push({})
-          var index = $scope.polys.length-1
-          $scope.polys[index].id = $scope.dataRelation[i].id
-          $scope.polys[index].path = path1
-          $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
-          $scope.polys[index].events = events;
-          if($scope.dataRelation[i].one_way == true){
-            continue;
-          }
+      var id = originalEventArgs.icons
+      $scope.open(id);
+    }
+  }
+  $scope.polys = [];
+  for (var i = 0 ; i < $scope.dataRelation.length ; i++){
+    var path1 = angular.copy($scope.dataRelation[i].path);
+    $scope.polys.push({})
+    var index = $scope.polys.length-1
+    $scope.polys[index].id = $scope.dataRelation[i].id
+    $scope.polys[index].path = path1
+    $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
+    $scope.polys[index].events = events;
+    if($scope.dataRelation[i].one_way == true){
+      continue;
+    }
 
-          if($scope.alt_dataRelation[i] != null){
-            console.log($scope.alt_dataRelation)
-            var path = $scope.alt_dataRelation[i].path
+    if($scope.alt_dataRelation[i] != null){
+      console.log($scope.alt_dataRelation)
+      var path = $scope.alt_dataRelation[i].path
 
-          }
-          else{
-            var path = angular.copy($scope.dataRelation[i].path)
-            for(var j = 0 ; j < path.length ; j++){
+    }
+    else{
+      var path = angular.copy($scope.dataRelation[i].path)
+      for(var j = 0 ; j < path.length ; j++){
             //calculate from average of all path
+            console
             path[j].B += 0.00003
             path[j].k += 0.00006
           }

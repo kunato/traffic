@@ -43,8 +43,8 @@
         </ui-gmap-marker> -->
         <ui-gmap-polyline ng-if="render" ng-repeat="m in polys2" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
         </ui-gmap-polyline>
-        <ui-gmap-polyline ng-if="polys2.length == 0 && render" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
-        </ui-gmap-polyline>
+        <!-- <ui-gmap-polyline ng-if="polys2.length == 0" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
+        </ui-gmap-polyline> -->
     </ui-gmap-google-map>
     <div style=
      "float: right;

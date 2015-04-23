@@ -1,35 +1,35 @@
 
 Array.prototype.remove = function(val) {
-    var i = this.indexOf(val);
-         return i>-1 ? this.splice(i, 1) : [];
-  };
+  var i = this.indexOf(val);
+  return i>-1 ? this.splice(i, 1) : [];
+};
 var app = angular.module('app', ['uiGmapgoogle-maps','ngRoute','ui.bootstrap','chart.js','angularFileUpload']);
 app.config(['$httpProvider', function($httpProvider){
         // django and angular both support csrf tokens. This tells
         // angular which cookie to add to what header.
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-}])
+      }])
 app.run(['$location', '$rootScope', function($location, $rootScope) {
-    $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
+  $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         //console.log("routeChangeSuccess");
         //console.log(current.$$route.title);
         $rootScope.title = current.$$route.title;
-    });
+      });
 }]);
 
 app.config(function(uiGmapGoogleMapApiProvider) {
-    uiGmapGoogleMapApiProvider.configure({
-        key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
-        v: '3.17',
-        libraries: 'drawing,places,weather,geometry,visualization'
-    });
+  uiGmapGoogleMapApiProvider.configure({
+    key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
+    v: '3.17',
+    libraries: 'drawing,places,weather,geometry,visualization'
+  });
 })
 app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
   return {
     getDirectionObject: function(origin,dest){
-      
-      
+
+
     },
     getCamera: function() {
       var path = '/api/v1/camera/?format=json';
@@ -119,7 +119,7 @@ app.service('restService', function($http, $rootScope,uiGmapGoogleMapApi) {
 
   }
 })
-    
+
 var loaded = false;
 var data;
 function getRandomColor() {
@@ -132,38 +132,38 @@ function getRandomColor() {
 }
 function getColorFromTraffic(speed,count) {
   if(speed == 0)return 'black'
-  else if(speed < 10)return 'red'
-  else if(speed < 40) return 'yellow'
-  else return 'green'
-}
-function convertToPercent(value,max){
-  return value/max;
-}
-function pInt(value){
-  if(value.indexOf('px') > -1){
-    var i = value.split('px')
-  }
-  else{
-    var i = value;
-  }
-  return i[0];
-}
-function calcDistance(latLng1,latLng2){
-  var i = Math.sqrt((Math.pow((latLng1.B-latLng2.B),2)+(Math.pow((latLng1.k-latLng2.k),2))))
-  return i
-}
+    else if(speed < 10)return 'red'
+      else if(speed < 40) return 'yellow'
+        else return 'green'
+      }
+    function convertToPercent(value,max){
+      return value/max;
+    }
+    function pInt(value){
+      if(value.indexOf('px') > -1){
+        var i = value.split('px')
+      }
+      else{
+        var i = value;
+      }
+      return i[0];
+    }
+    function calcDistance(latLng1,latLng2){
+      var i = Math.sqrt((Math.pow((latLng1.B-latLng2.B),2)+(Math.pow((latLng1.k-latLng2.k),2))))
+      return i
+    }
 
-function rad(x) {
-  return x * Math.PI / 180;
-};
+    function rad(x) {
+      return x * Math.PI / 180;
+    };
 
-function getDistance(p1, p2) {
+    function getDistance(p1, p2) {
   var R = 6378137; // Earth’s mean radius in meter
   var dLat = rad(p2.lat() - p1.lat());
   var dLong = rad(p2.lng() - p1.lng());
   var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(rad(p1.lat())) * Math.cos(rad(p2.lat())) *
-    Math.sin(dLong / 2) * Math.sin(dLong / 2);
+  Math.cos(rad(p1.lat())) * Math.cos(rad(p2.lat())) *
+  Math.sin(dLong / 2) * Math.sin(dLong / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
   return d; // returns the distance in meter
@@ -193,92 +193,62 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     $scope.render = true;
     return;
   }
-  restService.getDataByUri(dataRelation[i].cameraPoint1).then(function(response){
-    var cameraPoint1 = response.data.mapPoint;
-        //console.log('cameraPoint1',response.data)
-        restService.getDataByUri(dataRelation[i].cameraPoint2).then(function(response2){
-          var cameraPoint2 = response2.data.mapPoint;
-          //console.log('cameraPoint2',response2.data)
-          uiGmapGoogleMapApi.then(function(){
-            var request = {
-              origin: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
-              destination: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
-              travelMode: google.maps.DirectionsTravelMode.WALKING
-            };
-          //console.log('sent directionsService with', request);
-          directionsService = new google.maps.DirectionsService(),
-          directionsService.route(request, function (response, status) {
-
-            $scope.dataRelation.push({id:dataRelation[i].id,path:response.routes[0].overview_path});
-            console.log(cameraPoint1,cameraPoint2)
-            if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
-              console.log("in")
-              console.log(status)
-              var request2 = {
-                origin: new google.maps.LatLng(cameraPoint2.alt_latitude,cameraPoint2.alt_longitude),
-                destination: new google.maps.LatLng(cameraPoint1.alt_latitude,cameraPoint1.alt_longitude),
-                travelMode: google.maps.DirectionsTravelMode.WALKING
-              };
-              $timeout(function(){
-              console.log(request2)
-              directionsService.route(request2, function (response2, status) {
-                console.log(status)
-                $scope.dataRelation.push({id:dataRelation[i].id,path:response2.routes[0].overview_path});
-                $timeout(function(){
-                  $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-                  },50);
-                });
-              },50);
-            
-            }
-
-            else{
-              console.log("out")
-              $timeout(function(){
-                $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length)
-              },50);
-            }
-            //console.log('direction',response);
-            
-            
-          });
-        });
-
-      });
-    });
+  console.log(dataRelation)
+  console.log(dataRelation[i].path,dataRelation[i].alt_path)
+  uiGmapGoogleMapApi.then(function(){
+  if(dataRelation[i].path != ""){
+    var _path = JSON.parse(dataRelation[i].path).path;
+    var path = [];
+    for(var j = 0 ; j < _path.length ; j++){
+      path.push(new google.maps.LatLng(_path[j].k,_path[j].B))
+    }
+    $scope.dataRelation.push({id:dataRelation[i].id,path:path});
+    console.log('in')
   }
-  restService.getDataRelation().then(function(response){
+  if(dataRelation[i].alt_path != ""){
+    var _path = JSON.parse(dataRelation[i].alt_path).path;
+    var path = [];
+    for(var j = 0 ; j < _path.length ; j++){
+      path.push(new google.maps.LatLng(_path[j].k,_path[j].B))
+    }
+    $scope.dataRelation.push({id:dataRelation[i].id,path:path});
+    console.log('in')
+  }
+  console.log($scope.dataRelation)
+  $scope.getLatLngDataFromDataRelation(dataRelation,i+1,length);
+  });
+}
+
+restService.getDataRelation().then(function(response){
     //console.log('data',response.data.objects)
     var dataRelation = response.data.objects
     var i = 0;
     $scope.getLatLngDataFromDataRelation(dataRelation,i,dataRelation.length);
     
   });
-  $scope.$watch('dataRelation',function(){
-    //console.log("dataRelation change",$scope.dataRelation)
-    if($scope.dataRelation.length == $scope.polys.length)
-      return
+$scope.$watch('dataRelation',function(){
+    console.log("dataRelation change",$scope.dataRelation)
+    
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-        $scope.polys[i] = $scope.dataRelation[i]
+      $scope.polys[i] = $scope.dataRelation[i]
 
-        $scope.polys[i].events = {
-          click: function (mapModel, eventName, originalEventArgs) {
+      $scope.polys[i].events = {
+        click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
           //$log.info("user defined event: " + eventName, mapModel, originalEventArgs);
 
         }
-  }
+      }
     }
-    //console.log($scope.polys)
   },true);
-  $scope.$watch('polys',function(){
-    //console.log('polys change');
+$scope.$watch('polys',function(){
+    console.log('polys change',$scope.polys);
   },true);
-  
-  $scope.test = function(){
+
+$scope.test = function(){
     //console.log("test",$scope.dataRelation)
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
-        $scope.polys[i] = $scope.dataRelation[i]
+      $scope.polys[i] = $scope.dataRelation[i]
     }
   }
   $scope.deletedMarkers = []
@@ -286,7 +256,7 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     //$log.info('getMap',response)
     $scope.map_id = response.data.objects[0].resource_uri;
     $scope.map = {center: {latitude:response.data.objects[0].center_lat,longitude:response.data.objects[0].center_lng},zoom:response.data.objects[0].zoom ,events: {
-    click: function (mapModel, eventName, originalEventArgs) {
+      click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
           $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
           var window_e = window.event;
@@ -294,18 +264,18 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
           var lat = e.latLng.lat(),lon = e.latLng.lng();
           if(window_e.shiftKey){
             $scope.markers.push({
-            id: nextId+1,
-            options: {
-              draggable:true,
-            },
-            latitude: lat,
-            longitude: lon
+              id: nextId+1,
+              options: {
+                draggable:true,
+              },
+              latitude: lat,
+              longitude: lon
             });
           //scope apply required because this event handler is outside of the angular domain
           $scope.$apply();
-          }
-          else{
-            $scope.markers.push({
+        }
+        else{
+          $scope.markers.push({
             id: nextId,
             options: {
               draggable:true,
@@ -316,13 +286,13 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
           nextId-=1;
           //scope apply required because this event handler is outside of the angular domain
           $scope.$apply();
-          }
-          
         }
+
+      }
     }};
   });
-  $scope.markers = [];
-  restService.getMapPoint().then(function(response){
+$scope.markers = [];
+restService.getMapPoint().then(function(response){
     //console.log('getMapPoint',response)
     $scope.markers = response.data.objects;
   });
@@ -340,19 +310,19 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     else{
       var formData = {latitude:markers[i].latitude,longitude:markers[i].longitude,map:$scope.map_id};
     }
-      if(markers[i].options != undefined){
-        restService.postMapPoint(formData).then(function(response){
+    if(markers[i].options != undefined){
+      restService.postMapPoint(formData).then(function(response){
 
-          markers[i].id = response.data.id
+        markers[i].id = response.data.id
           //console.log('sent post resp : ',response);
         });
-      }
-      else{
-        restService.postMapPointById(markers[i].id,formData).then(function(response){
+    }
+    else{
+      restService.postMapPointById(markers[i].id,formData).then(function(response){
           //console.log('sent post by id resp : ',response);
         });
-      }
-      $scope.sendMarker(j+1,markers);
+    }
+    $scope.sendMarker(j+1,markers);
   }
   $scope.save = function(){
     //$log.info('save')
@@ -399,7 +369,7 @@ $scope.getLatLngDataFromDataRelation = function(dataRelation,i,length){
     // }, function () {
     //   //$log.info('Modal dismissed at: ' + new Date());
     // });
-  };
+};
 });
 app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$upload ,$timeout){
   $scope.camera = []
@@ -455,13 +425,13 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
   }
   $scope.poll = function(formData,id){
     $timeout(function() {
-            restService.getState(id).then(function(response){
+      restService.getState(id).then(function(response){
               //console.log(id);
               //console.log(response)
               formData.progressPercentage = response.data.task;
               formData.status = response.data.status;
               if(response.data.status == 'FAILURE' || response.data.status == 'SUCCESS'){
-                  return
+                return
               }
               else{
                 $scope.poll(formData,id);
@@ -469,28 +439,28 @@ app.controller('ModalCameraCtrl', function (restService,$scope,$modalInstance ,$
               
             })
 
-        }, 5000);
+    }, 5000);
   }
-    $scope.upload = function (formData,files) {
-        if (files && files.length) {
+  $scope.upload = function (formData,files) {
+    if (files && files.length) {
           //console.log('upload')
-            var file = files[0];
-            $upload.upload({
-                url: '/upload/',
-                file: file,
-                fields: {'id': formData.id,'datetime':formData.video_date.toISOString()}
-            }).progress(function (evt) {
-                formData.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+          var file = files[0];
+          $upload.upload({
+            url: '/upload/',
+            file: file,
+            fields: {'id': formData.id,'datetime':formData.video_date.toISOString()}
+          }).progress(function (evt) {
+            formData.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
                 //console.log('progress: ' + formData.progressPercentage + '% ' + evt.config.file.name);
-            }).success(function (data, status, headers, config) {
+              }).success(function (data, status, headers, config) {
                 $scope.poll(formData,data['job_id'])
                 //console.log('file ' + config.file.name + ' uploaded. Response: ' + data['job_id']);
-            
-            });
-            
-        }
-    };
-});
+
+              });
+
+            }
+          };
+        });
 
 
 
@@ -546,7 +516,7 @@ app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance
       })
       $scope.formData = response.data.objects[0];
     });
-  })
+})
   //set camera position and param
   $scope.getCameraImg = function(){
     if($scope.selected_camera == undefined ){
@@ -559,48 +529,89 @@ app.controller('ModalSettingCtrl', function (restService, $scope, $modalInstance
     }
   }
 }
+
 $scope.ok = function () {
   var element = angular.element("#draggable-zone1");
   var element2 = angular.element("#draggable-zone2");
 
   var cameraPoint1 = {
-  mapPoint:$scope.marker1.resource_uri,
-  top:convertToPercent(pInt(element.css('top')),$scope.selected_camera.height),
-  left:convertToPercent(pInt(element.css('left')),$scope.selected_camera.width),
-  height:convertToPercent(pInt(element.css('height')),$scope.selected_camera.height),
-  width:convertToPercent(pInt(element.css('width')),$scope.selected_camera.width)
+    mapPoint:$scope.marker1.resource_uri,
+    top:convertToPercent(pInt(element.css('top')),$scope.selected_camera.height),
+    left:convertToPercent(pInt(element.css('left')),$scope.selected_camera.width),
+    height:convertToPercent(pInt(element.css('height')),$scope.selected_camera.height),
+    width:convertToPercent(pInt(element.css('width')),$scope.selected_camera.width)
   };
-   
+
   if($scope.formData.one_way == true){
     var cameraPoint2 = {mapPoint:$scope.marker2.resource_uri,top:0,left:0,height:0,width:0}
   }
   else{
     var cameraPoint2 = {
-    mapPoint:$scope.marker2.resource_uri,
-    top:(convertToPercent(pInt(element2.css('top')),$scope.selected_camera.height)),
-    left:(convertToPercent(pInt(element2.css('left')),$scope.selected_camera.width)),
-    height:convertToPercent(pInt(element2.css('height')),$scope.selected_camera.height),
-    width:convertToPercent(pInt(element2.css('width')),$scope.selected_camera.width)
+      mapPoint:$scope.marker2.resource_uri,
+      top:(convertToPercent(pInt(element2.css('top')),$scope.selected_camera.height)),
+      left:(convertToPercent(pInt(element2.css('left')),$scope.selected_camera.width)),
+      height:convertToPercent(pInt(element2.css('height')),$scope.selected_camera.height),
+      width:convertToPercent(pInt(element2.css('width')),$scope.selected_camera.width)
     }
   }
   //console.log(cameraPoint1,cameraPoint2);
   if($scope.draggable_item[0].resource_uri != undefined){
     restService.putDataByUri($scope.draggable_item[0].resource_uri,cameraPoint1).then(function(response){
+      var cameraPoint1 = response.data.mapPoint;
       //console.log('putCameraPoint1',response)
       $scope.formData.cameraPoint1 = response.data.resource_uri;
       restService.putDataByUri($scope.draggable_item[1].resource_uri,cameraPoint2).then(function(response){
+        var cameraPoint2 = response.data.mapPoint;
         //console.log('putCameraPoint2',response)
         $scope.formData.cameraPoint2 = response.data.resource_uri;
-        $scope.formData.camera = $scope.selected_camera.resource_uri,
+        $scope.formData.camera = $scope.selected_camera.resource_uri;
+        var request = {
+          origin: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
+          destination: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
+          travelMode: google.maps.DirectionsTravelMode.WALKING
+        };
+        directionsService = new google.maps.DirectionsService();
+        directionsService.route(request, function (response, status) {
+          console.log(cameraPoint1,cameraPoint2)
+          if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
+            console.log("in")
+            var request2 = {
+              origin: new google.maps.LatLng(cameraPoint2.alt_latitude,cameraPoint2.alt_longitude),
+              destination: new google.maps.LatLng(cameraPoint1.alt_latitude,cameraPoint1.alt_longitude),
+              travelMode: google.maps.DirectionsTravelMode.WALKING
+            };
+            console.log(request2)
+            directionsService.route(request2, function (response2, status) {
+              console.log('direction',response,response2);
+              $scope.formData.path = JSON.stringify({path:response.routes[0].overview_path,distance:response.routes[0].legs[0].distance,summary:response.routes[0].summary});
+              
+              $scope.formData.alt_path = JSON.stringify({path:response2.routes[0].overview_path,distance:response2.routes[0].legs[0].distance,summary:response2.routes[0].summary});
+              
+              //put path to db
+              restService.putDataByUri($scope.formData.resource_uri,$scope.formData).then(function(response){
+                console.log(response)
+              })
+            });
+          }
+          else{
+            //put path to db
+            $scope.formData.path = JSON.stringify({path:response.routes[0].overview_path,distance:response.routes[0].legs[0].distance,summary:response.routes[0].summary});
+            restService.putDataByUri($scope.formData.resource_uri,$scope.formData).then(function(response){
+              console.log(response)
+            })
+          };
+
+        });
+
+
+
         //console.log('$scope.formData',$scope.formData);
-        restService.putDataByUri($scope.formData.resource_uri,$scope.formData).then(function(response){
-          //console.log('putDataRelation',response)
-        })
-      });
+        
     });
-  }
-  else{
-    restService.postCameraPoint(cameraPoint1).then(function(response){
+  });
+}
+else{
+  restService.postCameraPoint(cameraPoint1).then(function(response){
       //console.log('postCameraPoint1',response)
       $scope.formData.cameraPoint1 = response.data.resource_uri;
       restService.postCameraPoint(cameraPoint2).then(function(response){
@@ -613,10 +624,10 @@ $scope.ok = function () {
         })
       });
     });
-  }
-  
-  $modalInstance.close();
-  $route.reload();
+}
+
+$modalInstance.close();
+$route.reload();
 };
 
 $scope.cancel = function () {
@@ -630,41 +641,41 @@ $scope.getStyle = function(item_no) {
   var width = $scope.selected_camera.width;
   $( "#draggable-zone1" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable()
   $( "#draggable-zone2" ).draggable({ containment: "#camera-wrapper", scroll: false }).resizable()
-    
+
   if(item_no == 0){
     return {'background-color':item.color,
-      'left':item.left*width+'px',
-      'top':item.top*height+'px',
-      'width':item.width*width+'px',
-      'height':item.height*height+'px'
-    }
-  }else{
-    var item1 = $scope.draggable_item[0]
-    return {'background-color':item.color,
-      'left':item.left*width+'px',
-      'top':item.top*height+'px',
-      'width':item.width*width+'px',
-      'height':item.height*height+'px'
-    }
+    'left':item.left*width+'px',
+    'top':item.top*height+'px',
+    'width':item.width*width+'px',
+    'height':item.height*height+'px'
   }
+}else{
+  var item1 = $scope.draggable_item[0]
+  return {'background-color':item.color,
+  'left':item.left*width+'px',
+  'top':item.top*height+'px',
+  'width':item.width*width+'px',
+  'height':item.height*height+'px'
+}
+}
 }
 });
 app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFilter', function (datepickerPopupConfig, dateParser, dateFilter) {
-    return {
-        'restrict': 'A',
-        'require': '^ngModel',
-        'link': function ($scope, element, attrs, ngModel) {
-            var dateFormat;
+  return {
+    'restrict': 'A',
+    'require': '^ngModel',
+    'link': function ($scope, element, attrs, ngModel) {
+      var dateFormat;
 
             //*** Temp fix for Angular 1.3 support [#2659](https://github.com/angular-ui/bootstrap/issues/2659)
             attrs.$observe('datepickerPopup', function(value) {
-                dateFormat = value || datepickerPopupConfig.datepickerPopup;
-                ngModel.$render();
+              dateFormat = value || datepickerPopupConfig.datepickerPopup;
+              ngModel.$render();
             });
 
             ngModel.$formatters.push(function (value) {
-                return ngModel.$isEmpty(value) ? value : dateFilter(value, dateFormat);
+              return ngModel.$isEmpty(value) ? value : dateFilter(value, dateFormat);
             });
-        }
-    };
-}]);
+          }
+        };
+      }]);

@@ -68,8 +68,8 @@ class CameraPointResource(ModelResource):
 class DataRelationResource(ModelResource):
 
 	camera = fields.ToOneField( CameraResource, 'camera', full = True)
-	cameraPoint1 = fields.ToOneField(CameraPointResource,'cameraPoint1')
-	cameraPoint2 = fields.ToOneField(CameraPointResource,'cameraPoint2')
+	cameraPoint1 = fields.ToOneField(CameraPointResource,'cameraPoint1',full = True)
+	cameraPoint2 = fields.ToOneField(CameraPointResource,'cameraPoint2', full = True)
 	class Meta:
 		always_return_data = True
 		queryset = DataRelation.objects.all()
