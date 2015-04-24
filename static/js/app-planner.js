@@ -94,7 +94,7 @@ restService.getDataRelation().then(function(response){
     for(var i = 0 ; i < $scope.dataRelation.length ; i++){
       for(var j = 0 ; j < $scope.dataRelation[i].traffic.length ; j++){
         if($scope.dataRelation[i].traffic[j].speed == 0){
-          $scope.dataRelation[i].traffic[j].speed = 10;
+          $scope.dataRelation[i].traffic[j].speed = 30;
         }
       }
       var obj = {}
@@ -219,18 +219,53 @@ restService.getDataRelation().then(function(response){
     for(var i = lower_node ; i < higher_node ; i++){
       all_path.push($scope.dataRelation[start_min_index].path[i])
     }
+
     $scope.polys2[0].path = all_path;
     $scope.polys2[1].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
+    $scope.polys2[1].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     $scope.polys2[2].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
+    $scope.polys2[2].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     if(end_min_node > start_min_node){
       $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed,$scope.dataRelation[start_min_index].traffic[1].count),weight:2,opacity:1.0}
-    
+      $scope.polys2[0].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
       $scope.polys2[1].path = [{latitude:latlng_start.k,longitude:latlng_start.B},all_path[0]]
       $scope.polys2[2].path = [{latitude:latlng_end.k,longitude:latlng_end.B},all_path[all_path.length-1]] 
     }
     else{
       $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
-    
+      $scope.polys2[0].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
       $scope.polys2[1].path = [{latitude:latlng_start.k,longitude:latlng_start.B},all_path[all_path.length-1]]
       $scope.polys2[2].path = [{latitude:latlng_end.k,longitude:latlng_end.B},all_path[0]] 
     }
@@ -369,14 +404,30 @@ restService.getDataRelation().then(function(response){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
       $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed,$scope.dataRelation[start_min_index].traffic[1].count),weight:2,opacity:1.0}
-
+      $scope.polys2[0].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     }
     else{
       for(var i = 0 ; i <= start_min_node ; i++){
         start_path.push($scope.dataRelation[start_min_index].path[i])
       }
       $scope.polys2[0].stroke = {color:getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed,$scope.dataRelation[start_min_index].traffic[0].count),weight:2,opacity:1.0}
-
+      $scope.polys2[0].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     }
 
     if(result_node[min_start][min_end][result_node[min_start][min_end].length-1] == $scope.dataRelation[end_min_index].cameraPoint2.id){
@@ -385,19 +436,53 @@ restService.getDataRelation().then(function(response){
         end_path.push($scope.dataRelation[end_min_index].path[i])
       }
       $scope.polys2[1].stroke = {color:getColorFromTraffic($scope.dataRelation[end_min_index].traffic[0].speed,$scope.dataRelation[end_min_index].traffic[0].count),weight:2,opacity:1.0}
-
+      $scope.polys2[1].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     }
     else{
       for(var i = 0 ; i <= end_min_node ; i++){
         end_path.push($scope.dataRelation[end_min_index].path[i])
       }
       $scope.polys2[1].stroke = {color:getColorFromTraffic($scope.dataRelation[end_min_index].traffic[1].speed,$scope.dataRelation[end_min_index].traffic[1].count),weight:2,opacity:1.0}
-
+      $scope.polys2[1].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     }
     $scope.polys2[0].path = start_path;
     $scope.polys2[1].path = end_path;
 
     $scope.polys2[2].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
+    $scope.polys2[2].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
+    $scope.polys2[3].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
     $scope.polys2[3].stroke = {color:'#ff00ff',weight:2,opacity:1.0}
     $scope.polys2[2].path = [{latitude:latlng_start.k,longitude:latlng_start.B},start_path[start_path.length-1]]
     $scope.polys2[3].path = [{latitude:latlng_end.k,longitude:latlng_end.B},end_path[end_path.length-1]]
@@ -408,13 +493,30 @@ restService.getDataRelation().then(function(response){
           var index = $scope.polys2.length-1
           $scope.polys2[index].path =  $scope.dataRelation[i].path
           $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[end_min_index].traffic[0].count),weight:2,opacity:1.0}
+          $scope.polys2[index].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
         }
         else if((result_node[min_start][min_end][j] == $scope.dataRelation[i].cameraPoint2.id && result_node[min_start][min_end][j+1] == $scope.dataRelation[i].cameraPoint1.id)){
           $scope.polys2.push({})
           var index = $scope.polys2.length-1
           $scope.polys2[index].path =  $scope.dataRelation[i].path
           $scope.polys2[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[end_min_index].traffic[1].count),weight:2,opacity:1.0}
-
+          $scope.polys2[index].icons = [
+        {
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
         }
       }
       

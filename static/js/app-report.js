@@ -82,9 +82,18 @@ $scope.renderPolyline = function(){
   console.log('render')
   console.log('dataRelation',$scope.dataRelation)
   console.log('alt_dataRelation',$scope.alt_dataRelation)
+  var icons =  [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
   var events = {
     click: function (mapModel, eventName, originalEventArgs) {
-      var id = originalEventArgs.icons
+      var id = originalEventArgs.icons.id
       $scope.open(id);
     }
   }
@@ -95,8 +104,10 @@ $scope.renderPolyline = function(){
     var index = $scope.polys.length-1
     $scope.polys[index].id = $scope.dataRelation[i].id
     $scope.polys[index].path = path1
-    $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:2,opacity:1.0}
+    $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[0].speed,$scope.dataRelation[i].traffic[0].count),weight:1.5,opacity:1.0}
     $scope.polys[index].events = events;
+    $scope.polys[index].icons = icons;
+    $scope.polys[index].icons.id = $scope.polys[index].id
     if($scope.dataRelation[i].one_way == true){
       continue;
     }
@@ -120,8 +131,10 @@ $scope.renderPolyline = function(){
         var index = $scope.polys.length-1
         $scope.polys[index].id = $scope.dataRelation[i].id
         $scope.polys[index].path = path
-        $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:2,opacity:1.0}
+        $scope.polys[index].stroke = {color:getColorFromTraffic($scope.dataRelation[i].traffic[1].speed,$scope.dataRelation[i].traffic[1].count),weight:1.5,opacity:1.0}
         $scope.polys[index].events = events;
+        $scope.polys[index].icons = icons;
+        $scope.polys[index].icons.id = $scope.polys[index].id;
       }
     //console.log('polys',$scope.polys);
   }

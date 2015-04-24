@@ -133,7 +133,7 @@ function getRandomColor() {
 function getColorFromTraffic(speed,count) {
   if(speed == 0)return 'black'
     else if(speed < 10)return 'red'
-      else if(speed < 40) return 'yellow'
+      else if(speed < 20) return 'yellow'
         else return 'green'
       }
     function convertToPercent(value,max){
@@ -231,7 +231,15 @@ $scope.$watch('dataRelation',function(){
     
     for (var i = 0 ; i < $scope.dataRelation.length ;i++){
       $scope.polys[i] = $scope.dataRelation[i]
-
+      $scope.polys[i].icons =  [
+        {
+          icon: {
+            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+          },
+          offset: '100px',
+          repeat: '200px'
+        }
+      ]
       $scope.polys[i].events = {
         click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
