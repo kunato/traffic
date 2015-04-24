@@ -628,11 +628,45 @@ else{
       restService.postCameraPoint(cameraPoint2).then(function(response){
         //console.log('postCameraPoint2',response)
         $scope.formData.cameraPoint2 = response.data.resource_uri;
-        $scope.formData.camera = $scope.selected_camera.resource_uri,
+        $scope.formData.camera = $scope.selected_camera.resource_uri;
         //console.log('$scope.formData',$scope.formData);
-        restService.postDataRelation($scope.formData).then(function(response){
-          //console.log('postDataRelation',response)
-        })
+        var request = {
+          origin: new google.maps.LatLng(cameraPoint1.latitude,cameraPoint1.longitude),
+          destination: new google.maps.LatLng(cameraPoint2.latitude,cameraPoint2.longitude),
+          travelMode: google.maps.DirectionsTravelMode.WALKING
+        };
+        directionsService = new google.maps.DirectionsService();
+        directionsService.route(request, function (response, status) {
+          console.log(cameraPoint1,cameraPoint2)
+          if(cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined){
+            console.log("in")
+            var request2 = {
+              origin: new google.maps.LatLng(cameraPoint2.alt_latitude,cameraPoint2.alt_longitude),
+              destination: new google.maps.LatLng(cameraPoint1.alt_latitude,cameraPoint1.alt_longitude),
+              travelMode: google.maps.DirectionsTravelMode.WALKING
+            };
+            console.log(request2)
+            directionsService.route(request2, function (response2, status) {
+              console.log('direction',response,response2);
+              $scope.formData.path = JSON.stringify({path:response.routes[0].overview_path,distance:response.routes[0].legs[0].distance,summary:response.routes[0].summary});
+              
+              $scope.formData.alt_path = JSON.stringify({path:response2.routes[0].overview_path,distance:response2.routes[0].legs[0].distance,summary:response2.routes[0].summary});
+              
+              //put path to db
+              restService.postDataRelation($scope.formData).then(function(response){
+                console.log(response)
+              })
+            });
+          }
+          else{
+            //put path to db
+            $scope.formData.path = JSON.stringify({path:response.routes[0].overview_path,distance:response.routes[0].legs[0].distance,summary:response.routes[0].summary});
+            restService.postDataRelation($scope.formData).then(function(response){
+              console.log(response)
+            })
+          };
+
+        });
       });
     });
 }
