@@ -240,6 +240,8 @@ $scope.$watch('dataRelation',function(){
           repeat: '200px'
         }
       ]
+      $scope.polys[i].stroke = {color:'#000',weight:1.5,opacity:1.0}
+        
       $scope.polys[i].events = {
         click: function (mapModel, eventName, originalEventArgs) {
           // 'this' is the directive's scope
