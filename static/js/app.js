@@ -700,29 +700,33 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
         } else {
             restService.postCameraPoint(cameraPoint1).then(function(response) {
                 //console.log('postCameraPoint1',response)
-                $scope.formData.cameraPoint1 = response.data.resource_uri;
+                var cameraPoint1 = response.data;
+                $scope.formData.cameraPoint1 = cameraPoint1.resource_uri;
                 restService.postCameraPoint(cameraPoint2).then(function(response) {
                     //console.log('postCameraPoint2',response)
-                    $scope.formData.cameraPoint2 = response.data.resource_uri;
+                    var cameraPoint2 = response.data;
+                    $scope.formData.cameraPoint2 = cameraPoint2.resource_uri;
                     $scope.formData.camera = $scope.selected_camera.resource_uri;
                     //console.log('$scope.formData',$scope.formData);
                     var request = {
-                        origin: new google.maps.LatLng(cameraPoint1.latitude, cameraPoint1.longitude),
-                        destination: new google.maps.LatLng(cameraPoint2.latitude, cameraPoint2.longitude),
+                        origin: new google.maps.LatLng(cameraPoint1.mapPoint.latitude, cameraPoint1.mapPoint.longitude),
+                        destination: new google.maps.LatLng(cameraPoint2.mapPoint.latitude, cameraPoint2.mapPoint.longitude),
                         travelMode: google.maps.DirectionsTravelMode.WALKING
                     };
                     directionsService = new google.maps.DirectionsService();
                     directionsService.route(request, function(response, status) {
                         console.log(cameraPoint1, cameraPoint2)
-                        if (cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined) {
+                        console.log('request',request)
+                        if (cameraPoint1.mapPoint.alt_latitude != undefined && cameraPoint2.mapPoint.alt_latitude != undefined) {
                             console.log("in")
                             var request2 = {
-                                origin: new google.maps.LatLng(cameraPoint2.alt_latitude, cameraPoint2.alt_longitude),
-                                destination: new google.maps.LatLng(cameraPoint1.alt_latitude, cameraPoint1.alt_longitude),
+                                origin: new google.maps.LatLng(cameraPoint2.mapPoint.alt_latitude, cameraPoint2.mapPoint.alt_longitude),
+                                destination: new google.maps.LatLng(cameraPoint1.mapPoint.alt_latitude, cameraPoint1.mapPoint.alt_longitude),
                                 travelMode: google.maps.DirectionsTravelMode.WALKING
                             };
-                            console.log(request2)
+                            console.log('request2',request2)
                             directionsService.route(request2, function(response2, status) {
+                              
                                 console.log('direction', response, response2);
                                 $scope.formData.path = JSON.stringify({
                                     path: response.routes[0].overview_path,
@@ -743,6 +747,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                             });
                         } else {
                             //put path to db
+                            console.log(response);
                             $scope.formData.path = JSON.stringify({
                                 path: response.routes[0].overview_path,
                                 distance: response.routes[0].legs[0].distance,
