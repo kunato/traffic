@@ -14,7 +14,7 @@
     
         </ul> -->
         <ul class="nav navbar-nav navbar-right">
-          <li><a class="alert alert-info" href="" ng-click="editTime()">Report at {{datetime.end | date:'dd/MM/yyyy @ h:mma'}}</a></li>
+          <li><a class="alert alert-info" href="" ng-click="openTraffic()">Report at {{datetime.end | date:'dd/MM/yyyy @ h:mma'}}</a></li>
           <li><a href="/app/#/report/">Report</a></li>
           <li class="active"><a href="">Route Planner</a></li>
         </ul>
@@ -46,6 +46,42 @@
         <!-- <ui-gmap-polyline ng-if="polys2.length == 0" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
         </ui-gmap-polyline> -->
     </ui-gmap-google-map>
+    <div class="container" id="traffic" ng-if="renderdatepicker"
+      style="float:right;
+      width:250px;
+      right:12%;
+      background-color: #eeeeee;
+      border: 1px solid #777;
+      border-radius: 4px;
+      position:absolute;"
+      >
+      <div class="row">
+          <div class="col-xs-8 col-md-8" style="margin-left:3%">
+              <h4 style="color:#777;">Traffic </h4>
+          </div><!--col-->
+      </div><!--row-->
+
+      <div class="row">
+        <div class="col-xs-12 col-md-12" >
+            <p class="input-group" style="margin-left:3%; margin-right:3%">
+              <input type="text" class="form-control" datepicker-popup="MMM dd, yyyy" ng-model="$parent.dialog_datetime.date" is-open="opened.status" datepicker-options="dateOptions" close-text="Close" />
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="openDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+              </span>
+            </p>
+            <div range-slider pin-handle="min" step="{{sliderConfig.step}}" min="sliderConfig.min" max="sliderConfig.max" model-max="sliderConfig.userMax" filter="hourMinFilter" show-values="true" style="height:150%;margin-top:2%; margin-left:3%; margin-right:3%"></div>
+        </div><!--col-->
+      </div><!--row-->
+          
+      <div class="row">
+            <div class="col-xs-8 col-md-8" style="margin-left:3%; margin-bottom:3%;">
+            <button type="button" class="btn btn-primary" ng-click="editTime()">Advance Report</button>
+            </div>
+            <div class="col-xs-2 col-md-2" style="postition:absolute; float:right; right:60px">
+                <button style="margin-left:3%; margin-bottom:3%;" type="button" class="btn btn-warning" ng-click="closeTraffic()">Close</button>
+            </div>
+      </div><!--row-->
+  </div><!--container-->
     <div style=
      "float: right;
       right: 10px;
@@ -54,4 +90,5 @@
       ">
     <button class="btn btn-success" ng-click="calculateRoute()">Calculate Route</button>
     </div>
+
 </div>

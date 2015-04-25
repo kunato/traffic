@@ -1,10 +1,11 @@
 app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
     //Slider
+    $scope.realtime = true;
     $scope.opened = {
         status: false
     }
     $scope.datetime = {
-        start: new Date((new Date().getTime() - 10 * 60000)),
+        start: new Date((new Date().getTime() - 1 * 60000)),
         end: new Date()
     }
     $scope.init = 0;
@@ -47,6 +48,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     //Open div SLIDER
     $scope.openTraffic = function() {
         $scope.renderdatepicker = true;
+        $scope.realtime = false;
         $scope.sliderConfig.userMax = $scope.datetime.end.getHours() * 60 + $scope.datetime.end.getMinutes();
         $scope.dialog_datetime.date = new Date($scope.datetime.end)
         $('#traffic').load(function() {
@@ -62,8 +64,21 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             //load components
         });
     };
+    $scope.setRealtime = function() {
+        $scope.realtime = true;
+    }
+    $scope.realtimeUpdate = function() {
+        console.log('update traffic')
+        $timeout(function(){
+            if($scope.realtime){
+                $scope.datetime.end = new Date();
+                $scope.datetime.start = new Date($scope.datetime.end.getTime() - 1 * 60000);
+            }
+            $scope.realtimeUpdate();
 
-
+        },10000);
+    }
+    $scope.realtimeUpdate();
 
     $scope.openDate = function($event) {
         $event.preventDefault();
@@ -78,9 +93,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
 
 
     $scope.polys = [];
-    $scope.time = new Date()
 
-    $scope.duration = 1
+    $scope.duration = 1;
     $scope.render = false;
     $scope.dataRelation = [];
     $scope.alt_dataRelation = [];
@@ -345,8 +359,6 @@ app.controller('ModalTimeCtrl', function(restService, $scope, $modalInstance, da
     };
 
     $scope.ok = function() {
-        // $scope.datetime.start = new Date($scope.start.date.getFullYear(),$scope.start.date.getMonth(),$scope.start.date.getDate(),$scope.start.time.getHours(),$scope.start.time.getMinutes())
-        // $scope.datetime.end = new Date($scope.end.date.getFullYear(),$scope.end.date.getMonth(),$scope.end.date.getDate(),$scope.end.time.getHours(),$scope.end.time.getMinutes())
         $scope.datetime.start = $scope.start
         $scope.datetime.end = $scope.end
         $modalInstance.close();
@@ -382,7 +394,6 @@ app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalI
     }
     $scope.getTraffic = function(current, timeData) {
         if (current == timeData.length - 1) {
-            //console.log($scope.data)
             $scope.render = true;
             return
         }
@@ -417,14 +428,6 @@ app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalI
         title: $scope.series[1],
         value: $scope.data2[1]
     }];
-    // $scope.data = [
-    //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
-    //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
-    // ];
-    // $scope.data2 = [
-    //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
-    //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
-    // ];
 
     $scope.ok = function() {
         $modalInstance.close();

@@ -1,10 +1,82 @@
 app.controller('PlannerController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
     $scope.polys = [];
-    $scope.time = new Date()
+    $scope.realtime = true;
+    //Slider
+    $scope.opened = {
+        status: false
+    }
     $scope.datetime = {
-        start: new Date((new Date().getTime() - 10 * 60000)),
+        start: new Date((new Date().getTime() - 1 * 60000)),
         end: new Date()
     }
+    $scope.init = 0;
+    $scope.sliderConfig = {
+        min: 0,
+        max: 1440,
+        step: 15,
+        userMin: 0,
+        userMax: 720,
+    };
+    $scope.dialog_datetime = {
+        date: new Date($scope.datetime.end)
+    }
+    $scope.getDateFromUser = function() {
+        if ($scope.init < 2) {
+            $scope.init += 1
+            return
+        }
+        var min = parseInt($scope.sliderConfig.userMax, 10);
+        var hours = Math.floor(min / 60);
+        var minutes = min - (hours * 60);
+        $scope.datetime.end = new Date($scope.dialog_datetime.date.getFullYear(), $scope.dialog_datetime.date.getMonth(), $scope.dialog_datetime.date.getDate(), hours, minutes)
+        $scope.datetime.start = new Date($scope.datetime.end.getTime() - 10 * 60000)
+        console.log($scope.datetime)
+    }
+    $scope.$watch('sliderConfig.userMax', function() {
+        var last_value = $scope.sliderConfig.userMax;
+        $timeout(function() {
+            if (last_value == $scope.sliderConfig.userMax) {
+                $scope.getDateFromUser();
+            }
+        }, 600)
+    }, true);
+    $scope.$watch('dialog_datetime', function() {
+        $scope.getDateFromUser();
+    }, true)
+
+    //Open div SLIDER
+    $scope.openTraffic = function() {
+        $scope.renderdatepicker = true;
+        $scope.realtime = false;
+        $scope.sliderConfig.userMax = $scope.datetime.end.getHours() * 60 + $scope.datetime.end.getMinutes();
+        $scope.dialog_datetime.date = new Date($scope.datetime.end)
+        $('#traffic').load(function() {
+            //load components
+        });
+
+    };
+
+    //Close div SLIDER
+    $scope.closeTraffic = function() {
+        $scope.renderdatepicker = false;
+        $('#traffic').load(function() {
+            //load components
+        });
+    };
+    $scope.setRealtime = function() {
+        $scope.realtime = true;
+    }
+
+
+    $scope.openDate = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.opened.status = true;
+    };
+    $scope.toggleMin = function() {
+        $scope.minDate = $scope.minDate ? null : new Date();
+    };
+    $scope.toggleMin();
     $scope.duration = 1
     $scope.render = false;
     $scope.dataRelation = [];
@@ -13,6 +85,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
     $scope.polys2 = [];
     $scope.$watch('datetime', function() {
         //re-render poly line and request traffic from server
+        console.log('get traffic on update', $scope.datetime)
         for (var i = 0; i < $scope.dataRelation.length; i++) {
 
             restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
@@ -33,7 +106,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             $scope.render = true;
             return;
         }
-        console.log(dataRelation)
+        // console.log(dataRelation)
         restService.getTrafficFromDataRelation(dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
             var traffic = response.data
             uiGmapGoogleMapApi.then(function() {
@@ -52,7 +125,6 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                         cameraPoint2: dataRelation[i].cameraPoint2.mapPoint,
                         cameraPoint1: dataRelation[i].cameraPoint1.mapPoint
                     });
-                    console.log('in')
                 } else {
                     $scope.alt_dataRelation.push({})
                 }
@@ -71,17 +143,15 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                         one_way: dataRelation[i].one_way,
                         cameraPoint2: dataRelation[i].cameraPoint2.mapPoint,
                         cameraPoint1: dataRelation[i].cameraPoint1.mapPoint
-                    })
-                    console.log('in')
+                    });
                 }
-                console.log($scope.dataRelation)
+                // console.log($scope.dataRelation)
                 $scope.getLatLngDataFromDataRelation(dataRelation, i + 1, length);
             });
         });
     }
     restService.getDataRelation().then(function(response) {
         var dataRelation = response.data.objects
-        console.log('ddd', dataRelation)
         var i = 0;
         $scope.getLatLngDataFromDataRelation(dataRelation, i, dataRelation.length);
 
@@ -111,6 +181,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 }
             }
             var obj = {}
+            console.log($scope.dataRelation[i].distance)
             obj[$scope.dataRelation[i].cameraPoint2.id] = $scope.dataRelation[i].distance / $scope.dataRelation[i].traffic[0].speed
             g.addVertex($scope.dataRelation[i].cameraPoint1.id, obj);
 
@@ -256,7 +327,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             }]
             if (end_min_node > start_min_node) {
                 $scope.polys2[0].stroke = {
-                    color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed, $scope.dataRelation[start_min_index].traffic[1].count),
+                    color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed, $scope.dataRelation[start_min_index].traffic[0].count),
                     weight: 2,
                     opacity: 1.0
                 }
@@ -277,7 +348,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 }, all_path[all_path.length - 1]]
             } else {
                 $scope.polys2[0].stroke = {
-                    color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed, $scope.dataRelation[start_min_index].traffic[0].count),
+                    color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed, $scope.dataRelation[start_min_index].traffic[1].count),
                     weight: 2,
                     opacity: 1.0
                 }
@@ -374,7 +445,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
         end_id[1] = $scope.dataRelation[end_min_index].cameraPoint2.id
         end[0] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint1.latitude, $scope.dataRelation[end_min_index].cameraPoint1.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
         end[1] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint2.latitude, $scope.dataRelation[end_min_index].cameraPoint2.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
-
+        console.log('distance',start,end)
         if ($scope.dataRelation[start_min_index].one_way)
             start[0] = 1 / 0
         if ($scope.dataRelation[end_min_index].one_way)
@@ -386,27 +457,34 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 //if start[1] traffic[1]
                 result[i][j] = 0
                 if (i == 0) {
-                    result[i][j] += start[i] / $scope.dataRelation[start_min_index].traffic[1].speed
+                    result[i][j] += (start[i] / $scope.dataRelation[start_min_index].traffic[1].speed)
                 } else {
-                    result[i][j] += start[i] / $scope.dataRelation[start_min_index].traffic[0].speed
-                }
-                if (j == 0) {
-                    result[i][j] += end[j] / $scope.dataRelation[end_min_index].traffic[1].speed
-                } else {
-                    result[i][j] += end[j] / $scope.dataRelation[end_min_index].traffic[0].speed
+                    result[i][j] += (start[i] / $scope.dataRelation[start_min_index].traffic[0].speed)
                 }
 
+                var result_b = result[i][j]
+                console.log('result_before 1',result_b)
+                if (j == 0) {
+                    result[i][j] += (end[j] / $scope.dataRelation[end_min_index].traffic[0].speed)
+                } else {
+                    result[i][j] += (end[j] / $scope.dataRelation[end_min_index].traffic[1].speed)
+                }
+                console.log('result_before 2',result[i][j]-result_b)
                 var route_temp = g.shortestPath(String(start_id[i]), String(end_id[j])).concat([String(start_id[i])]).reverse();
                 result_node[i][j] = route_temp;
+                var result_all = 0.0;
                 for (var k = 0; k < route_temp.length - 1; k++) {
-                    result[i][j] += g.getVertices()[route_temp[k]][route_temp[k + 1]];
+                    result_all += g.getVertices()[route_temp[k]][route_temp[k + 1]];
                 }
+                console.log('result_all',result_all);
+                result[i][j] += result_all;
                 if ((route_temp[0] != String(start_id[0]) && route_temp[0] != String(start_id[1])) || (route_temp[route_temp.length - 1] != String(end_id[0]) && route_temp[route_temp.length - 1] != String(end_id[1]))) {
                     result[i][j] = 1 / 0;
                 }
             }
         }
-
+        console.log('result',result);
+        console.log('result_node',result_node);
         var min_start = -1
         var min_end = -1
         var min_result = 1 / 0;
@@ -420,7 +498,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 }
             }
         }
-        console.log(min_result);
+        console.log('Min Weight Result',min_result,i,j);
         var start_path = []
         var end_path = []
 
@@ -432,11 +510,12 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
         }
         $scope.polys2 = [{}, {}, {}, {}]
         if (result_node[min_start][min_end][0] == $scope.dataRelation[start_min_index].cameraPoint2.id) {
+            console.log('alt 1')
             for (var i = $scope.dataRelation[start_min_index].path.length - 1; i >= start_min_node; i--) {
                 start_path.push($scope.dataRelation[start_min_index].path[i])
             }
             $scope.polys2[0].stroke = {
-                color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed, $scope.dataRelation[start_min_index].traffic[1].count),
+                color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed, $scope.dataRelation[start_min_index].traffic[0].count),
                 weight: 2,
                 opacity: 1.0
             }
@@ -448,11 +527,12 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 repeat: '200px'
             }]
         } else {
+            console.log('alt 2')
             for (var i = 0; i <= start_min_node; i++) {
                 start_path.push($scope.dataRelation[start_min_index].path[i])
             }
             $scope.polys2[0].stroke = {
-                color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[0].speed, $scope.dataRelation[start_min_index].traffic[0].count),
+                color: getColorFromTraffic($scope.dataRelation[start_min_index].traffic[1].speed, $scope.dataRelation[start_min_index].traffic[1].count),
                 weight: 2,
                 opacity: 1.0
             }
@@ -470,8 +550,9 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             for (var i = $scope.dataRelation[end_min_index].path.length - 1; i >= end_min_node; i--) {
                 end_path.push($scope.dataRelation[end_min_index].path[i])
             }
+            console.log('alt 3')
             $scope.polys2[1].stroke = {
-                color: getColorFromTraffic($scope.dataRelation[end_min_index].traffic[0].speed, $scope.dataRelation[end_min_index].traffic[0].count),
+                color: getColorFromTraffic($scope.dataRelation[end_min_index].traffic[1].speed, $scope.dataRelation[end_min_index].traffic[1].count),
                 weight: 2,
                 opacity: 1.0
             }
@@ -486,8 +567,9 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             for (var i = 0; i <= end_min_node; i++) {
                 end_path.push($scope.dataRelation[end_min_index].path[i])
             }
+            console.log('alt 4')
             $scope.polys2[1].stroke = {
-                color: getColorFromTraffic($scope.dataRelation[end_min_index].traffic[1].speed, $scope.dataRelation[end_min_index].traffic[1].count),
+                color: getColorFromTraffic($scope.dataRelation[end_min_index].traffic[0].speed, $scope.dataRelation[end_min_index].traffic[0].count),
                 weight: 2,
                 opacity: 1.0
             }
@@ -539,6 +621,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 if ((result_node[min_start][min_end][j] == $scope.dataRelation[i].cameraPoint1.id && result_node[min_start][min_end][j + 1] == $scope.dataRelation[i].cameraPoint2.id)) {
                     $scope.polys2.push({})
                     var index = $scope.polys2.length - 1
+                    console.log('alt 5')
                     $scope.polys2[index].path = $scope.dataRelation[i].path
                     $scope.polys2[index].stroke = {
                         color: getColorFromTraffic($scope.dataRelation[i].traffic[0].speed, $scope.dataRelation[end_min_index].traffic[0].count),
@@ -556,6 +639,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                     $scope.polys2.push({})
                     var index = $scope.polys2.length - 1
                     $scope.polys2[index].path = $scope.dataRelation[i].path
+                    console.log('alt 6')
                     $scope.polys2[index].stroke = {
                         color: getColorFromTraffic($scope.dataRelation[i].traffic[1].speed, $scope.dataRelation[end_min_index].traffic[1].count),
                         weight: 2,
@@ -575,9 +659,9 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
         $scope.dataRelation = backup_dataRelation;
     }
     $scope.renderPolyline = function() {
-        console.log('render')
-        console.log('dataRelation', $scope.dataRelation)
-        console.log('alt_dataRelation', $scope.alt_dataRelation)
+        // console.log('render')
+        // console.log('dataRelation', $scope.dataRelation)
+        // console.log('alt_dataRelation', $scope.alt_dataRelation)
         var events = {
             click: function(mapModel, eventName, originalEventArgs) {
                 var id = originalEventArgs.icons
@@ -602,7 +686,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             }
 
             if ($scope.alt_dataRelation[i] != null) {
-                console.log($scope.alt_dataRelation)
+                // console.log($scope.alt_dataRelation)
                 var path = $scope.alt_dataRelation[i].path
 
             } else {
@@ -629,7 +713,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
     }
 
     $scope.$watch('dataRelation', function() {
-        console.log('dataUpdate')
+        // console.log('dataUpdate')
         $scope.renderPolyline();
     }, true);
     $scope.deletedMarkers = []
@@ -706,6 +790,18 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
         marker.showWindow = true;
         $scope.$apply();
     };
+    $scope.realtimeUpdate = function() {
+        console.log('update traffic')
+        $timeout(function(){
+            if($scope.realtime){
+                $scope.datetime.end = new Date();
+                $scope.datetime.start = new Date($scope.datetime.end.getTime() - 1 * 60000);
+            }
+            $scope.realtimeUpdate();
+
+        },10000);
+    }
+    $scope.realtimeUpdate();
     $scope.editTime = function() {
         //console.log("openTime");
         var modalInstance = $modal.open({
@@ -719,125 +815,8 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             }
         });
 
-        modalInstance.result.then(function() {}, function() {
-            //$log.info('datetime',$scope.datetime)
-            //$log.info('Modal dismissed at: ' + new Date());
+        modalInstance.result.then(function() {
+            $scope.closeTraffic();
         });
     }
-
-    // $scope.open = function (id) {
-    //   var object = undefined;
-    //   for(var i = 0 ; i < $scope.dataRelation.length ;i++){
-    //     if(id == $scope.dataRelation[i].id){
-    //       object = $scope.dataRelation[i]
-    //     }
-    //   }
-    //   var modalInstance = $modal.open({
-    //     templateUrl: '/static/html/modal_report.html',
-    //     controller: 'ModalReportCtrl',
-    //     size:'lg',
-    //     resolve:{
-    //       item: function() {
-    //         return object;
-    //       },
-    //       datetime: function() {
-    //         return $scope.datetime;
-    //       }
-    //     }
-    //   });
-
-    // modalInstance.result.then(function (selectedItem) {
-    //   $scope.selected = selectedItem;
-    // }, function () {
-    //   //$log.info('Modal dismissed at: ' + new Date());
-    // });
-    // };
 });
-// app.controller('ModalTimeCtrl', function (restService, $scope, $modalInstance , datetime) {
-//   $scope.datetime = datetime;
-//   //console.log(datetime.end)
-//   $scope.start = {date:new Date(datetime.start.getTime()),time:new Date(datetime.start.getTime())}
-//   $scope.end = {date:new Date(datetime.end.getTime()),time:new Date(datetime.end.getTime())}
-//   $scope.open_start = function($event) {
-//     $event.preventDefault();
-//     $event.stopPropagation();
-
-//     $scope.opened1 = true;
-//   };
-//   $scope.open_end = function($event) {
-//     $event.preventDefault();
-//     $event.stopPropagation();
-
-//     $scope.opened2 = true;
-//   };
-
-// $scope.ok = function () {
-//   $scope.datetime.start = new Date($scope.start.date.getFullYear(),$scope.start.date.getMonth(),$scope.start.date.getDate(),$scope.start.time.getHours(),$scope.start.time.getMinutes())
-//   $scope.datetime.end = new Date($scope.end.date.getFullYear(),$scope.end.date.getMonth(),$scope.end.date.getDate(),$scope.end.time.getHours(),$scope.end.time.getMinutes())
-//   $modalInstance.close();
-// };
-
-// $scope.cancel = function () {
-//   $modalInstance.dismiss('cancel');
-// };
-
-// });
-
-// app.controller('ModalReportCtrl', function (restService, $filter,$scope, $modalInstance,item,datetime) {
-//   //console.log(item);
-//   $scope.render = false
-//   $scope.item = item;
-//   $scope.data = [[],[]];
-//   $scope.data2 = [[],[]];
-//   $scope.timeData = [];
-//   var start = datetime.start.getTime();
-//   var end = datetime.end.getTime();
-//   var diff = end - start;
-//   $scope.labels = [];
-//   diff /= 11
-//   for(var i = 0 ; i < 11 ; i++){
-//     $scope.timeData.push(new Date(start+(diff*i)))
-//   }
-//   $scope.getTraffic = function(current,timeData){
-//     if(current == timeData.length-1){
-//       //console.log($scope.data)
-//       $scope.render = true;
-//       return
-//     }
-
-//     restService.getTrafficFromDataRelation($scope.item.id,timeData[current],timeData[current+1]).then(function(response){
-//       var traffic_data = response.data.data
-//       $scope.data[0].push(traffic_data[0].speed)
-//       $scope.data[1].push(traffic_data[1].speed)
-
-//       $scope.data2[0].push(traffic_data[0].count)
-//       $scope.data2[1].push(traffic_data[1].count)
-//       $scope.getTraffic(current+1,timeData)
-
-//       $scope.labels.push($filter('date')($scope.timeData[current], 'short'))
-//     });
-//   }
-//   $scope.getTraffic(0,$scope.timeData);
-
-//   $scope.series = [$scope.item.description+' ขาเข้า', $scope.item.description+' ขาออก'];
-
-//   // $scope.data = [
-//   //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
-//   //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
-//   // ];
-//   // $scope.data2 = [
-//   //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
-//   //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
-//   // ];
-
-// $scope.ok = function () {
-//   $modalInstance.close();
-// };
-// $scope.export = function(){
-//   //console.log('export');
-// }
-// $scope.cancel = function () {
-//   $modalInstance.dismiss('cancel');
-// };
-
-// });

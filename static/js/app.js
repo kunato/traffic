@@ -707,7 +707,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 summary: response.routes[0].summary
                             });
                             restService.putDataByUri($scope.formData.resource_uri, $scope.formData).then(function(response) {
-                                // console.log(response)
+                                console.log(response)
                             })
                         };
 
