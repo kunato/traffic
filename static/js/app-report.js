@@ -1,36 +1,102 @@
-app.controller('ReportController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
-    $scope.polys = [];
-    $scope.time = new Date()
+app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
+    //Slider
+    $scope.opened = {
+        status: false
+    }
     $scope.datetime = {
         start: new Date((new Date().getTime() - 10 * 60000)),
         end: new Date()
     }
+    $scope.init = 0;
+    $scope.sliderConfig = {
+        min: 0,
+        max: 1440,
+        step: 15,
+        userMin: 0,
+        userMax: 720,
+    };
+    $scope.dialog_datetime = {
+        date: new Date($scope.datetime.end)
+    }
+
+    $scope.getDateFromUser = function() {
+        if ($scope.init < 2) {
+            $scope.init += 1
+            return
+        }
+        var min = parseInt($scope.sliderConfig.userMax, 10);
+        var hours = Math.floor(min / 60);
+        var minutes = min - (hours * 60);
+        $scope.datetime.end = new Date($scope.dialog_datetime.date.getFullYear(), $scope.dialog_datetime.date.getMonth(), $scope.dialog_datetime.date.getDate(), hours, minutes)
+        $scope.datetime.start = new Date($scope.datetime.end.getTime() - 10 * 60000)
+        console.log($scope.datetime)
+    }
+
+    $scope.$watch('sliderConfig.userMax', function() {
+        var last_value = $scope.sliderConfig.userMax;
+        $timeout(function() {
+            if (last_value == $scope.sliderConfig.userMax) {
+                $scope.getDateFromUser();
+            }
+        }, 600)
+    }, true);
+    $scope.$watch('dialog_datetime', function() {
+        $scope.getDateFromUser();
+    }, true)
+
+    //Open div SLIDER
+    $scope.openTraffic = function() {
+        $scope.renderdatepicker = true;
+        $scope.sliderConfig.userMax = $scope.datetime.end.getHours() * 60 + $scope.datetime.end.getMinutes();
+        $scope.dialog_datetime.date = new Date($scope.datetime.end)
+        $('#traffic').load(function() {
+            //load components
+        });
+
+    };
+
+    //Close div SLIDER
+    $scope.closeTraffic = function() {
+        $scope.renderdatepicker = false;
+        $('#traffic').load(function() {
+            //load components
+        });
+    };
+
+
+
+    $scope.openDate = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.opened.status = true;
+    };
+    $scope.toggleMin = function() {
+        $scope.minDate = $scope.minDate ? null : new Date();
+    };
+    $scope.toggleMin();
+
+
+
+    $scope.polys = [];
+    $scope.time = new Date()
+
     $scope.duration = 1
     $scope.render = false;
-    //console.log("we in ReportController");
     $scope.dataRelation = [];
     $scope.alt_dataRelation = [];
-    // restService.getMap().then(function(response){
-    //   $scope.map = response.data.objects[0]
-    //   restService.getMapPoint().then(function(response){
-    //     //console.log(response)
-    //     $scope.points = response.data.objects;
-
-    //     //console.log('points',$scope.points);
-    //   });
-    // });
     $scope.$watch('datetime', function() {
-        //re-render poly line and request traffic from server
+        console.log('get traffic on update', $scope.datetime)
+            //re-render poly line and request traffic from server
         for (var i = 0; i < $scope.dataRelation.length; i++) {
 
             restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
-                //console.log('traffic',response.data)
+                // console.log('traffic',response.data)
                 for (var j = 0; j < $scope.dataRelation.length; j++) {
                     if ($scope.dataRelation[j].id == response.data.data_relation_id) {
                         $scope.dataRelation[j].traffic = response.data.data;
                     }
                 }
-                console.log($scope.dataRelation)
+                // console.log($scope.dataRelation)
             });
         }
         //console.log("datetime change",$scope.datetime)
@@ -56,7 +122,7 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
                         description: _pathObj.summary,
                         distance: _pathObj.distance.value
                     });
-                    console.log('in')
+                    // console.log('in')
                 } else {
                     $scope.alt_dataRelation.push({})
                 }
@@ -67,16 +133,16 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
                         path.push(new google.maps.LatLng(_pathObj.path[j].k, _pathObj.path[j].B))
                     }
                     $scope.dataRelation.push({
-                        id: dataRelation[i].id,
-                        path: path,
-                        traffic: traffic.data,
-                        description: _pathObj.summary,
-                        distance: _pathObj.distance.value,
-                        one_way: dataRelation[i].one_way
-                    })
-                    console.log('in')
+                            id: dataRelation[i].id,
+                            path: path,
+                            traffic: traffic.data,
+                            description: _pathObj.summary,
+                            distance: _pathObj.distance.value,
+                            one_way: dataRelation[i].one_way
+                        })
+                        // console.log('in')
                 }
-                console.log($scope.dataRelation)
+                // console.log($scope.dataRelation)
                 $scope.getLatLngDataFromDataRelation(dataRelation, i + 1, length);
             });
         });
@@ -88,9 +154,9 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
 
     });
     $scope.renderPolyline = function() {
-        console.log('render')
-        console.log('dataRelation', $scope.dataRelation)
-        console.log('alt_dataRelation', $scope.alt_dataRelation)
+        // console.log('render')
+        // console.log('dataRelation', $scope.dataRelation)
+        // console.log('alt_dataRelation', $scope.alt_dataRelation)
         var icons = [{
             icon: {
                 path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
@@ -124,7 +190,7 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
             }
 
             if ($scope.alt_dataRelation[i] != null) {
-                console.log($scope.alt_dataRelation)
+                // console.log($scope.alt_dataRelation)
                 var path = $scope.alt_dataRelation[i].path
 
             } else {
@@ -155,6 +221,8 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
 
     $scope.$watch('dataRelation', function() {
         //console.log("dataRelation change",$scope.dataRelation)
+        if ($scope.dataRelation.length == 0)
+            return;
         $scope.renderPolyline();
         //console.log($scope.polys)
     }, true);
@@ -211,7 +279,7 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
         $scope.$apply();
     };
     $scope.editTime = function() {
-        //console.log("openTime");
+        console.log("openTime");
         var modalInstance = $modal.open({
             templateUrl: '/static/html/modal_time.html',
             controller: 'ModalTimeCtrl',
@@ -223,9 +291,8 @@ app.controller('ReportController', function(restService, $scope, $http, $modal, 
             }
         });
 
-        modalInstance.result.then(function() {}, function() {
-            //$log.info('datetime',$scope.datetime)
-            //$log.info('Modal dismissed at: ' + new Date());
+        modalInstance.result.then(function() {
+            $scope.closeTraffic();
         });
     }
 
@@ -335,7 +402,21 @@ app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalI
     $scope.getTraffic(0, $scope.timeData);
 
     $scope.series = [$scope.item.description + ' ขาเข้า', $scope.item.description + ' ขาออก'];
+    $scope.table = [{
+        title: $scope.series[0],
+        value: $scope.data[0]
+    }, {
+        title: $scope.series[1],
+        value: $scope.data[1]
+    }];
 
+    $scope.table2 = [{
+        title: $scope.series[0],
+        value: $scope.data2[0]
+    }, {
+        title: $scope.series[1],
+        value: $scope.data2[1]
+    }];
     // $scope.data = [
     //   [65, 59, 80, 81,65, 55, 80, 32,65, 59, 80, 81,65, 44, 80, 81,55, 59, 66, 81,65, 59, 80, 81],
     //   [28, 48, 40, 19,59, 80, 28, 48, 40, 81,28, 48, 40,59, 32, 81,59, 30, 81,44, 80, 22,59, 44]
@@ -349,8 +430,33 @@ app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalI
         $modalInstance.close();
     };
     $scope.export = function() {
-        //console.log('export');
-    }
+
+        var temp1 = $scope.data[0];
+        temp1.unshift('ความเร็ว ' + $scope.series[0]);
+
+        var temp2 = $scope.data[1];
+        temp2.unshift('ความเร็ว ' + $scope.series[1]);
+
+        var temp3 = $scope.data2[0];
+        temp3.unshift('จำนวนยานยนตร์ ' + $scope.series[0]);
+
+        var temp4 = $scope.data2[1];
+        temp4.unshift('จำนวนยานยนตร์ ' + $scope.series[1]);
+
+        var temp5 = $scope.labels;
+        temp5.unshift("เส้นทาง / วันเวลา");
+
+        var data = [temp5, temp1, temp2, temp3, temp4];
+
+        var csvContent = "data:text/csv;charset=utf-8,";
+        data.forEach(function(infoArray, index) {
+            dataString = infoArray.join(",");
+            csvContent += index < data.length ? dataString + "\n" : dataString;
+        });
+        var encodedUri = encodeURI(csvContent);
+        window.open(encodedUri);
+
+    };
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };

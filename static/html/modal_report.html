@@ -1,20 +1,74 @@
 <div class="modal-header">
     <h4 class="modal-title" style="color:#00000F" id="myModalLabel">Data id : {{item.id}}</h4>
 </div>
-<div class="modal-body row">
-   <!-- table -->
-   <div style="margin-left:70px;height:430px;width:60%">
-   <h3 style="margin-left:40px">Speed/Time</h3>
-    <canvas id="bar" style="margin-left:15%" class="chart chart-line" data="data" legend="true" series="series"
-  labels="labels"></canvas>
-  </div>
+<ul class="nav nav-tabs" >
+        <li class="active"><a href data-target="#tab1" role="tab" data-toggle="tab" ng-click=chartline()>Line Charts</a></li>
+        <li><a href data-target="#tab2" role="tab" data-toggle="tab" ng-click="chartdata()">Data Charts</a></li>
+</ul>
+<!-- <div class="modal-body row"> -->
+<div class="tabbable">
+<div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+             <div class="form-group" style="margin-bottom:1%;">
+                 <h3 style="margin-left:40px">Speed/Time</h3>
+                 <canvas id="bar1" class="chart chart-line" data="data" legend="true" series="series" labels="labels"></canvas>
+              </div>
 
-  <div style="margin-left:70px;height:430px;width:60%">
-  <h3 style="margin-left:40px">Number/Time</h3>
-<canvas id="bar" style="margin-left:15%" class="chart chart-line" data="data2" legend="true" series="series"
-  labels="labels"></canvas>
-</div>
-</div>
+              <div class="form-group" style="margin-bottom:1%;">
+                  <h3 style="margin-left:40px">Number/Time</h3>
+                  <canvas id="bar2" class="chart chart-line" data="data2" legend="true" series="series" labels="labels"></canvas>
+              </div>
+        </div>
+        <div class="tab-pane" id="tab2">
+
+        <div class="panel panel-default" style="margin-top:1%; margin-left:1%; margin-right:1%;">
+            <div class="panel-heading"><h3>Speed Data</h3></div>
+            <div class="panel-body">
+              <div class="table-responsive" >
+             <table class="table table-bordered table-striped" >
+                <tr>
+                <th>Route/Date</th>
+                    <th ng-repeat="d in labels track by $index">
+                    {{d}}</th>
+                </tr>
+                <tr ng-repeat="obj in table track by $index">
+                  <td>{{obj.title}}</td>
+                  <td ng-repeat="val in obj.value track by $index">
+                         {{val}}
+                  </td>
+                </tr>
+             </table>
+            </div><!--responsive-->
+          </div><!--panel-body-->
+        </div><!--panel-->
+
+<hr>
+        <div class="panel panel-default" style="margin-top:1%; margin-left:1%; margin-right:1%;">
+            <div class="panel-heading"><h3>Number Data</h3></div>
+            <div class="panel-body">
+          <div class="table-responsive">
+             <table class="table table-bordered table-striped">
+                <tr>
+                <th>Route/Date</th>
+                    <th ng-repeat="d in labels track by $index">
+                    {{d}}</th>
+                </tr>
+                <tr ng-repeat="obj in table2 track by $index">
+                  <td>{{obj.title}}</td>
+                  <td ng-repeat="val in obj.value track by $index">
+                         {{val}}
+                  </td>
+                </tr>
+             </table>
+          </div><!--responsive-->
+        </div><!--panel-body-->
+        </div><!--panel-->
+
+        </div><!--tab2-->
+
+  </div><!--content-->
+</div><!--Tabbable-->
+<!-- </div> -->
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">OK</button>
     <button class="btn btn-warning" ng-click="export()">Export</button>
