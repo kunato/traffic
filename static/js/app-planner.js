@@ -238,7 +238,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
             }
         }
         //check if start_min_index == end_min_index
-        if(start_min_index == end_min_index){
+        if (start_min_index == end_min_index) {
             var start_path_temp = $scope.dataRelation[start_min_index].path
             var save_start_path = []
             for (var i = 0; i < start_path_temp.length - 1; i++) {
@@ -282,7 +282,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 result = getDistance($scope.dataRelation[start_min_index].path[start_min_node], $scope.dataRelation[start_min_index].path[end_min_node]) / $scope.dataRelation[start_min_index].traffic[0].speed
                 lower_node = end_min_node;
                 higher_node = start_min_node
-            } else if (end_min_node > start_min_node ) {
+            } else if (end_min_node > start_min_node) {
                 result = getDistance($scope.dataRelation[start_min_index].path[start_min_node], $scope.dataRelation[start_min_index].path[end_min_node]) / $scope.dataRelation[start_min_index].traffic[1].speed;
                 lower_node = start_min_node;
                 higher_node = end_min_node;
@@ -445,7 +445,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
         end_id[1] = $scope.dataRelation[end_min_index].cameraPoint2.id
         end[0] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint1.latitude, $scope.dataRelation[end_min_index].cameraPoint1.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
         end[1] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint2.latitude, $scope.dataRelation[end_min_index].cameraPoint2.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
-        console.log('distance',start,end)
+        console.log('distance', start, end)
         if ($scope.dataRelation[start_min_index].one_way)
             start[0] = 1 / 0
         if ($scope.dataRelation[end_min_index].one_way)
@@ -463,28 +463,28 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 }
 
                 var result_b = result[i][j]
-                console.log('result_before 1',result_b)
+                console.log('result_before 1', result_b)
                 if (j == 0) {
                     result[i][j] += (end[j] / $scope.dataRelation[end_min_index].traffic[0].speed)
                 } else {
                     result[i][j] += (end[j] / $scope.dataRelation[end_min_index].traffic[1].speed)
                 }
-                console.log('result_before 2',result[i][j]-result_b)
+                console.log('result_before 2', result[i][j] - result_b)
                 var route_temp = g.shortestPath(String(start_id[i]), String(end_id[j])).concat([String(start_id[i])]).reverse();
                 result_node[i][j] = route_temp;
                 var result_all = 0.0;
                 for (var k = 0; k < route_temp.length - 1; k++) {
                     result_all += g.getVertices()[route_temp[k]][route_temp[k + 1]];
                 }
-                console.log('result_all',result_all);
+                console.log('result_all', result_all);
                 result[i][j] += result_all;
                 if ((route_temp[0] != String(start_id[0]) && route_temp[0] != String(start_id[1])) || (route_temp[route_temp.length - 1] != String(end_id[0]) && route_temp[route_temp.length - 1] != String(end_id[1]))) {
                     result[i][j] = 1 / 0;
                 }
             }
         }
-        console.log('result',result);
-        console.log('result_node',result_node);
+        console.log('result', result);
+        console.log('result_node', result_node);
         var min_start = -1
         var min_end = -1
         var min_result = 1 / 0;
@@ -498,7 +498,7 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
                 }
             }
         }
-        console.log('Min Weight Result',min_result,i,j);
+        console.log('Min Weight Result', min_result, i, j);
         var start_path = []
         var end_path = []
 
@@ -792,14 +792,14 @@ app.controller('PlannerController', function(restService, $scope, $http, $modal,
     };
     $scope.realtimeUpdate = function() {
         console.log('update traffic')
-        $timeout(function(){
-            if($scope.realtime){
+        $timeout(function() {
+            if ($scope.realtime) {
                 $scope.datetime.end = new Date();
                 $scope.datetime.start = new Date($scope.datetime.end.getTime() - 1 * 60000);
             }
             $scope.realtimeUpdate();
 
-        },10000);
+        }, 10000);
     }
     $scope.realtimeUpdate();
     $scope.editTime = function() {

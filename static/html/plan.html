@@ -14,6 +14,11 @@
     
         </ul> -->
         <ul class="nav navbar-nav navbar-right">
+          <li>
+      <label style="padding-top: 15px;
+  padding-bottom: 10px;
+  line-height: 20px;padding-right:10px;color: #777;"><input ng-model="realtime" type="checkbox"> Realtime</label>
+      </li>
           <li><a class="alert alert-info" href="" ng-click="openTraffic()">Report at {{datetime.end | date:'dd/MM/yyyy @ h:mma'}}</a></li>
           <li><a href="/app/#/report/">Report</a></li>
           <li class="active"><a href="">Route Planner</a></li>

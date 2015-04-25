@@ -2,7 +2,7 @@ Array.prototype.remove = function(val) {
     var i = this.indexOf(val);
     return i > -1 ? this.splice(i, 1) : [];
 };
-var app = angular.module('app', ['uiGmapgoogle-maps', 'ngRoute', 'ui.bootstrap', 'chart.js', 'angularFileUpload','ui-rangeSlider']);
+var app = angular.module('app', ['uiGmapgoogle-maps', 'ngRoute', 'ui.bootstrap', 'chart.js', 'angularFileUpload', 'ui-rangeSlider']);
 app.config(['$httpProvider', function($httpProvider) {
     // django and angular both support csrf tokens. This tells
     // angular which cookie to add to what header.
@@ -24,18 +24,22 @@ app.config(function(uiGmapGoogleMapApiProvider) {
         libraries: 'drawing,places,weather,geometry,visualization'
     });
 })
-app.filter('hourMinFilter', function () {
-  return function (value) {
+app.filter('hourMinFilter', function() {
+    return function(value) {
 
-    var min = parseInt(value, 10); // don't forget the second param
-    var hours = Math.floor(min/ 60);
-    var minutes = min - (hours * 60);
+        var min = parseInt(value, 10); // don't forget the second param
+        var hours = Math.floor(min / 60);
+        var minutes = min - (hours * 60);
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    var time    = hours+':'+minutes;
-    return time;
-  };
+        if (hours < 10) {
+            hours = "0" + hours;
+        }
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        var time = hours + ':' + minutes;
+        return time;
+    };
 });
 app.service('restService', function($http, $rootScope, uiGmapGoogleMapApi) {
     return {
@@ -192,7 +196,7 @@ function getDistance(p1, p2) {
 app.controller('MainCtrl', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi) {
     //
 });
-app.controller('MapSettingController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $location, $timeout , $window) {
+app.controller('MapSettingController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $location, $timeout, $window) {
     $scope.render = false
     $scope.polys = [];
     $scope.dataRelation = [];
@@ -222,10 +226,18 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                 }
                 $scope.dataRelation.push({
                     id: dataRelation[i].id,
-                    path: path
+                    path: path,
+                    icons: [{
+                        icon: {
+                            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+                        },
+                        offset: '100px',
+                        repeat: '200px'
+                    }]
                 });
                 // console.log('in')
             }
+            console.log(dataRelation[i].alt_path)
             if (dataRelation[i].alt_path != "") {
                 var _path = JSON.parse(dataRelation[i].alt_path).path;
                 var path = [];
@@ -234,9 +246,38 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                 }
                 $scope.dataRelation.push({
                     id: dataRelation[i].id,
-                    path: path
+                    path: path,
+                    icons: [{
+                        icon: {
+                            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+                        },
+                        offset: '100px',
+                        repeat: '200px'
+                    }]
                 });
                 // console.log('in')
+            } else {
+                if (!dataRelation[i].one_way && dataRelation[i].path != "") {
+
+                    var _path = JSON.parse(dataRelation[i].path).path;
+                    var path = [];
+                    for (var j = 0; j < _path.length; j++) {
+                        path.push(new google.maps.LatLng(_path[j].k, _path[j].B))
+                    }
+                    $scope.dataRelation.push({
+                        id: dataRelation[i].id,
+                        path: path,
+                        icons: [{
+                            icon: {
+                                path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+                            },
+                            offset: '100px',
+                            repeat: '200px'
+                        }]
+
+
+                    });
+                }
             }
             // console.log($scope.dataRelation)
             $scope.getLatLngDataFromDataRelation(dataRelation, i + 1, length);
@@ -255,13 +296,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
 
         for (var i = 0; i < $scope.dataRelation.length; i++) {
             $scope.polys[i] = $scope.dataRelation[i]
-            $scope.polys[i].icons = [{
-                icon: {
-                    path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
-                },
-                offset: '100px',
-                repeat: '200px'
-            }]
             $scope.polys[i].stroke = {
                 color: '#000',
                 weight: 1.5,
@@ -340,13 +374,23 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
     restService.getMapPoint().then(function(response) {
         // console.log('getMapPoint',response)
         //$scope.markers = response.data.objects;
-        for(var i = 0 ; i < response.data.objects.length; i++){
-          $scope.markers.push({latitude: response.data.objects[i].latitude,longitude: response.data.objects[i].longitude,icon: '/static/img/red-dot.png',id:response.data.objects[i].id})
-          
-          if(response.data.objects[i].alt_latitude != null){
-            $scope.markers.push({latitude: response.data.objects[i].alt_latitude,longitude: response.data.objects[i].alt_longitude,icon: '/static/img/blue-dot.png',id:response.data.objects[i].id})
-          
-          }
+        for (var i = 0; i < response.data.objects.length; i++) {
+            $scope.markers.push({
+                latitude: response.data.objects[i].latitude,
+                longitude: response.data.objects[i].longitude,
+                icon: '/static/img/red-dot.png',
+                id: response.data.objects[i].id
+            })
+
+            if (response.data.objects[i].alt_latitude != null) {
+                $scope.markers.push({
+                    latitude: response.data.objects[i].alt_latitude,
+                    longitude: response.data.objects[i].alt_longitude,
+                    icon: '/static/img/blue-dot.png',
+                    id: response.data.objects[i].id
+                })
+
+            }
         }
     });
     //get from databases
@@ -425,9 +469,8 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             size: 'lg'
         });
 
-        modalInstance.result.then(function (selectedItem) {
-        }, function () {
-          //$log.info('Modal dismissed at: ' + new Date());
+        modalInstance.result.then(function(selectedItem) {}, function() {
+            //$log.info('Modal dismissed at: ' + new Date());
         });
     };
 });
@@ -529,7 +572,7 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
 
 
 
-app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance, $location, $route , $window , $timeout) {
+app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance, $location, $route, $window, $timeout) {
     $scope.draggable = true;
     $scope.selected_camera = {};
     $scope.draggable_item = [{
@@ -748,8 +791,8 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                             };
                             // console.log('request2',request2)
                             directionsService.route(request2, function(response2, status2) {
-                                if(status != "OK" || status2 != "OK"){
-                                  //TODO show error
+                                if (status != "OK" || status2 != "OK") {
+                                    //TODO show error
                                 }
                                 // console.log('direction', response, response2);
                                 $scope.formData.path = JSON.stringify({
@@ -770,8 +813,8 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 })
                             });
                         } else {
-                            if(status != "OK"){
-                              //TODO show error
+                            if (status != "OK") {
+                                //TODO show error
                             }
                             //put path to db
                             // console.log(response);
@@ -791,10 +834,10 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
         }
 
         $modalInstance.close();
-        $timeout(function(){
+        $timeout(function() {
 
-        $window.location.reload();
-        },500)
+            $window.location.reload();
+        }, 500)
     };
 
     $scope.cancel = function() {

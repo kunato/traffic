@@ -69,14 +69,14 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     }
     $scope.realtimeUpdate = function() {
         console.log('update traffic')
-        $timeout(function(){
-            if($scope.realtime){
+        $timeout(function() {
+            if ($scope.realtime) {
                 $scope.datetime.end = new Date();
                 $scope.datetime.start = new Date($scope.datetime.end.getTime() - 1 * 60000);
             }
             $scope.realtimeUpdate();
 
-        },10000);
+        }, 10000);
     }
     $scope.realtimeUpdate();
 
@@ -123,7 +123,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         restService.getTrafficFromDataRelation(dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
             var traffic = response.data
             uiGmapGoogleMapApi.then(function() {
-
                 if (dataRelation[i].alt_path != "") {
                     var _pathObj = JSON.parse(dataRelation[i].alt_path);
                     var path = [];
@@ -203,17 +202,22 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 continue;
             }
 
-            if ($scope.alt_dataRelation[i] != null) {
+            if ($scope.alt_dataRelation[i].id != undefined) {
                 // console.log($scope.alt_dataRelation)
                 var path = $scope.alt_dataRelation[i].path
-
+                var icon2 = icons;
             } else {
+                console.log("SADSA")
                 var path = angular.copy($scope.dataRelation[i].path)
+                var icon2 = [{
+                    icon: {
+                        path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+                    },
+                    offset: '100px',
+                    repeat: '200px'
+                }]
                 for (var j = 0; j < path.length; j++) {
                     //calculate from average of all path
-                    console
-                    path[j].B += 0.00003
-                    path[j].k += 0.00006
                 }
             }
 
@@ -227,7 +231,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 opacity: 1.0
             }
             $scope.polys[index].events = events;
-            $scope.polys[index].icons = icons;
+            $scope.polys[index].icons = icon2;
             $scope.polys[index].icons.id = $scope.polys[index].id;
         }
         //console.log('polys',$scope.polys);
