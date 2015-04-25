@@ -1,37 +1,40 @@
 <nav class="navbar navbar-default navbar-static-top">
     <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="">ATR</a>
-      </div>
-      <div id="navbar" class="navbar-collapse collapse">
-        <!-- ul class="nav navbar-nav">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="">ATR</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <!-- ul class="nav navbar-nav">
     
         </ul> -->
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-      <label style="padding-top: 15px;
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <label style="padding-top: 15px;
   padding-bottom: 10px;
-  line-height: 20px;padding-right:10px;color: #777;"><input ng-model="realtime" type="checkbox"> Realtime</label>
-      </li>
-          <li><a class="alert alert-info" href="" ng-click="openTraffic()">Report at {{datetime.end | date:'dd/MM/yyyy @ h:mma'}}</a></li>
-          <li><a href="/app/#/report/">Report</a></li>
-          <li class="active"><a href="">Route Planner</a></li>
-        </ul>
-      </div><!--/.nav-collapse -->
-    </div><!--/.container-fluid -->
+  line-height: 20px;padding-right:10px;color: #777;">
+                        <input ng-model="realtime" type="checkbox"> Realtime</label>
+                </li>
+                <li><a class="alert alert-info" href="" ng-click="openTraffic()">Report at {{datetime.end | date:'dd/MM/yyyy @ h:mma'}}</a></li>
+                <li><a href="/app/#/report/">Report</a></li>
+                <li class="active"><a href="">Route Planner</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+    <!--/.container-fluid -->
 </nav>
 
-        <!-- Intro Header -->
+<!-- Intro Header -->
 <div style="width:100%;">
     <ui-gmap-google-map center='map.center' events='map.events' zoom='map.zoom'>
-    <ui-gmap-marker ng-repeat="m in markers2" coords="m" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
-            <ui-gmap-window ng-cloak  coords="map.infoWindowWithCustomClass.coords" isIconVisibleOnClick="true" options="map.infoWindowWithCustomClass.options">
+        <ui-gmap-marker ng-repeat="m in markers2" coords="m" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
+            <ui-gmap-window ng-cloak coords="map.infoWindowWithCustomClass.coords" isIconVisibleOnClick="true" options="map.infoWindowWithCustomClass.options">
                 <div>
                     <p> ID: {{m.id}} lat {{m.latitude}} lng {{m.longitude}}</p>
                     <button class="btn btn-success" ng-click="$parent.$parent.removeMarker($parent.m)">Remove Marker</button>
@@ -51,49 +54,52 @@
         <!-- <ui-gmap-polyline ng-if="polys2.length == 0" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.id" events="m.events">
         </ui-gmap-polyline> -->
     </ui-gmap-google-map>
-    <div class="container" id="traffic" ng-if="renderdatepicker"
-      style="float:right;
+    <div class="container" id="traffic" ng-if="renderdatepicker" style="float:right;
       width:250px;
       right:12%;
       background-color: #eeeeee;
       border: 1px solid #777;
       border-radius: 4px;
-      position:absolute;"
-      >
-      <div class="row">
-          <div class="col-xs-8 col-md-8" style="margin-left:3%">
-              <h4 style="color:#777;">Traffic </h4>
-          </div><!--col-->
-      </div><!--row-->
+      position:absolute;">
+        <div class="row">
+            <div class="col-xs-8 col-md-8" style="margin-left:3%">
+                <h4 style="color:#777;">Traffic </h4>
+            </div>
+            <!--col-->
+        </div>
+        <!--row-->
 
-      <div class="row">
-        <div class="col-xs-12 col-md-12" >
-            <p class="input-group" style="margin-left:3%; margin-right:3%">
-              <input type="text" class="form-control" datepicker-popup="MMM dd, yyyy" ng-model="$parent.dialog_datetime.date" is-open="opened.status" datepicker-options="dateOptions" close-text="Close" />
-              <span class="input-group-btn">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <p class="input-group" style="margin-left:3%; margin-right:3%">
+                    <input type="text" class="form-control" datepicker-popup="MMM dd, yyyy" ng-model="$parent.dialog_datetime.date" is-open="opened.status" datepicker-options="dateOptions" close-text="Close" />
+                    <span class="input-group-btn">
                 <button type="button" class="btn btn-default" ng-click="openDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
               </span>
-            </p>
-            <div range-slider pin-handle="min" step="{{sliderConfig.step}}" min="sliderConfig.min" max="sliderConfig.max" model-max="sliderConfig.userMax" filter="hourMinFilter" show-values="true" style="height:150%;margin-top:2%; margin-left:3%; margin-right:3%"></div>
-        </div><!--col-->
-      </div><!--row-->
-          
-      <div class="row">
+                </p>
+                <div range-slider pin-handle="min" step="{{sliderConfig.step}}" min="sliderConfig.min" max="sliderConfig.max" model-max="sliderConfig.userMax" filter="hourMinFilter" show-values="true" style="height:150%;margin-top:2%; margin-left:3%; margin-right:3%"></div>
+            </div>
+            <!--col-->
+        </div>
+        <!--row-->
+
+        <div class="row">
             <div class="col-xs-8 col-md-8" style="margin-left:3%; margin-bottom:3%;">
-            <button type="button" class="btn btn-primary" ng-click="editTime()">Advance Report</button>
+                <button type="button" class="btn btn-primary" ng-click="editTime()">Advance Report</button>
             </div>
             <div class="col-xs-2 col-md-2" style="postition:absolute; float:right; right:60px">
                 <button style="margin-left:3%; margin-bottom:3%;" type="button" class="btn btn-warning" ng-click="closeTraffic()">Close</button>
             </div>
-      </div><!--row-->
-  </div><!--container-->
-    <div style=
-     "float: right;
+        </div>
+        <!--row-->
+    </div>
+    <!--container-->
+    <div style="float: right;
       right: 10px;
       bottom: 20px;
       position: absolute;
       ">
-    <button class="btn btn-success" ng-click="calculateRoute()">Calculate Route</button>
+        <button class="btn btn-success" ng-click="calculateRoute()">Calculate Route</button>
     </div>
 
 </div>
