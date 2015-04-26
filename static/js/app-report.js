@@ -171,18 +171,18 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         // console.log('render')
         // console.log('dataRelation', $scope.dataRelation)
         // console.log('alt_dataRelation', $scope.alt_dataRelation)
-        
-        
+
+
         $scope.polys = [];
         for (var i = 0; i < $scope.dataRelation.length; i++) {
 
             var icons = [{
-            id:$scope.dataRelation[i].id,
-            icon: {
-                path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
-            },
-            offset: '100px',
-            repeat: '200px'
+                id: $scope.dataRelation[i].id,
+                icon: {
+                    path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+                },
+                offset: '100px',
+                repeat: '200px'
             }]
             var path1 = angular.copy($scope.dataRelation[i].path);
             $scope.polys.push({})
@@ -209,7 +209,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 console.log("SADSA")
                 var path = angular.copy($scope.dataRelation[i].path)
                 var icon2 = [{
-                    id:$scope.dataRelation[i].id,
+                    id: $scope.dataRelation[i].id,
                     icon: {
                         path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
                     },
@@ -221,12 +221,12 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 }
             }
             var events = {
-            click: function(mapModel, eventName, originalEventArgs) {
-                console.log('click',eventName,originalEventArgs)
-                var id = originalEventArgs.icons.id
-                $scope.open(id);
+                click: function(mapModel, eventName, originalEventArgs) {
+                    console.log('click', eventName, originalEventArgs)
+                    var id = originalEventArgs.icons.id
+                    $scope.open(id);
+                }
             }
-        }
 
             $scope.polys.push({})
             var index = $scope.polys.length - 1
