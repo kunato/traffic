@@ -398,9 +398,9 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
 
     $scope.sendMarker = function(i, markers) {
         var j = i;
-        if (i == markers.length){
+        if (i == markers.length) {
             $window.location.reload();
-            return;   
+            return;
         }
         if (i < markers.length - 1 && markers[i].id == markers[i + 1].id) {
             var formData = {
@@ -488,7 +488,7 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
             return
         restService.getVideoByCameraId($scope.camera[i].id).then(function(response) {
             if (response.data.objects.length > 0 && (response.data.objects[0].type == 2 || response.data.objects[0].type == 3)) {
-                if(response.data.objects[0].type == 3){
+                if (response.data.objects[0].type == 3) {
                     $scope.camera[i].video_url = response.data.objects[0].url
                 }
                 $scope.camera[i].resume = response.data.objects[0].id
@@ -500,14 +500,14 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
             }
             if (response.data.objects.length > 0 && response.data.objects[0].type == 0 && response.data.objects[0].tracking_id != null) {
                 $scope.camera[i].video_url = response.data.objects[0].url
-                // console.log('polling start', $scope.camera[i]);
+                    // console.log('polling start', $scope.camera[i]);
                 $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
             }
             $scope.getTrackingStatus(i + 1)
         })
     }
     $scope.formComplete = function() {
-        if($scope.cameraFormData.height && $scope.cameraFormData.width && $scope.cameraFormData.name && $scope.addCamera.$valid)
+        if ($scope.cameraFormData.height && $scope.cameraFormData.width && $scope.cameraFormData.name && $scope.addCamera.$valid)
             return true
         return false
     }
@@ -618,7 +618,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
         $scope.markers = response.data.objects;
     });
     $scope.formComplete = function() {
-        if($scope.dataRelationSetting.$valid)
+        if ($scope.dataRelationSetting.$valid)
             return true
         return false
     }

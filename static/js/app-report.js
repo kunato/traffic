@@ -1,4 +1,5 @@
 app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
+    $scope.speedMarker = [];
     //Slider
     $scope.realtime = true;
     $scope.opened = {
@@ -29,8 +30,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         var hours = Math.floor(min / 60);
         var minutes = min - (hours * 60);
         $scope.datetime.end = new Date($scope.dialog_datetime.date.getFullYear(), $scope.dialog_datetime.date.getMonth(), $scope.dialog_datetime.date.getDate(), hours, minutes)
-        $scope.datetime.start = new Date($scope.datetime.end.getTime() - 10 * 60000)
-        // console.log($scope.datetime)
+        $scope.datetime.start = new Date($scope.datetime.end.getTime() - 15 * 60000)
+            // console.log($scope.datetime)
     }
 
     $scope.$watch('sliderConfig.userMax', function() {
@@ -167,12 +168,26 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         $scope.getLatLngDataFromDataRelation(dataRelation, i, dataRelation.length);
 
     });
+    var nextId = 0;
+    $scope.createSpeedMarker = function(lat, lng, number) {
+
+        // console.log(number);
+        return {
+            id: nextId += 1,
+            coords: {
+                latitude: lat,
+                longitude: lng
+            },
+            icon: '/static/img/number/' + Math.floor(number) + '_map_icon.png',
+            speed: number
+        }
+    }
     $scope.renderPolyline = function() {
         // console.log('render')
         // console.log('dataRelation', $scope.dataRelation)
         // console.log('alt_dataRelation', $scope.alt_dataRelation)
-
-
+        nextId = 0;
+        $scope.speedMarker = [];
         $scope.polys = [];
         for (var i = 0; i < $scope.dataRelation.length; i++) {
 
@@ -194,6 +209,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 weight: 1.5,
                 opacity: 1.0
             }
+            $scope.speedMarker.push($scope.createSpeedMarker($scope.polys[index].path[1].lat(), $scope.polys[index].path[1].lng(),
+                $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icons;
             $scope.polys[index].icons.id = $scope.polys[index].id
@@ -235,11 +252,18 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 weight: 1.5,
                 opacity: 1.0
             }
+            $scope.speedMarker.push($scope.createSpeedMarker($scope.polys[index].path[1].lat(), $scope.polys[index].path[1].lng(), $scope.dataRelation[i].traffic[1].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icon2;
             $scope.polys[index].icons.id = $scope.polys[index].id;
         }
         //console.log('polys',$scope.polys);
+        console.log($scope.speedMarker)
+        for (var i = 0; i < $scope.speedMarker.length; i++) {
+            if ($scope.speedMarker[i].speed != 0) {
+                console.log($scope.speedMarker[i])
+            }
+        }
     }
 
     $scope.$watch('dataRelation', function() {
