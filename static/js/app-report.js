@@ -1,5 +1,6 @@
 app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
     $scope.speedMarker = [];
+    $scope.speedMarker2 = [];
     //Slider
     $scope.realtime = true;
     $scope.opened = {
@@ -170,7 +171,10 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     });
     var nextId = 0;
     $scope.createSpeedMarker = function(lat, lng, number) {
-
+        var icon = number;
+        if(number > 99){
+            icon = 99;
+        }
         // console.log(number);
         return {
             id: nextId += 1,
@@ -259,8 +263,10 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         }
         //console.log('polys',$scope.polys);
         console.log($scope.speedMarker)
+        $scope.speedMarker2 = []
         for (var i = 0; i < $scope.speedMarker.length; i++) {
             if ($scope.speedMarker[i].speed != 0) {
+                $scope.speedMarker2.push($scope.speedMarker[i]);
                 console.log($scope.speedMarker[i])
             }
         }

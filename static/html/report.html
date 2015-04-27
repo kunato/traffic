@@ -33,7 +33,7 @@
 <!-- Intro Header -->
 <div style="width:100%;">
     <ui-gmap-google-map center='map.center' events='map.events' zoom='map.zoom'>
-        <ui-gmap-marker ng-repeat="m in speedMarker" coords="m.coords" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
+        <ui-gmap-marker ng-repeat="m in speedMarker2" coords="m.coords" icon="m.icon" ng-click="$parent.onMarkerClicked(m)" idKey="m.id" options="m.options">
             <ui-gmap-window ng-cloak  coords="map.infoWindowWithCustomClass.coords" isIconVisibleOnClick="true" options="map.infoWindowWithCustomClass.options">
                 
         </ui-gmap-marker>
