@@ -182,7 +182,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 latitude: lat,
                 longitude: lng
             },
-            icon: '/static/img/number/' + Math.floor(number) + '_map_icon.png',
+            icon: '/static/img/number/red' + Math.floor(number) + '.png',
             speed: number
         }
     }
@@ -219,7 +219,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                     $scope.open(id);
                 }
             }
-            $scope.speedMarker.push($scope.createSpeedMarker($scope.polys[index].path[1].lat(), $scope.polys[index].path[1].lng(),
+            var center = Math.floor(($scope.polys[index].path.length-1)/2)
+            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0, ($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0,
                 $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icons;
@@ -262,7 +263,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 weight: 1.5,
                 opacity: 1.0
             }
-            $scope.speedMarker.push($scope.createSpeedMarker($scope.polys[index].path[1].lat(), $scope.polys[index].path[1].lng(), $scope.dataRelation[i].traffic[1].speed))
+            $scope.speedMarker.push($scope.createSpeedMarker((($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0 ), (($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0), $scope.dataRelation[i].traffic[1].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icon2;
             $scope.polys[index].icons.id = $scope.polys[index].id;
