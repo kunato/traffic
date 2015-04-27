@@ -67,7 +67,7 @@ app.service('restService', function($http, $rootScope, uiGmapGoogleMapApi) {
             return $http.post(path, data);
         },
         getVideoByCameraId: function(camera_id) {
-            var path = '/api/v1/video/?camera__id=' + camera_id + '&order_by=added_time&format=json';
+            var path = '/api/v1/video/?camera__id=' + camera_id + '&order_by=-added_time&format=json';
             return $http.get(path);
         },
         getMap: function(data) {
@@ -486,16 +486,30 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
         if (i == $scope.camera.length)
             return
         restService.getVideoByCameraId($scope.camera[i].id).then(function(response) {
-            //console.log(response)
-            if (response.data.objects.length > 0 && response.data.objects[0].type == 2) {
+            console.log(response)
+            if (response.data.objects.length > 0 && (response.data.objects[0].type == 2 || response.data.objects[0].type == 3)) {
+                if(response.data.objects[0].type == 3){
+                    $scope.camera[i].video_url = response.data.objects[0].url
+                }
                 $scope.camera[i].resume = response.data.objects[0].id
             }
             if (response.data.objects.length > 0 && response.data.objects[0].type == 1 && response.data.objects[0].tracking_id != null) {
-                //console.log('polling start',$scope.camera[i]);
+
+                console.log('polling start', $scope.camera[i]);
+                $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
+            }
+            if (response.data.objects.length > 0 && response.data.objects[0].type == 0 && response.data.objects[0].tracking_id != null) {
+                $scope.camera[i].video_url = response.data.objects[0].url
+                console.log('polling start', $scope.camera[i]);
                 $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
             }
             $scope.getTrackingStatus(i + 1)
         })
+    }
+    $scope.formComplete = function() {
+        if($scope.cameraFormData.height && $scope.cameraFormData.width && $scope.cameraFormData.name && $scope.addCamera.$valid)
+            return true
+        return false
     }
     $scope.fileChange = function(file, event, formData) {
 
@@ -518,7 +532,8 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
         };
         //console.log('data',data);
         restService.postStream(data).then(function(response) {
-            //console.log(response)
+            console.log(response)
+            $scope.poll(c, response.data['job_id'])
         });
     }
     $scope.add = function() {
@@ -602,6 +617,11 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
     restService.getMapPoint().then(function(response) {
         $scope.markers = response.data.objects;
     });
+    $scope.formComplete = function() {
+        if($scope.dataRelationSetting.$valid)
+            return true
+        return false
+    }
     $scope.$watch('selected_camera', function() {
             // console.log('selected_camera', $scope.selected_camera)
             if ($scope.selected_camera.id == undefined)

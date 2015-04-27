@@ -71,7 +71,10 @@ def upload(request):
 def resume(request):
     if(request.user.is_authenticated()):
         video = Video.objects.get(pk=json.loads(request.body)['id'])
-        video.type = 1
+        if(video.type == 2):
+            video.type = 1
+        if(video.type == 3):
+            video.type = 0
         video.save()
         process_obj = process.delay(video=video)
         video.tracking_id = process_obj.id
@@ -85,9 +88,11 @@ def stream(request):
         if(request.method == "POST"):
             dict_request = json.loads(request.body)
             cam = Camera.objects.get(pk=dict_request['id'])
-            video = Video(name="", url=dict_request['url'], camera=cam,type=0)
+            video = Video(name="", url=dict_request['url'], camera=cam,added_time=datetime.datetime.now(),type=0)
             video.save()
             process_obj = process_stream.delay(video=video)
+            video.tracking_id = process_obj.id
+            video.save()
             return JsonResponse({'job_id':process_obj.id})
         return JsonResponse({'progress':''})
     return redirect('/')

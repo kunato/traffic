@@ -11,12 +11,12 @@
         <div ng-if="selected_camera.id && !formData.one_way"id="draggable-zone2" class="draggable-camera" ng-style="getStyle(1)"></div>
     </div >
     
-    <form style="padding-left: 15px; padding-top: 20px; padding-right:15px;  height: 125px;">
+    <form name="dataRelationSetting" style="padding-left: 15px; padding-top: 20px; padding-right:15px;  height: 125px;">
         <div class="form-group" style="margin-bottom:1%;">
-            <select class="form-control col-sm-4 col-xs-12" style="margin-right:1%; margin-bottom:1%;" ng-model="marker1" ng-options="c as c.resource_uri for c in markers">
+            <select class="form-control col-sm-4 col-xs-12" style="margin-right:1%; margin-bottom:1%;" ng-model="marker1" ng-options="c as c.resource_uri for c in markers" required>
                 <option value="">- Red Mark -</option>
             </select>
-            <select class="form-control col-sm-4 col-xs-12" style="margin-right:1%; margin-bottom:1%;" ng-model="marker2" ng-options="c as c.resource_uri for c in markers">
+            <select class="form-control col-sm-4 col-xs-12" style="margin-right:1%; margin-bottom:1%;" ng-model="marker2" ng-options="c as c.resource_uri for c in markers" required>
                 <option value="">- Blue Mark -</option>
             </select>
             <div class="checkbox">
@@ -27,16 +27,15 @@
         </div>
 
         <div class="form-group" style="margin-button:1%;">
-            <input type="text" class="col-sm-4 col-xs-12 form-control" style="margin-right:1%; margin-bottom:1%;" ng-model="formData.camera_length" placeholder="Camera Length">
-            <input type="text" class="col-sm-4 col-xs-12 form-control" style="" ng-model="formData.camera_aspect" placeholder="Street Proportion/Width Of Camera">
+            <input type="number" class="col-sm-4 col-xs-12 form-control" style="margin-right:1%; margin-bottom:1%;" ng-model="formData.camera_length" placeholder="Camera Length"required>
+            <input type="text" class="col-sm-4 col-xs-12 form-control" style="" ng-model="formData.camera_aspect" placeholder="Street Proportion/Width Of Camera" required>
         </div>
 
     </form><!--horizontal-->
 
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-primary" ng-disabled="!formComplete()" ng-click="ok()">OK</button>
         <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-        <button class="btn btn-default" ng-click="remove()">Remove</button>
     </div>
     <script type="text/javascript">
     </script>

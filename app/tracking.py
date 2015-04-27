@@ -96,6 +96,7 @@ def process(video,dataRelation):
     end_exit = []
     frame_no = 0
     last_gen_bg = frame_no
+    print "connected"
     if(video.type == 1):
         startdate = video.start_time
     while(1):
@@ -242,10 +243,10 @@ def process(video,dataRelation):
                 i.move((x,y),frame_no,cv2.contourArea(cnt))
         #         cv2.putText(fgmask,str(people.id), (int(people.position[0]),int(people.position[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
         #         cv2.drawContours(fgmask, [cnt], 0, DRAW_COLOR, 3)
-        # cv2.imshow('frame',fgmask)
-        # k = cv2.waitKey(25)
-        # if k == 27:
-        #    break
+        cv2.imshow('frame',fgmask)
+        k = cv2.waitKey(25)
+        if k == 27:
+           break
 
         # print cap.get(0)/1000
     cap.release()

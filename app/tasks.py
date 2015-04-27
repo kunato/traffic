@@ -31,17 +31,12 @@ def process(video):
 @task()
 def process_stream(video):
     current_task.update_state(state='PROGRESS', meta={'process_percent': 1})
-    if(video.camera.url == ''):
-        img = tracking.saveImg(video.url,[])
-        video.camera.url = img
-        video.camera.save()
-        current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
-    else:
-        dataRelation = DataRelation.objects.get(camera=video.camera)
-        current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
-        #never finish
-        tracking.process(video,dataRelation)
-
+    dataRelation = DataRelation.objects.get(camera=video.camera)
+    current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
+    #never finish
+    tracking.process(video,dataRelation)
+    current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
+    print "task finish"
 def get_task_status(task_id):
  
     # If you have a task_id, this is how you query that task 
