@@ -229,7 +229,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                     path: path,
                     icons: [{
                         icon: {
-                            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+                            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
                         },
                         offset: '100px',
                         repeat: '200px'
@@ -249,7 +249,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                     path: path,
                     icons: [{
                         icon: {
-                            path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
+                            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
                         },
                         offset: '100px',
                         repeat: '200px'
@@ -269,7 +269,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                         path: path,
                         icons: [{
                             icon: {
-                                path: google.maps.SymbolPath.FORWARD_OPEN_ARROW
+                                path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW
                             },
                             offset: '100px',
                             repeat: '200px'
