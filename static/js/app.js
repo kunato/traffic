@@ -398,8 +398,10 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
 
     $scope.sendMarker = function(i, markers) {
         var j = i;
-        if (i == markers.length)
-            return;
+        if (i == markers.length){
+            $window.location.reload();
+            return;   
+        }
         if (i < markers.length - 1 && markers[i].id == markers[i + 1].id) {
             var formData = {
                 latitude: markers[i].latitude,
@@ -440,7 +442,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             }
         }
         $scope.deletedMarkers = [];
-        // $location.path('/setting')
     }
 
     $scope.removeMarker = function(marker) {
