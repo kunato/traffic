@@ -237,7 +237,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                 });
                 // console.log('in')
             }
-            console.log(dataRelation[i].alt_path)
+            // console.log(dataRelation[i].alt_path)
             if (dataRelation[i].alt_path != "") {
                 var _path = JSON.parse(dataRelation[i].alt_path).path;
                 var path = [];
@@ -487,7 +487,6 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
         if (i == $scope.camera.length)
             return
         restService.getVideoByCameraId($scope.camera[i].id).then(function(response) {
-            console.log(response)
             if (response.data.objects.length > 0 && (response.data.objects[0].type == 2 || response.data.objects[0].type == 3)) {
                 if(response.data.objects[0].type == 3){
                     $scope.camera[i].video_url = response.data.objects[0].url
@@ -496,12 +495,12 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
             }
             if (response.data.objects.length > 0 && response.data.objects[0].type == 1 && response.data.objects[0].tracking_id != null) {
 
-                console.log('polling start', $scope.camera[i]);
+                // console.log('polling start', $scope.camera[i]);
                 $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
             }
             if (response.data.objects.length > 0 && response.data.objects[0].type == 0 && response.data.objects[0].tracking_id != null) {
                 $scope.camera[i].video_url = response.data.objects[0].url
-                console.log('polling start', $scope.camera[i]);
+                // console.log('polling start', $scope.camera[i]);
                 $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
             }
             $scope.getTrackingStatus(i + 1)
@@ -662,7 +661,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
 
                 })
                 restService.getDataByUri(response.data.objects[0].cameraPoint2.resource_uri).then(function(response) {
-                    console.log('getDataByUri cameraPoint2', response)
+                    // console.log('getDataByUri cameraPoint2', response)
                     $scope.draggable_item[1] = response.data;
                     $scope.draggable_item[1].color = 'blue'
                     for (var i = 0; i < $scope.markers.length; i++) {
@@ -771,7 +770,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 summary: response.routes[0].summary
                             });
                             restService.putDataByUri($scope.formData.resource_uri, $scope.formData).then(function(response) {
-                                console.log(response)
+                                // console.log(response)
                             })
                         };
 

@@ -30,7 +30,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         var minutes = min - (hours * 60);
         $scope.datetime.end = new Date($scope.dialog_datetime.date.getFullYear(), $scope.dialog_datetime.date.getMonth(), $scope.dialog_datetime.date.getDate(), hours, minutes)
         $scope.datetime.start = new Date($scope.datetime.end.getTime() - 10 * 60000)
-        console.log($scope.datetime)
+        // console.log($scope.datetime)
     }
 
     $scope.$watch('sliderConfig.userMax', function() {
@@ -68,7 +68,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         $scope.realtime = true;
     }
     $scope.realtimeUpdate = function() {
-        console.log('update traffic')
+        // console.log('update traffic')
         $timeout(function() {
             if ($scope.realtime) {
                 $scope.datetime.end = new Date();
@@ -206,7 +206,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 var path = $scope.alt_dataRelation[i].path
                 var icon2 = icons;
             } else {
-                console.log("SADSA")
                 var path = angular.copy($scope.dataRelation[i].path)
                 var icon2 = [{
                     id: $scope.dataRelation[i].id,
@@ -222,7 +221,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             }
             var events = {
                 click: function(mapModel, eventName, originalEventArgs) {
-                    console.log('click', eventName, originalEventArgs)
                     var id = originalEventArgs.icons.id
                     $scope.open(id);
                 }
@@ -304,7 +302,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         $scope.$apply();
     };
     $scope.editTime = function() {
-        console.log("openTime");
+        // console.log("openTime");
         var modalInstance = $modal.open({
             templateUrl: '/static/html/modal_time.html',
             controller: 'ModalTimeCtrl',
