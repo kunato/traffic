@@ -213,6 +213,12 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 weight: 1.5,
                 opacity: 1.0
             }
+            var events = {
+                click: function(mapModel, eventName, originalEventArgs) {
+                    var id = originalEventArgs.icons.id
+                    $scope.open(id);
+                }
+            }
             $scope.speedMarker.push($scope.createSpeedMarker($scope.polys[index].path[1].lat(), $scope.polys[index].path[1].lng(),
                 $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].events = events;
