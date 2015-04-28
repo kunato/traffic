@@ -70,6 +70,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
     $scope.setRealtime = function() {
         $scope.realtime = true;
     }
+    
     $scope.realtimeUpdate = function() {
         // console.log('update traffic')
         $timeout(function() {
@@ -662,7 +663,6 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         $scope.getLatLngDataFromDataRelation(dataRelation, i, dataRelation.length);
 
     });
-    var nextId = 0;
     $scope.createSpeedMarker = function(lat, lng, number) {
         var icon = number;
         if (number > 99) {
@@ -679,10 +679,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             speed: number
         }
     }
+
     $scope.renderPolyline = function() {
-        // console.log('render')
-        // console.log('dataRelation', $scope.dataRelation)
-        // console.log('alt_dataRelation', $scope.alt_dataRelation)
         nextId = 0;
         $scope.speedMarker = [];
         $scope.polys = [];

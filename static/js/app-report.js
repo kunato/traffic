@@ -1,4 +1,6 @@
 app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
+
+    var nextId = 0;
     $scope.speedMarker = [];
     $scope.speedMarker2 = [];
     $scope.markers2 = [];
@@ -22,6 +24,13 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.dialog_datetime = {
         date: new Date($scope.datetime.end)
     }
+
+    $scope.polys = [];
+
+    $scope.duration = 1;
+    $scope.render = false;
+    $scope.dataRelation = [];
+    $scope.alt_dataRelation = [];
 
     $scope.getDateFromUser = function() {
         if ($scope.init < 2) {
@@ -579,12 +588,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         }
         $scope.dataRelation = backup_dataRelation;
     }
-    $scope.polys = [];
-
-    $scope.duration = 1;
-    $scope.render = false;
-    $scope.dataRelation = [];
-    $scope.alt_dataRelation = [];
     $scope.$watch('datetime', function() {
         console.log('get traffic on update', $scope.datetime)
             //re-render poly line and request traffic from server
@@ -659,13 +662,11 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         $scope.getLatLngDataFromDataRelation(dataRelation, i, dataRelation.length);
 
     });
-    var nextId = 0;
     $scope.createSpeedMarker = function(lat, lng, number) {
         var icon = number;
         if (number > 99) {
             icon = 99;
         }
-        // console.log(number);
         return {
             id: nextId += 1,
             coords: {
@@ -768,15 +769,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             }
         }
     }
-
-    $scope.$watch('dataRelation', function() {
-        //console.log("dataRelation change",$scope.dataRelation)
-        if ($scope.dataRelation.length == 0)
-            return;
-        // $scope.renderPolyline();
-        //console.log($scope.polys)
-    }, true);
-    $scope.deletedMarkers = []
     restService.getMap().then(function(response) {
         //$log.info('getMap',response)
         $scope.map = {
@@ -811,41 +803,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         }
         $scope.map_id = response.data.objects[0].resource_uri;
     });
-    $scope.markers = [];
-    restService.getMapPoint().then(function(response) {
-        //console.log('getMapPoint',response)
-        $scope.markers = response.data.objects;
-    });
-    //get from databases
-    var nextId = -1;
-    $scope.save = function() {
-        //$log.info('save')
-        for (var i = 0; i < $scope.markers.length; i++) {
-
-            var formData = {
-                latitude: $scope.markers[i].latitude,
-                longitude: $scope.markers[i].longitude,
-                map: $scope.map_id
-            };
-            if ($scope.markers[i].options != undefined) {
-                restService.postMapPoint(formData).then(function(response) {
-                    //$log.info('sent post resp : '+response);
-                });
-            } else {
-                restService.postMapPointById($scope.markers[i].id, formData).then(function(response) {
-                    //$log.info('sent post by id resp : '+response);
-                });
-            }
-        }
-        for (var i = 0; i < $scope.deletedMarkers.length; i++) {
-            if ($scope.deletedMarkers[i].id > 0) {
-                restService.deleteMapPoint($scope.deletedMarkers[i].id).then(function(response) {
-                    //console.log('delete marker resp :',response)
-                })
-            }
-        }
-
-    }
+    
     $scope.onMarkerClicked = function(marker) {
         //$log.info('clicked on markers :'+marker)
         marker.showWindow = true;

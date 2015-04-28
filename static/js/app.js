@@ -136,14 +136,23 @@ app.service('restService', function($http, $rootScope, uiGmapGoogleMapApi) {
 
 
 
-//TODO implement login
 app.controller('MainCtrl', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi) {
-    //
+    //Main Ctrl 
+    //Still Empty
 });
+
 app.controller('MapSettingController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $location, $timeout, $window) {
     $scope.render = false
     $scope.polys = [];
     $scope.dataRelation = [];
+    $scope.deletedMarkers = []
+    
+    $scope.markers = [];
+
+    var nextId = -1;
+
+
+
 
     $scope.getLatLngDataFromDataRelation = function(dataRelation, i, length) {
         if (i == length) {
@@ -246,17 +255,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             }
         }
     }, true);
-    $scope.$watch('polys', function() {
-        // console.log('polys change', $scope.polys);
-    }, true);
-
-    $scope.test = function() {
-        //console.log("test",$scope.dataRelation)
-        for (var i = 0; i < $scope.dataRelation.length; i++) {
-            $scope.polys[i] = $scope.dataRelation[i]
-        }
-    }
-    $scope.deletedMarkers = []
+    
     restService.getMap().then(function(response) {
         //$log.info('getMap',response)
         $scope.map_id = response.data.objects[0].resource_uri;
@@ -305,7 +304,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             }
         };
     });
-    $scope.markers = [];
     restService.getMapPoint().then(function(response) {
         // console.log('getMapPoint',response)
         //$scope.markers = response.data.objects;
@@ -329,7 +327,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
         }
     });
     //get from databases
-    var nextId = -1;
 
     $scope.sendMarker = function(i, markers) {
         var j = i;
