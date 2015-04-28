@@ -1,5 +1,6 @@
 //ReportPageController
 //Author Kunat Pipatanakul
+//Author Tanachor Techajaruphan
 app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
 
     var nextId = 0;
