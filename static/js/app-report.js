@@ -2,7 +2,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.speedMarker = [];
     $scope.speedMarker2 = [];
     //Slider
-    $scope.polysRender = [];
     $scope.realtime = true;
     $scope.opened = {
         status: false
@@ -110,6 +109,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.updateTraffic = function(i) {
         if(i == $scope.dataRelation.length){
             $scope.renderPolyline()
+            return
         }
         restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
                 // console.log('traffic',response.data)
@@ -283,7 +283,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 // console.log($scope.speedMarker[i])
             }
         }
-        $scope.polysRender = angular.copy($scope.polys)
     }
 
     $scope.$watch('dataRelation', function() {

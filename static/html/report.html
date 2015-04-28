@@ -37,7 +37,7 @@
             <ui-gmap-window ng-cloak  coords="map.infoWindowWithCustomClass.coords" isIconVisibleOnClick="true" options="map.infoWindowWithCustomClass.options">
                 
         </ui-gmap-marker>
-        <ui-gmap-polyline ng-if="render" ng-repeat="m in polysRender" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.icons" events="m.events">
+        <ui-gmap-polyline ng-if="render" ng-repeat="m in polys" stroke="m.stroke" path="m.path" clickable="true" static="true" icons="m.icons" events="m.events">
         </ui-gmap-polyline>
 
     </ui-gmap-google-map>
