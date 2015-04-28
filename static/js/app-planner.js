@@ -8,7 +8,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         status: false
     }
     $scope.datetime = {
-        start: new Date((new Date().getTime() - 1 * 60000)),
+        start: new Date((new Date().getTime() - 3 * 60000)),
         end: new Date()
     }
     $scope.init = 0;
@@ -75,7 +75,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         $timeout(function() {
             if ($scope.realtime) {
                 $scope.datetime.end = new Date();
-                $scope.datetime.start = new Date($scope.datetime.end.getTime() - 1 * 60000);
+                $scope.datetime.start = new Date($scope.datetime.end.getTime() - 3 * 60000);
             }
             $scope.realtimeUpdate();
 
@@ -218,7 +218,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 $scope.dataRelation = backup_dataRelation;
                 return
             } else {
-                console.log("ROUTE NOT FOUND")
+                //this is problem
+                console.log("ROUTE NOT IMPLEMENTED")
                 $scope.dataRelation = backup_dataRelation;
                 return
             }
@@ -226,7 +227,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             for (var i = lower_node; i < higher_node; i++) {
                 all_path.push($scope.dataRelation[start_min_index].path[i])
             }
-
+            //NEW
+            
             $scope.polys2[0].path = all_path;
             $scope.polys2[1].stroke = {
                 color: '#ff00ff',
@@ -546,7 +548,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                     var index = $scope.polys2.length - 1
                     $scope.polys2[index].path = $scope.dataRelation[i].path
                     $scope.polys2[index].stroke = {
-                        color: getColorFromTraffic($scope.dataRelation[i].traffic[0].speed, $scope.dataRelation[end_min_index].traffic[0].count),
+                        color: getColorFromTraffic($scope.dataRelation[i].traffic[0].speed, $scope.dataRelation[i].traffic[0].count),
                         weight: 2,
                         opacity: 1.0
                     }
@@ -562,7 +564,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                     var index = $scope.polys2.length - 1
                     $scope.polys2[index].path = $scope.dataRelation[i].path
                     $scope.polys2[index].stroke = {
-                        color: getColorFromTraffic($scope.dataRelation[i].traffic[1].speed, $scope.dataRelation[end_min_index].traffic[1].count),
+                        color: getColorFromTraffic($scope.dataRelation[i].traffic[1].speed, $scope.dataRelation[i].traffic[1].count),
                         weight: 2,
                         opacity: 1.0
                     }
@@ -578,6 +580,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
 
         }
         $scope.dataRelation = backup_dataRelation;
+        console.log($scope.speedMarker);
     }
     $scope.polys = [];
 
@@ -698,6 +701,9 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             var index = $scope.polys.length - 1
             $scope.polys[index].id = $scope.dataRelation[i].id
             $scope.polys[index].path = path1
+            var center = Math.floor(($scope.polys[index].path.length-1)/2)
+            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0, ($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0,
+                $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].stroke = {
                 color: getColorFromTraffic($scope.dataRelation[i].traffic[0].speed, $scope.dataRelation[i].traffic[0].count),
                 weight: 1.5,
@@ -710,8 +716,6 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 }
             }
             var center = Math.floor(($scope.polys[index].path.length-1)/2)
-            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0, ($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0,
-                $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icons;
             $scope.polys[index].icons.id = $scope.polys[index].id
@@ -753,6 +757,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 weight: 1.5,
                 opacity: 1.0
             }
+            var center = Math.floor(($scope.polys[index].path.length-1)/2)
             $scope.speedMarker.push($scope.createSpeedMarker((($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0 ), (($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0), $scope.dataRelation[i].traffic[1].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icon2;
@@ -769,14 +774,6 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         }
     }
 
-    $scope.$watch('dataRelation', function() {
-        //console.log("dataRelation change",$scope.dataRelation)
-        if ($scope.dataRelation.length == 0)
-            return;
-        // $scope.renderPolyline();
-        //console.log($scope.polys)
-    }, true);
-    $scope.deletedMarkers = []
     restService.getMap().then(function(response) {
         //$log.info('getMap',response)
         $scope.map = {
@@ -811,46 +808,6 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         }
         $scope.map_id = response.data.objects[0].resource_uri;
     });
-    $scope.markers = [];
-    restService.getMapPoint().then(function(response) {
-        //console.log('getMapPoint',response)
-        $scope.markers = response.data.objects;
-    });
-    //get from databases
-    var nextId = -1;
-    $scope.save = function() {
-        //$log.info('save')
-        for (var i = 0; i < $scope.markers.length; i++) {
-
-            var formData = {
-                latitude: $scope.markers[i].latitude,
-                longitude: $scope.markers[i].longitude,
-                map: $scope.map_id
-            };
-            if ($scope.markers[i].options != undefined) {
-                restService.postMapPoint(formData).then(function(response) {
-                    //$log.info('sent post resp : '+response);
-                });
-            } else {
-                restService.postMapPointById($scope.markers[i].id, formData).then(function(response) {
-                    //$log.info('sent post by id resp : '+response);
-                });
-            }
-        }
-        for (var i = 0; i < $scope.deletedMarkers.length; i++) {
-            if ($scope.deletedMarkers[i].id > 0) {
-                restService.deleteMapPoint($scope.deletedMarkers[i].id).then(function(response) {
-                    //console.log('delete marker resp :',response)
-                })
-            }
-        }
-
-    }
-    $scope.onMarkerClicked = function(marker) {
-        //$log.info('clicked on markers :'+marker)
-        marker.showWindow = true;
-        $scope.$apply();
-    };
     $scope.editTime = function() {
         // console.log("openTime");
         var modalInstance = $modal.open({
@@ -896,132 +853,4 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         //   //$log.info('Modal dismissed at: ' + new Date());
         // });
     };
-});
-app.controller('ModalTimeCtrl', function(restService, $scope, $modalInstance, datetime) {
-    $scope.datetime = datetime;
-    //console.log(datetime.end)
-    datetime.start.setMilliseconds(0)
-    datetime.end.setMilliseconds(0)
-    $scope.start = datetime.start
-    $scope.end = datetime.end
-    $scope.open_start = function($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-
-        $scope.opened1 = true;
-    };
-    $scope.open_end = function($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-
-        $scope.opened2 = true;
-    };
-
-    $scope.ok = function() {
-        $scope.datetime.start = $scope.start
-        $scope.datetime.end = $scope.end
-        $modalInstance.close();
-
-    };
-
-    $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-    };
-
-});
-
-app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalInstance, item, datetime) {
-    //console.log(item);
-    $scope.render = false
-    $scope.item = item;
-    console.log($scope.item);
-    $scope.data = [
-        [],
-        []
-    ];
-    $scope.data2 = [
-        [],
-        []
-    ];
-    $scope.timeData = [];
-    var start = datetime.start.getTime();
-    var end = datetime.end.getTime();
-    var diff = end - start;
-    $scope.labels = [];
-    diff /= 11
-    for (var i = 0; i < 11; i++) {
-        $scope.timeData.push(new Date(start + (diff * i)))
-    }
-    $scope.getTraffic = function(current, timeData) {
-        if (current == timeData.length - 1) {
-            $scope.render = true;
-            return
-        }
-
-        restService.getTrafficFromDataRelation($scope.item.id, timeData[current], timeData[current + 1]).then(function(response) {
-            var traffic_data = response.data.data
-            $scope.data[0].push(traffic_data[0].speed)
-            $scope.data[1].push(traffic_data[1].speed)
-
-            $scope.data2[0].push(traffic_data[0].count)
-            $scope.data2[1].push(traffic_data[1].count)
-            $scope.getTraffic(current + 1, timeData)
-
-            $scope.labels.push($filter('date')($scope.timeData[current], 'short'))
-        });
-    }
-    $scope.getTraffic(0, $scope.timeData);
-
-    $scope.series = [$scope.item.description + ' ขาเข้า', $scope.item.description + ' ขาออก'];
-    $scope.table = [{
-        title: $scope.series[0],
-        value: $scope.data[0]
-    }, {
-        title: $scope.series[1],
-        value: $scope.data[1]
-    }];
-
-    $scope.table2 = [{
-        title: $scope.series[0],
-        value: $scope.data2[0]
-    }, {
-        title: $scope.series[1],
-        value: $scope.data2[1]
-    }];
-
-    $scope.ok = function() {
-        $modalInstance.close();
-    };
-    $scope.export = function() {
-
-        var temp1 = $scope.data[0];
-        temp1.unshift('ความเร็ว ' + $scope.series[0]);
-
-        var temp2 = $scope.data[1];
-        temp2.unshift('ความเร็ว ' + $scope.series[1]);
-
-        var temp3 = $scope.data2[0];
-        temp3.unshift('จำนวนยานยนตร์ ' + $scope.series[0]);
-
-        var temp4 = $scope.data2[1];
-        temp4.unshift('จำนวนยานยนตร์ ' + $scope.series[1]);
-
-        var temp5 = $scope.labels;
-        temp5.unshift("เส้นทาง / วันเวลา");
-
-        var data = [temp5, temp1, temp2, temp3, temp4];
-
-        var csvContent = "data:text/csv;charset=utf-8,";
-        data.forEach(function(infoArray, index) {
-            dataString = infoArray.join(",");
-            csvContent += index < data.length ? dataString + "\n" : dataString;
-        });
-        var encodedUri = encodeURI(csvContent);
-        window.open(encodedUri);
-
-    };
-    $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-    };
-
 });

@@ -8,7 +8,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         status: false
     }
     $scope.datetime = {
-        start: new Date((new Date().getTime() - 1 * 60000)),
+        start: new Date((new Date().getTime() - 3 * 60000)),
         end: new Date()
     }
     $scope.init = 0;
@@ -75,7 +75,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         $timeout(function() {
             if ($scope.realtime) {
                 $scope.datetime.end = new Date();
-                $scope.datetime.start = new Date($scope.datetime.end.getTime() - 1 * 60000);
+                $scope.datetime.start = new Date($scope.datetime.end.getTime() - 3 * 60000);
             }
             $scope.realtimeUpdate();
 
