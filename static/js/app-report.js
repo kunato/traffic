@@ -2,6 +2,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.speedMarker = [];
     $scope.speedMarker2 = [];
     //Slider
+    $scope.polysRender = [];
     $scope.realtime = true;
     $scope.opened = {
         status: false
@@ -78,7 +79,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             }
             $scope.realtimeUpdate();
 
-        }, 10000);
+        }, 60000);
     }
     $scope.realtimeUpdate();
 
@@ -103,9 +104,14 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.$watch('datetime', function() {
         console.log('get traffic on update', $scope.datetime)
             //re-render poly line and request traffic from server
-        for (var i = 0; i < $scope.dataRelation.length; i++) {
-
-            restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
+        $scope.updateTraffic(0);
+        //console.log("datetime change",$scope.datetime)
+    }, true);
+    $scope.updateTraffic = function(i) {
+        if(i == $scope.dataRelation.length){
+            $scope.renderPolyline()
+        }
+        restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
                 // console.log('traffic',response.data)
                 for (var j = 0; j < $scope.dataRelation.length; j++) {
                     if ($scope.dataRelation[j].id == response.data.data_relation_id) {
@@ -114,13 +120,13 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 }
                 // console.log($scope.dataRelation)
             });
-        }
-        //console.log("datetime change",$scope.datetime)
-    }, true);
+        $scope.updateTraffic(i+1);
+    }
 
     $scope.getLatLngDataFromDataRelation = function(dataRelation, i, length) {
         if (i == length) {
             $scope.render = true;
+            $scope.renderPolyline()
             return;
         }
         restService.getTrafficFromDataRelation(dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
@@ -269,21 +275,22 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             $scope.polys[index].icons.id = $scope.polys[index].id;
         }
         //console.log('polys',$scope.polys);
-        console.log($scope.speedMarker)
+        // console.log($scope.speedMarker)
         $scope.speedMarker2 = []
         for (var i = 0; i < $scope.speedMarker.length; i++) {
             if ($scope.speedMarker[i].speed != 0) {
                 $scope.speedMarker2.push($scope.speedMarker[i]);
-                console.log($scope.speedMarker[i])
+                // console.log($scope.speedMarker[i])
             }
         }
+        $scope.polysRender = angular.copy($scope.polys)
     }
 
     $scope.$watch('dataRelation', function() {
         //console.log("dataRelation change",$scope.dataRelation)
         if ($scope.dataRelation.length == 0)
             return;
-        $scope.renderPolyline();
+        // $scope.renderPolyline();
         //console.log($scope.polys)
     }, true);
     $scope.deletedMarkers = []
