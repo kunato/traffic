@@ -1,26 +1,30 @@
 var app = angular.module('app', ['uiGmapgoogle-maps', 'ngRoute', 'ui.bootstrap', 'chart.js', 'angularFileUpload', 'ui-rangeSlider']);
 //Django + Angular mod
 app.config(['$httpProvider', function($httpProvider) {
-        // django and angular both support csrf tokens. This tells
-        // angular which cookie to add to what header.
-        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-    }])
-    //This is for page title
+    // django and angular both support csrf tokens. This tells
+    // angular which cookie to add to what header.
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+}])
+
+//This is for page title
 app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {
         $rootScope.title = current.$$route.title;
     });
 }]);
+
 //Google Map API config
 app.config(function(uiGmapGoogleMapApiProvider) {
-        uiGmapGoogleMapApiProvider.configure({
-            key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
-            v: '3.17',
-            libraries: 'drawing,places,weather,geometry,visualization'
-        });
-    })
-    //Directive to deal with bootstrap datepicker bug
+    uiGmapGoogleMapApiProvider.configure({
+        key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
+        v: '3.17',
+        libraries: 'drawing,places,weather,geometry,visualization'
+    });
+})
+
+//Directive to deal bootstrap datepicker bug
+//*** Temp fix for Angular 1.3 support [#2659](https://github.com/angular-ui/bootstrap/issues/2659)
 app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFilter', function(datepickerPopupConfig, dateParser, dateFilter) {
     return {
         'restrict': 'A',
@@ -28,7 +32,7 @@ app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFi
         'link': function($scope, element, attrs, ngModel) {
             var dateFormat;
 
-            //*** Temp fix for Angular 1.3 support [#2659](https://github.com/angular-ui/bootstrap/issues/2659)
+            
             attrs.$observe('datepickerPopup', function(value) {
                 dateFormat = value || datepickerPopupConfig.datepickerPopup;
                 ngModel.$render();
@@ -40,6 +44,7 @@ app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFi
         }
     };
 }]);
+
 //filter for datetime 
 app.filter('hourMinFilter', function() {
     return function(value) {
@@ -157,11 +162,13 @@ app.service('restService', function($http, $rootScope, uiGmapGoogleMapApi) {
 })
 
 
-
+//MainController
+//for the future use
 app.controller('MainCtrl', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi) {
     //Main Ctrl 
     //Still Empty
 });
+
 //SettingController
 //Author Kunat Pipatanakul
 app.controller('MapSettingController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $location, $timeout, $window) {
@@ -169,10 +176,11 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
     $scope.polys = [];
     $scope.dataRelation = [];
     $scope.deletedMarkers = []
-
+    
     $scope.markers = [];
 
     var nextId = -1;
+
 
 
 
@@ -181,8 +189,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             $scope.render = true;
             return;
         }
-        // console.log(dataRelation)
-        // console.log(dataRelation[i].path, dataRelation[i].alt_path)
         uiGmapGoogleMapApi.then(function() {
             if (dataRelation[i].path != "") {
                 var _path = JSON.parse(dataRelation[i].path).path;
@@ -200,10 +206,8 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                         offset: '100px',
                         repeat: '200px'
                     }]
-                });
-                // console.log('in')
+                })
             }
-            // console.log(dataRelation[i].alt_path)
             if (dataRelation[i].alt_path != "") {
                 var _path = JSON.parse(dataRelation[i].alt_path).path;
                 var path = [];
@@ -221,7 +225,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                         repeat: '200px'
                     }]
                 });
-                // console.log('in')
             } else {
                 if (!dataRelation[i].one_way && dataRelation[i].path != "") {
 
@@ -245,20 +248,17 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                     });
                 }
             }
-            // console.log($scope.dataRelation)
             $scope.getLatLngDataFromDataRelation(dataRelation, i + 1, length);
         });
     }
 
     restService.getDataRelation().then(function(response) {
-        //console.log('data',response.data.objects)
         var dataRelation = response.data.objects
         var i = 0;
         $scope.getLatLngDataFromDataRelation(dataRelation, i, dataRelation.length);
 
     });
     $scope.$watch('dataRelation', function() {
-        // console.log("dataRelation change", $scope.dataRelation)
 
         for (var i = 0; i < $scope.dataRelation.length; i++) {
             $scope.polys[i] = $scope.dataRelation[i]
@@ -270,14 +270,13 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
 
             $scope.polys[i].events = {
                 click: function(mapModel, eventName, originalEventArgs) {
-                    // 'this' is the directive's scope
-                    //$log.info("user defined event: " + eventName, mapModel, originalEventArgs);
+                    //can't click
 
                 }
             }
         }
     }, true);
-
+    
     restService.getMap().then(function(response) {
         //$log.info('getMap',response)
         $scope.map_id = response.data.objects[0].resource_uri;
@@ -289,8 +288,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             zoom: response.data.objects[0].zoom,
             events: {
                 click: function(mapModel, eventName, originalEventArgs) {
-                    // 'this' is the directive's scope
-                    $log.info("user defined event: " + eventName, mapModel, originalEventArgs);
                     var window_e = window.event;
                     var e = originalEventArgs[0];
                     var lat = e.latLng.lat(),
@@ -327,8 +324,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
         };
     });
     restService.getMapPoint().then(function(response) {
-        // console.log('getMapPoint',response)
-        //$scope.markers = response.data.objects;
         for (var i = 0; i < response.data.objects.length; i++) {
             $scope.markers.push({
                 latitude: response.data.objects[i].latitude,
@@ -348,7 +343,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             }
         }
     });
-    //get from databases
 
     $scope.sendMarker = function(i, markers) {
         var j = i;
@@ -376,7 +370,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             restService.postMapPoint(formData).then(function(response) {
 
                 markers[i].id = response.data.id
-                    //console.log('sent post resp : ',response);
+                //console.log('sent post resp : ',response);
             });
         } else {
             restService.postMapPointById(markers[i].id, formData).then(function(response) {
@@ -386,7 +380,6 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
         $scope.sendMarker(j + 1, markers);
     }
     $scope.save = function() {
-        //$log.info('save')
 
         for (var i = 0; i < $scope.deletedMarkers.length; i++) {
             if ($scope.deletedMarkers[i].id > 0) {
@@ -454,12 +447,10 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
             }
             if (response.data.objects.length > 0 && response.data.objects[0].type == 1 && response.data.objects[0].tracking_id != null) {
 
-                // console.log('polling start', $scope.camera[i]);
                 $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
             }
             if (response.data.objects.length > 0 && response.data.objects[0].type == 0 && response.data.objects[0].tracking_id != null) {
                 $scope.camera[i].video_url = response.data.objects[0].url
-                    // console.log('polling start', $scope.camera[i]);
                 $scope.poll($scope.camera[i], response.data.objects[0].tracking_id);
             }
             $scope.getTrackingStatus(i + 1)
@@ -484,19 +475,16 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
         $modalInstance.close()
     }
     $scope.save = function(c) {
-        //console.log('save')
         var data = {
             'id': c.id,
             'url': c.video_url
         };
-        //console.log('data',data);
         restService.postStream(data).then(function(response) {
             console.log(response)
             $scope.poll(c, response.data['job_id'])
         });
     }
     $scope.add = function() {
-        //console.log($scope.cameraFormData)
         restService.postCamera($scope.cameraFormData).then(function(response) {
             //console.log(response);
             $scope.camera.push(response.data)
@@ -506,7 +494,6 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
     $scope.poll = function(formData, id) {
         $timeout(function() {
             restService.getState(id).then(function(response) {
-                //console.log(id);
                 //console.log(response)
                 formData.progressPercentage = response.data.task;
                 formData.status = response.data.status;
@@ -522,7 +509,6 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
     }
     $scope.upload = function(formData, files) {
         if (files && files.length) {
-            //console.log('upload')
             var file = files[0];
             $upload.upload({
                 url: '/upload/',
@@ -533,10 +519,8 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
                 }
             }).progress(function(evt) {
                 formData.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                //console.log('progress: ' + formData.progressPercentage + '% ' + evt.config.file.name);
             }).success(function(data, status, headers, config) {
                 $scope.poll(formData, data['job_id'])
-                    //console.log('file ' + config.file.name + ' uploaded. Response: ' + data['job_id']);
 
             });
 
@@ -583,11 +567,9 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
         return false
     }
     $scope.$watch('selected_camera', function() {
-            // console.log('selected_camera', $scope.selected_camera)
             if ($scope.selected_camera.id == undefined)
                 return
             restService.getDataRelationByCameraId($scope.selected_camera.id).then(function(response) {
-                // console.log('getDataRelationByCameraId : ' + $scope.selected_camera.id, response)
                 if (response.data.objects.length == 0) {
                     $scope.draggable_item = [{
                         color: 'red',
@@ -609,7 +591,6 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                 }
 
                 restService.getDataByUri(response.data.objects[0].cameraPoint1.resource_uri).then(function(response) {
-                    // console.log('getDataByUri cameraPoint1', response)
                     $scope.draggable_item[0] = response.data;
                     $scope.draggable_item[0].color = 'red'
                     for (var i = 0; i < $scope.markers.length; i++) {
@@ -617,11 +598,8 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                             $scope.marker1 = $scope.markers[i];
                         }
                     }
-                    //console.log('$scope.marker1',$scope.marker1);
-
                 })
                 restService.getDataByUri(response.data.objects[0].cameraPoint2.resource_uri).then(function(response) {
-                    // console.log('getDataByUri cameraPoint2', response)
                     $scope.draggable_item[1] = response.data;
                     $scope.draggable_item[1].color = 'blue'
                     for (var i = 0; i < $scope.markers.length; i++) {
@@ -634,7 +612,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                 $scope.formData = response.data.objects[0];
             });
         })
-        //set camera position and param
+    //set camera position and param
     $scope.getCameraImg = function() {
         if ($scope.selected_camera == undefined) {
             return '';
@@ -646,7 +624,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
             }
         }
     }
-
+    //save to db
     $scope.ok = function() {
         var element = angular.element("#draggable-zone1");
         var element2 = angular.element("#draggable-zone2");
@@ -676,15 +654,12 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                 width: convertToPercent(pInt(element2.css('width')), $scope.selected_camera.width)
             }
         }
-        //console.log(cameraPoint1,cameraPoint2);
         if ($scope.draggable_item[0].resource_uri != undefined) {
             restService.putDataByUri($scope.draggable_item[0].resource_uri, cameraPoint1).then(function(response) {
                 var cameraPoint1 = response.data.mapPoint;
-                //console.log('putCameraPoint1',response)
                 $scope.formData.cameraPoint1 = response.data.resource_uri;
                 restService.putDataByUri($scope.draggable_item[1].resource_uri, cameraPoint2).then(function(response) {
                     var cameraPoint2 = response.data.mapPoint;
-                    //console.log('putCameraPoint2',response)
                     $scope.formData.cameraPoint2 = response.data.resource_uri;
                     $scope.formData.camera = $scope.selected_camera.resource_uri;
                     var request = {
@@ -694,17 +669,13 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                     };
                     directionsService = new google.maps.DirectionsService();
                     directionsService.route(request, function(response, status) {
-                        // console.log(cameraPoint1, cameraPoint2)
                         if (cameraPoint1.alt_latitude != undefined && cameraPoint2.alt_latitude != undefined) {
-                            // console.log("in")
                             var request2 = {
                                 origin: new google.maps.LatLng(cameraPoint2.alt_latitude, cameraPoint2.alt_longitude),
                                 destination: new google.maps.LatLng(cameraPoint1.alt_latitude, cameraPoint1.alt_longitude),
                                 travelMode: google.maps.DirectionsTravelMode.WALKING
                             };
-                            // console.log(request2)
                             directionsService.route(request2, function(response2, status) {
-                                // console.log('direction', response, response2);
                                 $scope.formData.path = JSON.stringify({
                                     path: response.routes[0].overview_path,
                                     distance: response.routes[0].legs[0].distance,
@@ -720,6 +691,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 //put path to db
                                 restService.putDataByUri($scope.formData.resource_uri, $scope.formData).then(function(response) {
                                     // console.log(response)
+
                                 })
                             });
                         } else {
@@ -744,15 +716,12 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
             });
         } else {
             restService.postCameraPoint(cameraPoint1).then(function(response) {
-                //console.log('postCameraPoint1',response)
                 var cameraPoint1 = response.data;
                 $scope.formData.cameraPoint1 = cameraPoint1.resource_uri;
                 restService.postCameraPoint(cameraPoint2).then(function(response) {
-                    //console.log('postCameraPoint2',response)
                     var cameraPoint2 = response.data;
                     $scope.formData.cameraPoint2 = cameraPoint2.resource_uri;
                     $scope.formData.camera = $scope.selected_camera.resource_uri;
-                    //console.log('$scope.formData',$scope.formData);
                     var request = {
                         origin: new google.maps.LatLng(cameraPoint1.mapPoint.latitude, cameraPoint1.mapPoint.longitude),
                         destination: new google.maps.LatLng(cameraPoint2.mapPoint.latitude, cameraPoint2.mapPoint.longitude),
@@ -760,21 +729,15 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                     };
                     directionsService = new google.maps.DirectionsService();
                     directionsService.route(request, function(response, status) {
-                        // console.log(cameraPoint1, cameraPoint2)
-                        // console.log('request',request)
                         if (cameraPoint1.mapPoint.alt_latitude != undefined && cameraPoint2.mapPoint.alt_latitude != undefined) {
-                            // console.log("in")
                             var request2 = {
                                 origin: new google.maps.LatLng(cameraPoint2.mapPoint.alt_latitude, cameraPoint2.mapPoint.alt_longitude),
                                 destination: new google.maps.LatLng(cameraPoint1.mapPoint.alt_latitude, cameraPoint1.mapPoint.alt_longitude),
                                 travelMode: google.maps.DirectionsTravelMode.WALKING
                             };
-                            // console.log('request2',request2)
                             directionsService.route(request2, function(response2, status2) {
                                 if (status != "OK" || status2 != "OK") {
-                                    //TODO show error
                                 }
-                                // console.log('direction', response, response2);
                                 $scope.formData.path = JSON.stringify({
                                     path: response.routes[0].overview_path,
                                     distance: response.routes[0].legs[0].distance,
@@ -795,9 +758,8 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                         } else {
                             if (status != "OK") {
                                 //TODO show error
+                                console.log("SomeError is occured in google direction api.")
                             }
-                            //put path to db
-                            // console.log(response);
                             $scope.formData.path = JSON.stringify({
                                 path: response.routes[0].overview_path,
                                 distance: response.routes[0].legs[0].distance,

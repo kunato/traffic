@@ -6,7 +6,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.speedMarker = [];
     $scope.speedMarker2 = [];
     $scope.markers2 = [];
-    //Slider
     $scope.realtime = true;
     $scope.opened = {
         status: false
@@ -44,7 +43,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         var minutes = min - (hours * 60);
         $scope.datetime.end = new Date($scope.dialog_datetime.date.getFullYear(), $scope.dialog_datetime.date.getMonth(), $scope.dialog_datetime.date.getDate(), hours, minutes)
         $scope.datetime.start = new Date($scope.datetime.end.getTime() - 15 * 60000)
-            // console.log($scope.datetime)
     }
 
     $scope.$watch('sliderConfig.userMax', function() {
@@ -81,8 +79,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     $scope.setRealtime = function() {
         $scope.realtime = true;
     }
+    //run every 60 sec to update
     $scope.realtimeUpdate = function() {
-        // console.log('update traffic')
         $timeout(function() {
             if ($scope.realtime) {
                 $scope.datetime.end = new Date();
@@ -93,7 +91,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         }, 60000);
     }
     $scope.realtimeUpdate();
-
+    //openDatePicker
     $scope.openDate = function($event) {
         $event.preventDefault();
         $event.stopPropagation();
@@ -104,7 +102,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     };
     $scope.toggleMin();
 
-
+    //this is not use
     $scope.calculateRoute = function() {
         var backup_dataRelation = angular.copy($scope.dataRelation)
             //markers2 [0] is start [1] is end
@@ -596,6 +594,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         $scope.updateTraffic(0);
         //console.log("datetime change",$scope.datetime)
     }, true);
+
+    //update Traffic is called by datepicker or realtime update
     $scope.updateTraffic = function(i) {
         if (i == $scope.dataRelation.length) {
             $scope.renderPolyline()
@@ -609,7 +609,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             $scope.updateTraffic(i + 1);
         });
     }
-
+    //Create DataRelation object in the first time program run
     $scope.getLatLngDataFromDataRelation = function(dataRelation, i, length) {
         if (i == length) {
             $scope.render = true;
@@ -631,7 +631,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                         description: _pathObj.summary,
                         distance: _pathObj.distance.value
                     });
-                    // console.log('in')$
                 } else {
                     $scope.alt_dataRelation.push({})
                 }
@@ -651,9 +650,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                             cameraPoint2: dataRelation[i].cameraPoint2.mapPoint,
                             one_way: dataRelation[i].one_way
                         })
-                        // console.log('in')
                 }
-                // console.log($scope.dataRelation)
                 $scope.getLatLngDataFromDataRelation(dataRelation, i + 1, length);
             });
         });
@@ -679,10 +676,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             speed: number
         }
     }
+    //renderPolyline is called when traffic update
     $scope.renderPolyline = function() {
-        // console.log('render')
-        // console.log('dataRelation', $scope.dataRelation)
-        // console.log('alt_dataRelation', $scope.alt_dataRelation)
         nextId = 0;
         $scope.speedMarker = [];
         $scope.polys = [];
@@ -723,7 +718,6 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             }
 
             if ($scope.alt_dataRelation[i].id != undefined) {
-                // console.log($scope.alt_dataRelation)
                 var path = $scope.alt_dataRelation[i].path
                 var icon2 = icons;
             } else {
@@ -736,9 +730,11 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                     offset: '100px',
                     repeat: '200px'
                 }]
-                for (var j = 0; j < path.length; j++) {
-                    //calculate from average of all path
-                }
+                //calculate from average of all path
+                //still not implement
+                // for (var j = 0; j < path.length; j++) {
+                //     
+                // }
             }
             var events = {
                 click: function(mapModel, eventName, originalEventArgs) {
@@ -761,18 +757,14 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             $scope.polys[index].icons = icon2;
             $scope.polys[index].icons.id = $scope.polys[index].id;
         }
-        //console.log('polys',$scope.polys);
-        // console.log($scope.speedMarker)
         $scope.speedMarker2 = []
         for (var i = 0; i < $scope.speedMarker.length; i++) {
             if ($scope.speedMarker[i].speed != 0) {
                 $scope.speedMarker2.push($scope.speedMarker[i]);
-                // console.log($scope.speedMarker[i])
             }
         }
     }
     restService.getMap().then(function(response) {
-        //$log.info('getMap',response)
         $scope.map = {
             center: {
                 latitude: response.data.objects[0].center_lat,
@@ -780,8 +772,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             },
             zoom: response.data.objects[0].zoom,
             events: {
+                //click to mark
                 click: function(mapModel, eventName, originalEventArgs) {
-                    // 'this' is the directive's scope
                     var e = originalEventArgs[0];
                     var lat = e.latLng.lat(),
                         lon = e.latLng.lng();
@@ -798,21 +790,19 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                         longitude: lon
                     });
                     nextId -= 1;
-                    //scope apply required because this event handler is outside of the angular domain
                     $scope.$apply();
                 }
             }
         }
         $scope.map_id = response.data.objects[0].resource_uri;
     });
-
+    
     $scope.onMarkerClicked = function(marker) {
-        //$log.info('clicked on markers :'+marker)
         marker.showWindow = true;
         $scope.$apply();
     };
+    //edit Detail Time window
     $scope.editTime = function() {
-        // console.log("openTime");
         var modalInstance = $modal.open({
             templateUrl: '/static/html/modal_time.html',
             controller: 'ModalTimeCtrl',
@@ -828,7 +818,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
             $scope.closeTraffic();
         });
     }
-
+    //Open detail page
     $scope.open = function(id) {
         var object = undefined;
         for (var i = 0; i < $scope.dataRelation.length; i++) {
@@ -893,7 +883,6 @@ app.controller('ModalTimeCtrl', function(restService, $scope, $modalInstance, da
 
 });
 //ReportDetailController
-//Author Kunat Pipatanakul
 //Author Tanachot Techajaruphan
 app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalInstance, item, datetime) {
     //console.log(item);
@@ -937,7 +926,7 @@ app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalI
     }
     $scope.getTraffic(0, $scope.timeData);
 
-    $scope.series = [$scope.item.description + ' ขาเข้า', $scope.item.description + ' ขาออก'];
+    $scope.series = [$scope.item.description + ' inbound', $scope.item.description + ' outbound'];
     $scope.table = [{
         title: $scope.series[0],
         value: $scope.data[0]
@@ -960,19 +949,19 @@ app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalI
     $scope.export = function() {
 
         var temp1 = $scope.data[0];
-        temp1.unshift('ความเร็ว ' + $scope.series[0]);
+        temp1.unshift('Speed ' + $scope.series[0]);
 
         var temp2 = $scope.data[1];
-        temp2.unshift('ความเร็ว ' + $scope.series[1]);
+        temp2.unshift('Speed ' + $scope.series[1]);
 
         var temp3 = $scope.data2[0];
-        temp3.unshift('จำนวนยานยนตร์ ' + $scope.series[0]);
+        temp3.unshift('Number of Car ' + $scope.series[0]);
 
         var temp4 = $scope.data2[1];
-        temp4.unshift('จำนวนยานยนตร์ ' + $scope.series[1]);
+        temp4.unshift('Number of Car ' + $scope.series[1]);
 
         var temp5 = $scope.labels;
-        temp5.unshift("เส้นทาง / วันเวลา");
+        temp5.unshift("Way / Date-time");
 
         var data = [temp5, temp1, temp2, temp3, temp4];
 
