@@ -1,7 +1,3 @@
-Array.prototype.remove = function(val) {
-    var i = this.indexOf(val);
-    return i > -1 ? this.splice(i, 1) : [];
-};
 var app = angular.module('app', ['uiGmapgoogle-maps', 'ngRoute', 'ui.bootstrap', 'chart.js', 'angularFileUpload', 'ui-rangeSlider']);
 app.config(['$httpProvider', function($httpProvider) {
     // django and angular both support csrf tokens. This tells
@@ -148,7 +144,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
     $scope.render = false
     $scope.polys = [];
     $scope.dataRelation = [];
-    
+
     $scope.getLatLngDataFromDataRelation = function(dataRelation, i, length) {
         if (i == length) {
             $scope.render = true;
@@ -372,7 +368,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
     }
     $scope.save = function() {
         //$log.info('save')
-        
+
         for (var i = 0; i < $scope.deletedMarkers.length; i++) {
             if ($scope.deletedMarkers[i].id > 0) {
                 restService.deleteMapPoint($scope.deletedMarkers[i].id).then(function(response) {
@@ -383,15 +379,13 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
 
         $scope.deletedMarkers = [];
 
-        
+
         $scope.sendMarker(0, $scope.markers);
     }
 
     $scope.removeMarker = function(marker) {
-        //console.log("Marker remove clicked :",marker);
         $scope.deletedMarkers.push(marker);
-        $scope.markers.remove(marker);
-        //console.log($scope.deletedMarkers);
+        removeFromArray($scope.markers, marker);
 
     }
     $scope.onMarkerClicked = function(marker) {

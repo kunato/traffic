@@ -228,7 +228,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 all_path.push($scope.dataRelation[start_min_index].path[i])
             }
             //NEW
-            
+
             $scope.polys2[0].path = all_path;
             $scope.polys2[1].stroke = {
                 color: '#ff00ff',
@@ -374,7 +374,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         end_id[1] = $scope.dataRelation[end_min_index].cameraPoint2.id
         end[0] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint1.latitude, $scope.dataRelation[end_min_index].cameraPoint1.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
         end[1] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint2.latitude, $scope.dataRelation[end_min_index].cameraPoint2.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
-        
+
         if ($scope.dataRelation[start_min_index].one_way)
             start[0] = 1 / 0
         if ($scope.dataRelation[end_min_index].one_way)
@@ -392,7 +392,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 }
 
                 var result_b = result[i][j]
-                // console.log('result_before 1', result_b)
+                    // console.log('result_before 1', result_b)
                 if (j == 0) {
                     result[i][j] += (end[j] / $scope.dataRelation[end_min_index].traffic[0].speed)
                 } else {
@@ -595,17 +595,17 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         //console.log("datetime change",$scope.datetime)
     }, true);
     $scope.updateTraffic = function(i) {
-        if(i == $scope.dataRelation.length){
+        if (i == $scope.dataRelation.length) {
             $scope.renderPolyline()
             return
         }
         restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
-                // console.log('traffic',response.data)
-                $scope.dataRelation[i].traffic = response.data.data;
-                // console.log($scope.dataRelation)
-                
-        $scope.updateTraffic(i+1);
-            });
+            // console.log('traffic',response.data)
+            $scope.dataRelation[i].traffic = response.data.data;
+            // console.log($scope.dataRelation)
+
+            $scope.updateTraffic(i + 1);
+        });
     }
 
     $scope.getLatLngDataFromDataRelation = function(dataRelation, i, length) {
@@ -645,8 +645,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                             traffic: traffic.data,
                             description: _pathObj.summary,
                             distance: _pathObj.distance.value,
-                            cameraPoint1:dataRelation[i].cameraPoint1.mapPoint,
-                            cameraPoint2:dataRelation[i].cameraPoint2.mapPoint,
+                            cameraPoint1: dataRelation[i].cameraPoint1.mapPoint,
+                            cameraPoint2: dataRelation[i].cameraPoint2.mapPoint,
                             one_way: dataRelation[i].one_way
                         })
                         // console.log('in')
@@ -665,7 +665,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
     var nextId = 0;
     $scope.createSpeedMarker = function(lat, lng, number) {
         var icon = number;
-        if(number > 99){
+        if (number > 99) {
             icon = 99;
         }
         // console.log(number);
@@ -701,8 +701,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             var index = $scope.polys.length - 1
             $scope.polys[index].id = $scope.dataRelation[i].id
             $scope.polys[index].path = path1
-            var center = Math.floor(($scope.polys[index].path.length-1)/2)
-            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0, ($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0,
+            var center = Math.floor(($scope.polys[index].path.length - 1) / 2)
+            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat() + $scope.polys[index].path[center + 1].lat()) / 2.0, ($scope.polys[index].path[center].lng() + $scope.polys[index].path[center + 1].lng()) / 2.0,
                 $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].stroke = {
                 color: getColorFromTraffic($scope.dataRelation[i].traffic[0].speed, $scope.dataRelation[i].traffic[0].count),
@@ -715,7 +715,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                     $scope.open(id);
                 }
             }
-            var center = Math.floor(($scope.polys[index].path.length-1)/2)
+            var center = Math.floor(($scope.polys[index].path.length - 1) / 2)
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icons;
             $scope.polys[index].icons.id = $scope.polys[index].id
@@ -757,8 +757,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 weight: 1.5,
                 opacity: 1.0
             }
-            var center = Math.floor(($scope.polys[index].path.length-1)/2)
-            $scope.speedMarker.push($scope.createSpeedMarker((($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0 ), (($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0), $scope.dataRelation[i].traffic[1].speed))
+            var center = Math.floor(($scope.polys[index].path.length - 1) / 2)
+            $scope.speedMarker.push($scope.createSpeedMarker((($scope.polys[index].path[center].lat() + $scope.polys[index].path[center + 1].lat()) / 2.0), (($scope.polys[index].path[center].lng() + $scope.polys[index].path[center + 1].lng()) / 2.0), $scope.dataRelation[i].traffic[1].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icon2;
             $scope.polys[index].icons.id = $scope.polys[index].id;

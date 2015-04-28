@@ -372,7 +372,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         end_id[1] = $scope.dataRelation[end_min_index].cameraPoint2.id
         end[0] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint1.latitude, $scope.dataRelation[end_min_index].cameraPoint1.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
         end[1] = getDistance(new google.maps.LatLng($scope.dataRelation[end_min_index].cameraPoint2.latitude, $scope.dataRelation[end_min_index].cameraPoint2.longitude), $scope.dataRelation[end_min_index].path[end_min_node]);
-        
+
         if ($scope.dataRelation[start_min_index].one_way)
             start[0] = 1 / 0
         if ($scope.dataRelation[end_min_index].one_way)
@@ -390,7 +390,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 }
 
                 var result_b = result[i][j]
-                // console.log('result_before 1', result_b)
+                    // console.log('result_before 1', result_b)
                 if (j == 0) {
                     result[i][j] += (end[j] / $scope.dataRelation[end_min_index].traffic[0].speed)
                 } else {
@@ -592,17 +592,17 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         //console.log("datetime change",$scope.datetime)
     }, true);
     $scope.updateTraffic = function(i) {
-        if(i == $scope.dataRelation.length){
+        if (i == $scope.dataRelation.length) {
             $scope.renderPolyline()
             return
         }
         restService.getTrafficFromDataRelation($scope.dataRelation[i].id, $scope.datetime.start, $scope.datetime.end).then(function(response) {
-                // console.log('traffic',response.data)
-                $scope.dataRelation[i].traffic = response.data.data;
-                // console.log($scope.dataRelation)
-                
-        $scope.updateTraffic(i+1);
-            });
+            // console.log('traffic',response.data)
+            $scope.dataRelation[i].traffic = response.data.data;
+            // console.log($scope.dataRelation)
+
+            $scope.updateTraffic(i + 1);
+        });
     }
 
     $scope.getLatLngDataFromDataRelation = function(dataRelation, i, length) {
@@ -642,8 +642,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                             traffic: traffic.data,
                             description: _pathObj.summary,
                             distance: _pathObj.distance.value,
-                            cameraPoint1:dataRelation[i].cameraPoint1.mapPoint,
-                            cameraPoint2:dataRelation[i].cameraPoint2.mapPoint,
+                            cameraPoint1: dataRelation[i].cameraPoint1.mapPoint,
+                            cameraPoint2: dataRelation[i].cameraPoint2.mapPoint,
                             one_way: dataRelation[i].one_way
                         })
                         // console.log('in')
@@ -662,7 +662,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
     var nextId = 0;
     $scope.createSpeedMarker = function(lat, lng, number) {
         var icon = number;
-        if(number > 99){
+        if (number > 99) {
             icon = 99;
         }
         // console.log(number);
@@ -709,8 +709,8 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                     $scope.open(id);
                 }
             }
-            var center = Math.floor(($scope.polys[index].path.length-1)/2)
-            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0, ($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0,
+            var center = Math.floor(($scope.polys[index].path.length - 1) / 2)
+            $scope.speedMarker.push($scope.createSpeedMarker(($scope.polys[index].path[center].lat() + $scope.polys[index].path[center + 1].lat()) / 2.0, ($scope.polys[index].path[center].lng() + $scope.polys[index].path[center + 1].lng()) / 2.0,
                 $scope.dataRelation[i].traffic[0].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icons;
@@ -753,7 +753,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
                 weight: 1.5,
                 opacity: 1.0
             }
-            $scope.speedMarker.push($scope.createSpeedMarker((($scope.polys[index].path[center].lat()+$scope.polys[index].path[center+1].lat())/2.0 ), (($scope.polys[index].path[center].lng()+$scope.polys[index].path[center+1].lng())/2.0), $scope.dataRelation[i].traffic[1].speed))
+            $scope.speedMarker.push($scope.createSpeedMarker((($scope.polys[index].path[center].lat() + $scope.polys[index].path[center + 1].lat()) / 2.0), (($scope.polys[index].path[center].lng() + $scope.polys[index].path[center + 1].lng()) / 2.0), $scope.dataRelation[i].traffic[1].speed))
             $scope.polys[index].events = events;
             $scope.polys[index].icons = icon2;
             $scope.polys[index].icons.id = $scope.polys[index].id;

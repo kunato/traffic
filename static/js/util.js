@@ -7,6 +7,11 @@ function getRandomColor() {
     return color;
 }
 
+function removeFromArray(array, val) {
+    var i = array.indexOf(val);
+    return i > -1 ? this.splice(i, 1) : [];
+}
+
 function getColorFromTraffic(speed, count) {
     if (speed == 0) return 'black'
     else if (speed < 10) return 'red'
