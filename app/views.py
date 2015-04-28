@@ -1,3 +1,5 @@
+#view.py
+#Author Kunat Pipatanakul
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 from models import *
@@ -11,10 +13,11 @@ from django.contrib.auth import authenticate, login , logout
 from django.views.decorators.csrf import ensure_csrf_cookie
 import numpy as np
 import dateutil.parser
+#call from /
 @ensure_csrf_cookie
 def index(request):
     return redirect('/app/')
-
+#call from /login/
 def login_view(request):
     if(request.method == "POST"):
         username = request.POST['username']
@@ -35,17 +38,18 @@ def login_view(request):
             return redirect('/setting/')
         else:
             return render(request,'login.html')
-
+#call from /app/
 @ensure_csrf_cookie
 def app(request):
     return render(request, 'index.html')
-    
+#call from /setting/   
 def setting(request):
     if(request.user.is_authenticated()):
         return render(request, 'setting.html')
     else:
         return redirect('/login/')
-
+#call from upload (POST only)
+#authen is required
 def upload(request):
     if(request.user.is_authenticated()):
         if(request.method == "POST"):
@@ -68,6 +72,9 @@ def upload(request):
             return JsonResponse({'progress':''})
     else:
         return redirect('/')
+
+#resume the task when finish setting the camera
+#call from resume
 def resume(request):
     if(request.user.is_authenticated()):
         video = Video.objects.get(pk=json.loads(request.body)['id'])
@@ -82,7 +89,8 @@ def resume(request):
         return JsonResponse({'job_id':process_obj.id})
     else:
         return redirect('/')
-
+#save streaming
+#call from /stream/
 def stream(request):
     if(request.user.is_authenticated()):
         if(request.method == "POST"):
@@ -96,12 +104,14 @@ def stream(request):
             return JsonResponse({'job_id':process_obj.id})
         return JsonResponse({'progress':''})
     return redirect('/')
-    
+#call from state
+#get State for program
 def state(request):
     task_id = request.GET['task_id']
     task = get_task_status(task_id)
     return JsonResponse({'task':task['progress'],'status':task['status']})
-    
+#call from /traffic/
+#calc traffic from db
 def traffic(request):
     data_relation_id = request.GET['id']
     start = request.GET['start']
@@ -127,7 +137,8 @@ def traffic(request):
     #change to json response
     return JsonResponse({'data_relation_id':data_relation_id,'data':[{'speed':sum_speed[0],'count':count[0]},{'speed':sum_speed[1],'count':count[1]}]})
 
-
+#logout
+#call from /logout/
 def logout_view(request):
     logout(request)
     return redirect('/')

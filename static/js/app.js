@@ -1,25 +1,46 @@
 var app = angular.module('app', ['uiGmapgoogle-maps', 'ngRoute', 'ui.bootstrap', 'chart.js', 'angularFileUpload', 'ui-rangeSlider']);
+//Django + Angular mod
 app.config(['$httpProvider', function($httpProvider) {
-    // django and angular both support csrf tokens. This tells
-    // angular which cookie to add to what header.
-    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-}])
+        // django and angular both support csrf tokens. This tells
+        // angular which cookie to add to what header.
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }])
+    //This is for page title
 app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.$on('$routeChangeSuccess', function(event, current, previous) {
-        //console.log("routeChangeSuccess");
-        //console.log(current.$$route.title);
         $rootScope.title = current.$$route.title;
     });
 }]);
-
+//Google Map API config
 app.config(function(uiGmapGoogleMapApiProvider) {
-    uiGmapGoogleMapApiProvider.configure({
-        key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
-        v: '3.17',
-        libraries: 'drawing,places,weather,geometry,visualization'
-    });
-})
+        uiGmapGoogleMapApiProvider.configure({
+            key: 'AIzaSyAqfra42hSIN0miW_zmorjqq459iB3ATsw',
+            v: '3.17',
+            libraries: 'drawing,places,weather,geometry,visualization'
+        });
+    })
+    //Directive to deal with bootstrap datepicker bug
+app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFilter', function(datepickerPopupConfig, dateParser, dateFilter) {
+    return {
+        'restrict': 'A',
+        'require': '^ngModel',
+        'link': function($scope, element, attrs, ngModel) {
+            var dateFormat;
+
+            //*** Temp fix for Angular 1.3 support [#2659](https://github.com/angular-ui/bootstrap/issues/2659)
+            attrs.$observe('datepickerPopup', function(value) {
+                dateFormat = value || datepickerPopupConfig.datepickerPopup;
+                ngModel.$render();
+            });
+
+            ngModel.$formatters.push(function(value) {
+                return ngModel.$isEmpty(value) ? value : dateFilter(value, dateFormat);
+            });
+        }
+    };
+}]);
+//filter for datetime 
 app.filter('hourMinFilter', function() {
     return function(value) {
 
@@ -37,6 +58,7 @@ app.filter('hourMinFilter', function() {
         return time;
     };
 });
+//restService
 app.service('restService', function($http, $rootScope, uiGmapGoogleMapApi) {
     return {
         getDirectionObject: function(origin, dest) {
@@ -140,17 +162,17 @@ app.controller('MainCtrl', function(restService, $scope, $http, $modal, $log, ui
     //Main Ctrl 
     //Still Empty
 });
-
+//SettingController
+//Author Kunat Pipatanakul
 app.controller('MapSettingController', function(restService, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $location, $timeout, $window) {
     $scope.render = false
     $scope.polys = [];
     $scope.dataRelation = [];
     $scope.deletedMarkers = []
-    
+
     $scope.markers = [];
 
     var nextId = -1;
-
 
 
 
@@ -255,7 +277,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
             }
         }
     }, true);
-    
+
     restService.getMap().then(function(response) {
         //$log.info('getMap',response)
         $scope.map_id = response.data.objects[0].resource_uri;
@@ -409,6 +431,9 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
         });
     };
 });
+
+//CameraController
+//Author Kunat Pipatanakul
 app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, $upload, $timeout) {
     $scope.camera = []
     $scope.cameraFormData = {};
@@ -520,7 +545,8 @@ app.controller('ModalCameraCtrl', function(restService, $scope, $modalInstance, 
 });
 
 
-
+//SettingController
+//Author Kunat Pipatanakul
 app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance, $location, $route, $window, $timeout) {
     $scope.draggable = true;
     $scope.selected_camera = {};
@@ -832,22 +858,3 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
         }
     }
 });
-app.directive('datepickerPopup', ['datepickerPopupConfig', 'dateParser', 'dateFilter', function(datepickerPopupConfig, dateParser, dateFilter) {
-    return {
-        'restrict': 'A',
-        'require': '^ngModel',
-        'link': function($scope, element, attrs, ngModel) {
-            var dateFormat;
-
-            //*** Temp fix for Angular 1.3 support [#2659](https://github.com/angular-ui/bootstrap/issues/2659)
-            attrs.$observe('datepickerPopup', function(value) {
-                dateFormat = value || datepickerPopupConfig.datepickerPopup;
-                ngModel.$render();
-            });
-
-            ngModel.$formatters.push(function(value) {
-                return ngModel.$isEmpty(value) ? value : dateFilter(value, dateFormat);
-            });
-        }
-    };
-}]);

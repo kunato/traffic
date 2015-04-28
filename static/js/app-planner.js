@@ -1,3 +1,5 @@
+//RoutePlanner Controller
+//Author Kunat Pipatanakul
 app.controller('PlannerController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
     $scope.speedMarker = [];
     $scope.speedMarker2 = [];
@@ -70,7 +72,7 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
     $scope.setRealtime = function() {
         $scope.realtime = true;
     }
-    
+
     $scope.realtimeUpdate = function() {
         // console.log('update traffic')
         $timeout(function() {

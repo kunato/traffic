@@ -5,11 +5,10 @@ from models import *
 from celery import task, current_task
 import tracking
 from celery.result import AsyncResult
-
+#Task for process video file (video.type = 1,2)
 @task()
 def process(video):
     current_task.update_state(state='PROGRESS', meta={'process_percent': 1})
-    # print message
     if(video.camera.url == ''):
         current_task.update_state(state='PROGRESS', meta={'process_percent': 10})
         img = tracking.saveImg(video.url,[])
@@ -19,7 +18,6 @@ def process(video):
         video.save()
         current_task.update_state(state='PROGRESS', meta={'process_percent': 10})
     else:
-    #get data
         dataRelation = DataRelation.objects.get(camera=video.camera)
         current_task.update_state(state='PROGRESS', meta={'process_percent': 10})
         tracking.process(video,dataRelation)
@@ -28,18 +26,19 @@ def process(video):
     
     print "task finish"
 
+#Task for processing stream (video.type = 0,3)
 @task()
 def process_stream(video):
     current_task.update_state(state='PROGRESS', meta={'process_percent': 1})
     dataRelation = DataRelation.objects.get(camera=video.camera)
     current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
-    #never finish
     tracking.process(video,dataRelation)
     current_task.update_state(state='PROGRESS', meta={'process_percent': 100})
     print "task finish"
+    
+#Method for getting progress of the task
 def get_task_status(task_id):
  
-    # If you have a task_id, this is how you query that task 
     task = AsyncResult(task_id)
  
     status = task.status

@@ -7,12 +7,12 @@ from models import *
 import datetime
 
 
-class People:
+class Trackable:
     newid = 0
     def __init__(self,position,time,area):
-        self.id = People.newid
+        self.id = Trackable.newid
         self.count = 0
-        People.newid += 1
+        Trackable.newid += 1
         self.appear_position = np.array(position)
         self.position = np.array(position)
         self.appear_time = time
@@ -55,6 +55,7 @@ class People:
 
     def __repr__(self):
         return self.__str__()
+
 #static var
 DISTANCE_CUTOFF = 100
 
@@ -63,7 +64,7 @@ DRAW_COLOR = (200,200,200)
 AREA_CUTOFF = 8000
 EXIT_CUTOFF = (20,20)
 TIME_DIFF = 30
-# EXIT_POSITION = (230.0, 10.0) 480 854
+#Method for getting first frame of video as img
 def saveImg(path,options):
     cap = cv2.VideoCapture(path)
     ret,frame = cap.read()
@@ -71,7 +72,7 @@ def saveImg(path,options):
     cv2.imwrite(os.path.dirname(path)+'/../img/'+file_name, frame)
     cap.release()
     return '/static/img/'+file_name;
-
+#Method for processing the video file
 def process(video,dataRelation):
     #set exit cutof from setting
     #set exit position from setting
@@ -85,6 +86,7 @@ def process(video,dataRelation):
     print (START_POSITION,EXIT_POSITION)
     print (START_CUTOFF,EXIT_CUTOFF)
     cap = cv2.VideoCapture(video.url)
+    #Alternative way of BackgroundSubtractor
     # fgbg = cv2.BackgroundSubtractorMOG()
     fgbg = cv2.BackgroundSubtractorMOG2(history=50,varThreshold=4,bShadowDetection=False)
     kernel = np.ones((KERNEL_PIXEL,KERNEL_PIXEL),np.uint8)
@@ -107,17 +109,11 @@ def process(video,dataRelation):
             continue
         if(frame == None):
             break
-        #height, width = frame.shape[:2]
-        #print str(height)+" "+str(width)
         fgmask = fgbg.apply(frame)
         #noise
         fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
         #blur
         fgmask = cv2.medianBlur(fgmask,BLUR_PIXEL)
-        #cv2.putText(fgmask,"START", (int(START_POSITION[0]),int(START_POSITION[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
-        # cv2.rectangle(fgmask, (int(START_POSITION[0]),int(START_POSITION[1])), (int(START_POSITION[0])+int(START_CUTOFF[0]),int(START_POSITION[1])+int(START_CUTOFF[1])), DRAW_COLOR, thickness=1, lineType=8, shift=0)
-        #connect contour
-        # fgmask = cv2.dilate(fgmask, kernel2 ,iterations = 4)
         #threshold
         ret3,thresh = cv2.threshold(fgmask,200,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         #find contour
@@ -178,11 +174,6 @@ def process(video,dataRelation):
             cnt = contours[i]
             contours_sorted[i] = (i,cv2.contourArea(cnt))
         contours_sorted = np.sort(contours_sorted, order='area')[::-1]
-        #find all in start area
-        #regis as people
-        #find biggest one nearest one
-        #
-        #print "contours",contours_sorted
 
         moved_people = []
         for i in range(0,contours_sorted.shape[0]):
@@ -206,15 +197,12 @@ def process(video,dataRelation):
             #if no people or nearest contour is still far create new people
             if(len(peoples) - len(moved_people) == 0 or distance[min_index] > DISTANCE_CUTOFF * DISTANCE_CUTOFF):
                 if((np.array((x,y)) - EXIT_POSITION < EXIT_CUTOFF).all() and (np.array((x,y)) - EXIT_POSITION > (0,0)).all()):
-                # print "out1"
                     continue
                 if((np.array((x,y)) - START_POSITION < START_CUTOFF).all() and (np.array((x,y)) - START_POSITION > (0,0)).all()):
-                # print "out2"
                     continue
                 
-                people = People((x,y),frame_no,cv2.contourArea(cnt))
+                people = Trackable((x,y),frame_no,cv2.contourArea(cnt))
                 peoples.append(people)
-                # print "create"+str((x,y))
                 break
             else:
                 people = peoples[min_index]
@@ -241,12 +229,16 @@ def process(video,dataRelation):
                 cnt = contours[contours_sorted[min_index][0]]
                 x,y,w,h =  cv2.boundingRect(cnt)
                 i.move((x,y),frame_no,cv2.contourArea(cnt))
-        #         cv2.putText(fgmask,str(people.id), (int(people.position[0]),int(people.position[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
-        #         cv2.drawContours(fgmask, [cnt], 0, DRAW_COLOR, 3)
+                # cv2.putText(fgmask,str(people.id), (int(people.position[0]),int(people.position[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, DRAW_COLOR)
+                # cv2.drawContours(fgmask, [cnt], 0, DRAW_COLOR, 3)
+
+                
+        #Comment this out for debug the video
         # cv2.imshow('frame',fgmask)
         # k = cv2.waitKey(25)
         # if k == 27:
            # break
+
 
         # print cap.get(0)/1000
     cap.release()

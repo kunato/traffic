@@ -1,3 +1,5 @@
+//ReportPageController
+//Author Kunat Pipatanakul
 app.controller('ReportController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
 
     var nextId = 0;
@@ -803,7 +805,7 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         }
         $scope.map_id = response.data.objects[0].resource_uri;
     });
-    
+
     $scope.onMarkerClicked = function(marker) {
         //$log.info('clicked on markers :'+marker)
         marker.showWindow = true;
@@ -855,6 +857,9 @@ app.controller('ReportController', function(restService, $rootScope, $scope, $ht
         // });
     };
 });
+
+//EditTimeController
+//Author Kunat Pipatanakul
 app.controller('ModalTimeCtrl', function(restService, $scope, $modalInstance, datetime) {
     $scope.datetime = datetime;
     //console.log(datetime.end)
@@ -887,7 +892,9 @@ app.controller('ModalTimeCtrl', function(restService, $scope, $modalInstance, da
     };
 
 });
-
+//ReportDetailController
+//Author Kunat Pipatanakul
+//Author Tanachot Techajaruphan
 app.controller('ModalReportCtrl', function(restService, $filter, $scope, $modalInstance, item, datetime) {
     //console.log(item);
     $scope.render = false
