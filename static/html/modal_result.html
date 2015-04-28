@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h4 class="modal-title" style="color:#00000F" id="myModalLabel">Route Info</h4>
+</div>
+<div class="modal-body">
+ <form class="form-horizontal">
+  <div class="form-inline">
+    <label for="start" style="  margin-top: 7px;" >Time use : </label>
+     <input disabled id="start" type="text"  class="form-control" style="  width: 55px;margin-left: 10px;margin-right: 10px;" placeholder="{{result.time | number:2}}"></input>
+     <label>Minutes</label
+  </div>
+  <table ng-if="render" class="table table-hover">
+      <thead>
+        <tr>
+          <th>Step #</th>
+          <th>Description</th>
+          <th>Distance</th>
+          <th>Speed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="i in step">
+          <th scope="row">{{$index+1}}</th>
+          <td>{{i.description}}</td>
+          <td>{{i.distance}}</td>
+          <td>{{i.traffic | number:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+
+
+</form>
+  <div class=""></div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="ok()">OK</button>
+</div>

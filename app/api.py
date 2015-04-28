@@ -79,4 +79,5 @@ class DataRelationResource(ModelResource):
 		authorization = DjangoAuthorization()
 		filtering = {
             'camera': ALL_WITH_RELATIONS,
+            'id':ALL,
         }

@@ -3,7 +3,7 @@
 app.controller('PlannerController', function(restService, $rootScope, $scope, $http, $modal, $log, uiGmapGoogleMapApi, $timeout) {
     
     $scope.polys = [];
-
+    $scope.result = {route:[]}
     $scope.duration = 1;
     $scope.render = false;
     $scope.dataRelation = [];
@@ -103,6 +103,11 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
 
     //CalculateRoute using latlng of marker and data calculate with dijkstra
     $scope.calculateRoute = function() {
+        var events = {
+                click: function(mapModel, eventName, originalEventArgs) {
+                    $scope.open();
+                }
+            }
         var backup_dataRelation = angular.copy($scope.dataRelation)
         var latlng_start = new google.maps.LatLng($scope.markers2[0].latitude, $scope.markers2[0].longitude)
         var latlng_end = new google.maps.LatLng($scope.markers2[1].latitude, $scope.markers2[1].longitude)
@@ -217,11 +222,13 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 higher_node = end_min_node;
             } else if (end_min_node == start_min_node) {
                 console.log("ROUTE NOT FOUND")
+                $scope.result = {route:[]}
                 $scope.dataRelation = backup_dataRelation;
                 return
             } else {
                 //this is problem
                 console.log("ROUTE NOT IMPLEMENTED")
+                $scope.result = {route:[]}
                 $scope.dataRelation = backup_dataRelation;
                 return
             }
@@ -299,6 +306,10 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                     longitude: latlng_end.B
                 }, all_path[0]]
             }
+            for(var i = 0 ; i < $scope.polys2.length ; i++){
+                $scope.polys2[i].events = events;
+            }
+            $scope.result = {route:[]}
             $scope.dataRelation = backup_dataRelation;
             return
         }
@@ -422,13 +433,15 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 }
             }
         }
-        // console.log('Min Weight Result', min_result, i, j);
+        console.log('Min Weight Result', min_result, i, j,result_node[i-1][j-1]);
+        $scope.result = {time:((min_result/1000.0)*60),route:result_node[i-1][j-1],datetime:angular.copy($scope.datetime)}
         var start_path = []
         var end_path = []
 
         if (min_start == -1) {
             $scope.polys2 = []
             console.log("ROUTE NOT FOUND")
+            $scope.result = {route:[]};
             $scope.dataRelation = backup_dataRelation;
             return
         }
@@ -573,6 +586,9 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 }
             }
 
+        }
+        for(var i = 0 ; i < $scope.polys2.length ;i++){
+            $scope.polys2[i].events = events;
         }
         $scope.dataRelation = backup_dataRelation;
     }
@@ -804,23 +820,14 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         });
     }
     //implement this
-    $scope.open = function(id) {
-        var object = undefined;
-        for (var i = 0; i < $scope.dataRelation.length; i++) {
-            if (id == $scope.dataRelation[i].id) {
-                object = $scope.dataRelation[i]
-            }
-        }
+    $scope.open = function() {
         var modalInstance = $modal.open({
-            templateUrl: '/static/html/modal_report.html',
-            controller: 'ModalReportCtrl',
+            templateUrl: '/static/html/modal_result.html',
+            controller: 'ModalResultCtrl',
             size: 'lg',
             resolve: {
                 item: function() {
-                    return object;
-                },
-                datetime: function() {
-                    return $scope.datetime;
+                    return $scope.result;
                 }
             }
         });
@@ -831,4 +838,66 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         //   //$log.info('Modal dismissed at: ' + new Date());
         // });
     };
+});
+//ModalResultController
+//Author Kunat Pipatanakul
+app.controller('ModalResultCtrl', function(restService, $scope, $modalInstance, item) {
+    console.log(item)
+    $scope.result = item;
+    $scope.step = [];
+
+    $scope.render = false;
+    $scope.getInfo = function(i,dataRelation){
+        if(i == dataRelation.length){
+            $scope.render = true;
+            return
+        }
+        restService.getTrafficFromDataRelation(dataRelation[i].data.id,$scope.result.datetime.start,$scope.result.datetime.end).then(function(response) {
+                        var parseObj = JSON.parse(dataRelation[i].data.path);
+                        if(response.data.data[dataRelation[i].way].speed == 0){
+                            response.data.data[dataRelation[i].way].speed = 30;
+                        }
+                        
+                        $scope.step[i] = {
+                            description: parseObj.summary,
+                            distance: parseObj.distance.text,
+                            traffic: response.data.data[dataRelation[i].way].speed 
+                        }
+
+                        console.log($scope.step)
+                        $scope.getInfo(i+1,dataRelation)
+                    });
+    }
+    restService.getDataRelation().then(function(response) {
+        $scope.dataRelation = response.data.objects
+        
+        console.log(response.data)
+        
+        $scope.step = [];
+        for (var i = 0; i < $scope.result.route.length - 1; i++) {
+            for (var j = 0; j < $scope.dataRelation.length; j++) {
+                if (($scope.dataRelation[j].cameraPoint1.mapPoint.id == $scope.result.route[i] && $scope.dataRelation[j].cameraPoint2.mapPoint.id == $scope.result.route[i + 1]) || ($scope.dataRelation[j].cameraPoint2.mapPoint.id == $scope.result.route[i] && $scope.dataRelation[j].cameraPoint1.mapPoint.id == $scope.result.route[i + 1])) {
+                    if($scope.dataRelation[j].cameraPoint1.mapPoint.id == $scope.result.route[i] && $scope.dataRelation[j].cameraPoint2.mapPoint.id == $scope.result.route[i + 1]){
+                            var way = 0;
+                        }
+                        else{
+                            var way = 1;
+                        }
+                    $scope.step.push({data:$scope.dataRelation[j],way:way})
+                }
+            }
+
+        }
+
+        $scope.getInfo(0,$scope.step)
+        $scope.ok = function() {
+            $modalInstance.close();
+
+        };
+
+        $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+        };
+
+    });
 });
