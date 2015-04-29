@@ -14,9 +14,9 @@ function removeFromArray(array, val) {
 
 function getColorFromTraffic(speed, count) {
     if (speed == 0) return 'black'
-    else if (speed < 10) return 'red'
-    else if (speed < 20) return 'yellow'
-    else return 'green'
+    else if (speed < 10) return '#E65F39'
+    else if (speed < 20) return '#EBDF60'
+    else return '#ABE65E'
 }
 
 function convertToPercent(value, max) {
