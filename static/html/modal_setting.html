@@ -4,7 +4,7 @@
 <div class="modal-body">
     <!-- select cam -->
     <span style="margin-right: 10px"> Select Camera :</span>
-    <select class="form-control" style="width:47.3%;  display: inline;" ng-model="selected_camera" ng-options="c as c.resource_uri for c in camera">
+    <select class="form-control" style="width:47.3%;  display: inline;" ng-model="selected_camera" ng-options="c as c.name for c in camera">
     </select>
     <div id="camera-wrapper" ng-style="getCameraImg()" style="position:relative;border: 1px solid #eee; margin-top:20px; background-repeat: round;">
         <div ng-if="selected_camera.id"id="draggable-zone1" class="draggable-camera" ng-style="getStyle(0)"></div>
