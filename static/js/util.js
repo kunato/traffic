@@ -13,7 +13,7 @@ function removeFromArray(array, val) {
 }
 
 function getColorFromTraffic(speed, count) {
-    if (speed == 0) return 'black'
+    if (speed == 0) return '#393C3D'
     else if (speed < 10) return '#E65F39'
     else if (speed < 20) return '#EBDF60'
     else return '#ABE65E'

@@ -433,8 +433,8 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 }
             }
         }
-        console.log('Min Weight Result', min_result, i, j,result_node[i-1][j-1]);
-        $scope.result = {time:((min_result/1000.0)*60),route:result_node[i-1][j-1],datetime:angular.copy($scope.datetime)}
+        console.log('Min Weight Result', min_result, i, j,result_node[min_start][min_end]);
+        $scope.result = {time:((min_result/1000.0)*60),route:result_node[min_start][min_end],datetime:angular.copy($scope.datetime)}
         var start_path = []
         var end_path = []
 
