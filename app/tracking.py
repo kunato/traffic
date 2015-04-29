@@ -234,10 +234,10 @@ def process(video,dataRelation):
 
                 
         #Comment this out for debug the video
-        # cv2.imshow('frame',fgmask)
-        # k = cv2.waitKey(25)
-        # if k == 27:
-           # break
+        cv2.imshow('frame',fgmask)
+        k = cv2.waitKey(25)
+        if k == 27:
+           break
 
 
         # print cap.get(0)/1000
