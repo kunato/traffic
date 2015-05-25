@@ -145,16 +145,16 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             for (var j = 0; j < $scope.dataRelation[i].path.length - 1; j++) {
                 var distance = getDistance($scope.dataRelation[i].path[j], $scope.dataRelation[i].path[j + 1]);
                 var divideBy = Math.floor(distance / 20);
-                var diff = [($scope.dataRelation[i].path[j + 1].B - $scope.dataRelation[i].path[j].B) / divideBy, ($scope.dataRelation[i].path[j + 1].k - $scope.dataRelation[i].path[j].k) / divideBy]
+                var diff = [($scope.dataRelation[i].path[j + 1].lng() - $scope.dataRelation[i].path[j].lng()) / divideBy, ($scope.dataRelation[i].path[j + 1].lat() - $scope.dataRelation[i].path[j].lat()) / divideBy]
 
                 for (var k = 1; k < divideBy; k++) {
                     if ((j == 0 && k == 0) || (k == divideBy && j == $scope.dataRelation[i].path.length - 2)) {
                         continue
                     }
                     if (k > divideBy / 2) {
-                        var check_pos = new google.maps.LatLng($scope.dataRelation[i].path[j + 1].k - (diff[1] * (divideBy - k)), $scope.dataRelation[i].path[j + 1].B - (diff[0] * (divideBy - k)));
+                        var check_pos = new google.maps.LatLng($scope.dataRelation[i].path[j + 1].lat() - (diff[1] * (divideBy - k)), $scope.dataRelation[i].path[j + 1].lng() - (diff[0] * (divideBy - k)));
                     } else {
-                        var check_pos = new google.maps.LatLng($scope.dataRelation[i].path[j].k + (diff[1] * k), $scope.dataRelation[i].path[j].B + (diff[0] * k));
+                        var check_pos = new google.maps.LatLng($scope.dataRelation[i].path[j].lat() + (diff[1] * k), $scope.dataRelation[i].path[j].lng() + (diff[0] * k));
                     }
                     var value = getDistance(check_pos, latlng_start)
                     if (value < start_min) {
@@ -179,10 +179,10 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                 var distance = getDistance(start_path_temp[i], start_path_temp[i + 1]);
                 var divideBy = Math.floor(distance / 20);
 
-                var diff = [(start_path_temp[i + 1].B - start_path_temp[i].B) / divideBy, (start_path_temp[i + 1].k - start_path_temp[i].k) / divideBy]
+                var diff = [(start_path_temp[i + 1].lng() - start_path_temp[i].lng()) / divideBy, (start_path_temp[i + 1].lat() - start_path_temp[i].lat()) / divideBy]
                 save_start_path.push(start_path_temp[i])
                 for (var j = 0; j < divideBy; j++) {
-                    var t = new google.maps.LatLng(start_path_temp[i].k + (diff[1] * j), start_path_temp[i].B + (diff[0] * j))
+                    var t = new google.maps.LatLng(start_path_temp[i].lat() + (diff[1] * j), start_path_temp[i].lng() + (diff[0] * j))
                     save_start_path.push(t)
                 }
                 if (i == start_path_temp.length - 2)
@@ -277,12 +277,12 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                     repeat: '200px'
                 }]
                 $scope.polys2[1].path = [{
-                    latitude: latlng_start.k,
-                    longitude: latlng_start.B
+                    latitude: latlng_start.lat(),
+                    longitude: latlng_start.lng()
                 }, all_path[0]]
                 $scope.polys2[2].path = [{
-                    latitude: latlng_end.k,
-                    longitude: latlng_end.B
+                    latitude: latlng_end.lat(),
+                    longitude: latlng_end.lng()
                 }, all_path[all_path.length - 1]]
             } else {
                 $scope.polys2[0].stroke = {
@@ -298,12 +298,12 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
                     repeat: '200px'
                 }]
                 $scope.polys2[1].path = [{
-                    latitude: latlng_start.k,
-                    longitude: latlng_start.B
+                    latitude: latlng_start.lat(),
+                    longitude: latlng_start.lng()
                 }, all_path[all_path.length - 1]]
                 $scope.polys2[2].path = [{
-                    latitude: latlng_end.k,
-                    longitude: latlng_end.B
+                    latitude: latlng_end.lat(),
+                    longitude: latlng_end.lng()
                 }, all_path[0]]
             }
             for(var i = 0 ; i < $scope.polys2.length ; i++){
@@ -322,10 +322,10 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             var distance = getDistance(start_path_temp[i], start_path_temp[i + 1]);
             var divideBy = Math.floor(distance / 20);
 
-            var diff = [(start_path_temp[i + 1].B - start_path_temp[i].B) / divideBy, (start_path_temp[i + 1].k - start_path_temp[i].k) / divideBy]
+            var diff = [(start_path_temp[i + 1].lng() - start_path_temp[i].lng()) / divideBy, (start_path_temp[i + 1].lat() - start_path_temp[i].lat()) / divideBy]
             save_start_path.push(start_path_temp[i])
             for (var j = 0; j < divideBy; j++) {
-                var t = new google.maps.LatLng(start_path_temp[i].k + (diff[1] * j), start_path_temp[i].B + (diff[0] * j))
+                var t = new google.maps.LatLng(start_path_temp[i].lat() + (diff[1] * j), start_path_temp[i].lng() + (diff[0] * j))
                 save_start_path.push(t)
             }
             if (i == start_path_temp.length - 2)
@@ -336,10 +336,10 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
         for (var i = 0; i < end_path_temp.length - 1; i++) {
             var distance = getDistance(end_path_temp[i], end_path_temp[i + 1]);
             var divideBy = Math.floor(distance / 20);
-            var diff = [(end_path_temp[i + 1].B - end_path_temp[i].B) / divideBy, (end_path_temp[i + 1].k - end_path_temp[i].k) / divideBy]
+            var diff = [(end_path_temp[i + 1].lng() - end_path_temp[i].lng()) / divideBy, (end_path_temp[i + 1].lat() - end_path_temp[i].lat()) / divideBy]
             save_end_path.push(end_path_temp[i])
             for (var j = 0; j < divideBy; j++) {
-                var t = new google.maps.LatLng(end_path_temp[i].k + (diff[1] * j), end_path_temp[i].B + (diff[0] * j))
+                var t = new google.maps.LatLng(end_path_temp[i].lat() + (diff[1] * j), end_path_temp[i].lng() + (diff[0] * j))
                 save_end_path.push(t)
             }
             if (i == end_path_temp.length - 2)
@@ -542,12 +542,12 @@ app.controller('PlannerController', function(restService, $rootScope, $scope, $h
             opacity: 1.0
         }
         $scope.polys2[2].path = [{
-            latitude: latlng_start.k,
-            longitude: latlng_start.B
+            latitude: latlng_start.lat(),
+            longitude: latlng_start.lng()
         }, start_path[start_path.length - 1]]
         $scope.polys2[3].path = [{
-            latitude: latlng_end.k,
-            longitude: latlng_end.B
+            latitude: latlng_end.lat(),
+            longitude: latlng_end.lng()
         }, end_path[end_path.length - 1]]
         for (var i = 0; i < $scope.dataRelation.length; i++) {
             for (var j = 0; j < result_node[min_start][min_end].length; j++) {

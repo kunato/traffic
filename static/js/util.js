@@ -9,7 +9,7 @@ function getRandomColor() {
 
 function removeFromArray(array, val) {
     var i = array.indexOf(val);
-    return i > -1 ? this.splice(i, 1) : [];
+    return i > -1 ? array.splice(i, 1) : [];
 }
 
 function getColorFromTraffic(speed, count) {
@@ -33,7 +33,8 @@ function pInt(value) {
 }
 
 function calcDistance(latLng1, latLng2) {
-    var i = Math.sqrt((Math.pow((latLng1.B - latLng2.B), 2) + (Math.pow((latLng1.k - latLng2.k), 2))))
+    console.log(latLng1,latLng2)
+    var i = Math.sqrt((Math.pow((latLng1.lng() - latLng2.lng()), 2) + (Math.pow((latLng1.lat() - latLng2.lat()), 2))))
     return i
 }
 

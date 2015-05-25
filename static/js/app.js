@@ -345,9 +345,8 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
     });
 
     $scope.sendMarker = function(i, markers) {
-        var j = i;
         if (i == markers.length) {
-            $window.location.reload();
+            // $window.location.reload();
             return;
         }
         if (i < markers.length - 1 && markers[i].id == markers[i + 1].id) {
@@ -358,7 +357,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                 alt_latitude: markers[i + 1].latitude,
                 alt_longitude: markers[i + 1].longitude
             }
-            j += 1;
+            i += 1;
         } else {
             var formData = {
                 latitude: markers[i].latitude,
@@ -377,7 +376,7 @@ app.controller('MapSettingController', function(restService, $scope, $http, $mod
                 //console.log('sent post by id resp : ',response);
             });
         }
-        $scope.sendMarker(j + 1, markers);
+        $scope.sendMarker(i + 1, markers);
     }
     $scope.save = function() {
 
@@ -676,6 +675,14 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 travelMode: google.maps.DirectionsTravelMode.WALKING
                             };
                             directionsService.route(request2, function(response2, status) {
+                                for(var i = 0 ; i < response.routes[0].overview_path.length ; i++){
+                                    response.routes[0].overview_path[i].B = response.routes[0].overview_path[i].lng()
+                                    response.routes[0].overview_path[i].k = response.routes[0].overview_path[i].lat()
+                                }
+                                for(var i = 0 ; i < response2.routes[1].overview_path.length ; i++){
+                                    response2.routes[0].overview_path[i].B = response2.routes[0].overview_path[i].lng()
+                                    response2.routes[0].overview_path[i].k = response2.routes[0].overview_path[i].lat() 
+                                }
                                 $scope.formData.path = JSON.stringify({
                                     path: response.routes[0].overview_path,
                                     distance: response.routes[0].legs[0].distance,
@@ -695,6 +702,10 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 })
                             });
                         } else {
+                            for(var i = 0 ; i < response.routes[0].overview_path.length ; i++){
+                                response.routes[0].overview_path[i].B = response.routes[0].overview_path[i].lng()
+                                response.routes[0].overview_path[i].k = response.routes[0].overview_path[i].lat()
+                            }
                             //put path to db
                             $scope.formData.path = JSON.stringify({
                                 path: response.routes[0].overview_path,
