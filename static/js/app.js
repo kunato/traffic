@@ -678,10 +678,12 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                                 for(var i = 0 ; i < response.routes[0].overview_path.length ; i++){
                                     response.routes[0].overview_path[i].B = response.routes[0].overview_path[i].lng()
                                     response.routes[0].overview_path[i].k = response.routes[0].overview_path[i].lat()
+                                    delete response.routes[0].overview_path[i].D
                                 }
                                 for(var i = 0 ; i < response2.routes[1].overview_path.length ; i++){
                                     response2.routes[0].overview_path[i].B = response2.routes[0].overview_path[i].lng()
-                                    response2.routes[0].overview_path[i].k = response2.routes[0].overview_path[i].lat() 
+                                    response2.routes[0].overview_path[i].k = response2.routes[0].overview_path[i].lat()
+                                    delete response.routes[0].overview_path[i].D
                                 }
                                 $scope.formData.path = JSON.stringify({
                                     path: response.routes[0].overview_path,
@@ -705,6 +707,7 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                             for(var i = 0 ; i < response.routes[0].overview_path.length ; i++){
                                 response.routes[0].overview_path[i].B = response.routes[0].overview_path[i].lng()
                                 response.routes[0].overview_path[i].k = response.routes[0].overview_path[i].lat()
+                                delete response.routes[0].overview_path[i].D
                             }
                             //put path to db
                             $scope.formData.path = JSON.stringify({
@@ -749,6 +752,16 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                             directionsService.route(request2, function(response2, status2) {
                                 if (status != "OK" || status2 != "OK") {
                                 }
+                                for(var i = 0 ; i < response.routes[0].overview_path.length ; i++){
+                                    response.routes[0].overview_path[i].B = response.routes[0].overview_path[i].lng()
+                                    response.routes[0].overview_path[i].k = response.routes[0].overview_path[i].lat()
+                                    delete response.routes[0].overview_path[i].D
+                                }
+                                for(var i = 0 ; i < response2.routes[1].overview_path.length ; i++){
+                                    response2.routes[0].overview_path[i].B = response2.routes[0].overview_path[i].lng()
+                                    response2.routes[0].overview_path[i].k = response2.routes[0].overview_path[i].lat()
+                                    delete response.routes[0].overview_path[i].D
+                                }
                                 $scope.formData.path = JSON.stringify({
                                     path: response.routes[0].overview_path,
                                     distance: response.routes[0].legs[0].distance,
@@ -770,6 +783,11 @@ app.controller('ModalSettingCtrl', function(restService, $scope, $modalInstance,
                             if (status != "OK") {
                                 //TODO show error
                                 console.log("SomeError is occured in google direction api.")
+                            }
+                            for(var i = 0 ; i < response.routes[0].overview_path.length ; i++){
+                                response.routes[0].overview_path[i].B = response.routes[0].overview_path[i].lng()
+                                response.routes[0].overview_path[i].k = response.routes[0].overview_path[i].lat()
+                                delete response.routes[0].overview_path[i].D
                             }
                             $scope.formData.path = JSON.stringify({
                                 path: response.routes[0].overview_path,
